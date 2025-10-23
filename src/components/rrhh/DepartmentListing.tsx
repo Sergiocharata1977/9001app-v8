@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DepartmentCard } from './DepartmentCard';
 import { DepartmentForm } from './DepartmentForm';
-import { Department } from '@/types/rrhh';
+import { Department, DepartmentFormData } from '@/types/rrhh';
 import { DepartmentService } from '@/services/rrhh/DepartmentService';
 
 interface DepartmentListingProps {
@@ -105,10 +105,21 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
     onNewDepartment?.();
   }, [onNewDepartment]);
 
-  const handleFormSuccess = useCallback((department: Department) => {
-    setShowForm(false);
-    fetchData(); // Recargar datos
-  }, [fetchData]);
+  const handleFormSuccess = useCallback(async (data: DepartmentFormData) => {
+    try {
+      if (selectedDepartment) {
+        // Actualizar departamento existente
+        await DepartmentService.update(selectedDepartment.id, data);
+      } else {
+        // Crear nuevo departamento
+        await DepartmentService.create(data);
+      }
+      setShowForm(false);
+      fetchData(); // Recargar datos
+    } catch (error) {
+      console.error('Error al guardar departamento:', error);
+    }
+  }, [selectedDepartment, fetchData]);
 
   const handleFormCancel = useCallback(() => {
     setShowForm(false);
