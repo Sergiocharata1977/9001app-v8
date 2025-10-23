@@ -54,3 +54,9 @@ firebase-debug.*.log
 # Temporary folders
 tmp/
 temp/
+
+# Documentation files (keep only essential)
+*.md
+!README.md
+!CHANGELOG.md
+!LICENSE.md
