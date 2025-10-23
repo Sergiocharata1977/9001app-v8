@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import UnifiedKanban from '@/components/ui/unified-kanban';
-import { KanbanItem, KanbanColumn } from '@/types/rrhh';
+import type { KanbanItem, KanbanColumn } from '@/types/rrhh';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus } from 'lucide-react';

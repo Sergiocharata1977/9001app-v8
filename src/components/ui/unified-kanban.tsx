@@ -13,7 +13,7 @@ import {
   User,
   AlertTriangle
 } from 'lucide-react';
-import { KanbanItem, KanbanColumn } from '@/types/rrhh';
+import type { KanbanItem, KanbanColumn } from '@/types/rrhh';
 
 // Componente de tarjeta individual
 interface KanbanCardProps {
