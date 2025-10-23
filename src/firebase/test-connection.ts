@@ -18,7 +18,7 @@ export const testFirebaseConnection = async () => {
     return { success: true, message: 'Conexión exitosa' };
   } catch (error) {
     console.error('❌ Error en la conexión:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 };
 
@@ -42,7 +42,7 @@ export const createTestUser = async (email: string, password: string) => {
     return { success: true, user };
   } catch (error) {
     console.error('❌ Error creando usuario:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 };
 
@@ -58,7 +58,7 @@ export const testLogin = async (email: string, password: string) => {
     return { success: true, user };
   } catch (error) {
     console.error('❌ Error en login:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 };
 
