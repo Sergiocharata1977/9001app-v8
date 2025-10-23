@@ -12,7 +12,7 @@ export const departmentFormSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
   description: z.string().max(500, 'Máximo 500 caracteres').optional(),
   responsible_user_id: z.string().optional(),
-  is_active: z.boolean().optional(),
+  is_active: z.boolean().default(true),
 });
 
 // Position schemas
