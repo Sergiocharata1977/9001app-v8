@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Grid, List, Plus, Search, Filter, Building2, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
   onEditDepartment,
   onNewDepartment
 }) => {
+  const router = useRouter();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,10 +71,12 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
 
   // Handlers
   const handleView = useCallback((dept: Department) => {
-    setSelectedDepartment(dept);
-    setShowDetails(true);
-    onViewDepartment?.(dept);
-  }, [onViewDepartment]);
+    router.push(`/dashboard/rrhh/departamentos/${dept.id}`);
+  }, [router]);
+
+  const handleCardClick = useCallback((dept: Department) => {
+    router.push(`/dashboard/rrhh/departamentos/${dept.id}`);
+  }, [router]);
 
   const handleEdit = useCallback((dept: Department) => {
     setSelectedDepartment(dept);
@@ -129,6 +133,99 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
     setShowDetails(false);
   }, []);
 
+  const handleSeedData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/seed/rrhh/fresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Datos sembrados exitosamente:', result);
+        // Recargar datos después del seed
+        await fetchData();
+        alert('Datos de prueba agregados exitosamente');
+      } else {
+        const error = await response.json();
+        console.error('Error al sembrar datos:', error);
+        alert('Error al agregar datos de prueba');
+      }
+    } catch (error) {
+      console.error('Error al sembrar datos:', error);
+      alert('Error al agregar datos de prueba');
+    }
+  }, [fetchData]);
+
+  const handleCheckData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/seed/rrhh/check', {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Datos en Firebase:', result);
+        alert(`Datos encontrados:\n- Departamentos: ${result.data.departments.count}\n- Personal: ${result.data.personnel.count}\n- Puestos: ${result.data.positions.count}`);
+      } else {
+        const error = await response.json();
+        console.error('Error al verificar datos:', error);
+        alert('Error al verificar datos');
+      }
+    } catch (error) {
+      console.error('Error al verificar datos:', error);
+      alert('Error al verificar datos');
+    }
+  }, []);
+
+  const handleDiagnose = useCallback(async () => {
+    try {
+      const response = await fetch('/api/seed/rrhh/diagnose', {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Diagnóstico completo:', result);
+        alert(`Diagnóstico Firebase:\n\nProyecto: ${result.firebase.projectId}\nBase de datos: ${result.firebase.databaseType}\n\nDepartamentos: ${result.firebase.collections.departments.count || 0}\nPersonal: ${result.firebase.collections.personnel.count || 0}\nPuestos: ${result.firebase.collections.positions.count || 0}\n\nInstrucciones:\n${result.instructions.firebaseConsole}`);
+      } else {
+        const error = await response.json();
+        console.error('Error en diagnóstico:', error);
+        alert('Error en diagnóstico');
+      }
+    } catch (error) {
+      console.error('Error en diagnóstico:', error);
+      alert('Error en diagnóstico');
+    }
+  }, []);
+
+  const handleMassiveData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/seed/rrhh/massive', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Datos masivos creados:', result);
+        await fetchData();
+        alert(`Datos masivos creados exitosamente:\n\n- ${result.created.departments} departamentos\n- ${result.created.personnel} empleados\n- ${result.created.positions} puestos`);
+      } else {
+        const error = await response.json();
+        console.error('Error al crear datos masivos:', error);
+        alert('Error al crear datos masivos');
+      }
+    } catch (error) {
+      console.error('Error al crear datos masivos:', error);
+      alert('Error al crear datos masivos');
+    }
+  }, [fetchData]);
+
   // Función para obtener color del estado
   const getEstadoColor = (isActive: boolean) => {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
@@ -140,7 +237,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <Card key={i}>
+            <Card key={i} className="border-0 shadow-md">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   <div className="w-16 h-16 rounded-lg bg-gray-200 animate-pulse" />
@@ -172,10 +269,26 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
             }
           </p>
           {!searchTerm && (
-            <div className="mt-6">
+            <div className="mt-6 flex gap-4 justify-center">
               <Button onClick={handleNewDepartment} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="mr-2 h-4 w-4" />
                 Nuevo Departamento
+              </Button>
+              <Button onClick={handleSeedData} variant="outline" className="bg-green-600 hover:bg-green-700 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                Agregar Datos de Prueba
+              </Button>
+              <Button onClick={handleCheckData} variant="outline" className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Search className="mr-2 h-4 w-4" />
+                Verificar Datos
+              </Button>
+              <Button onClick={handleDiagnose} variant="outline" className="bg-orange-600 hover:bg-orange-700 text-white">
+                <Search className="mr-2 h-4 w-4" />
+                Diagnóstico
+              </Button>
+              <Button onClick={handleMassiveData} variant="outline" className="bg-red-600 hover:bg-red-700 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                Datos Masivos
               </Button>
             </div>
           )}
@@ -185,7 +298,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
 
     if (viewMode === 'grid') {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredDepartments.map(dept => (
             <DepartmentCard
               key={dept.id}
@@ -193,6 +306,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
               onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onCardClick={handleCardClick}
             />
           ))}
         </div>
@@ -201,11 +315,11 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
 
     // Vista de tabla (lista)
     return (
-      <Card>
+      <Card className="border-0 shadow-md">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Nombre
@@ -214,26 +328,38 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                     Descripción
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Responsable
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Estado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fecha de Creación
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white">
                 {filteredDepartments.map(dept => (
-                  <tr key={dept.id} className="hover:bg-gray-50">
+                  <tr
+                    key={dept.id}
+                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={() => handleCardClick(dept)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleCardClick(dept);
+                      }
+                    }}
+                    aria-label={`Ver detalles de ${dept.name}`}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {dept.name}
-                        </div>
-                        {dept.responsible_user_id && (
-                          <div className="text-sm text-gray-500">
-                            Responsable: {dept.responsible_user_id}
-                          </div>
-                        )}
+                      <div className="text-sm font-medium text-gray-900">
+                        {dept.name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -242,16 +368,27 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">
+                        {dept.responsible_user_id || 'Sin asignar'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <Badge className={getEstadoColor(dept.is_active)}>
                         {dept.is_active ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">
+                        {new Date(dept.created_at).toLocaleDateString('es-ES')}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleView(dept)}
+                          aria-label={`Ver detalles de ${dept.name}`}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -259,6 +396,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEdit(dept)}
+                          aria-label={`Editar ${dept.name}`}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -267,6 +405,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                           variant="ghost"
                           onClick={() => handleDelete(dept)}
                           className="text-red-600 hover:text-red-700"
+                          aria-label={`Eliminar ${dept.name}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -280,7 +419,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
         </CardContent>
       </Card>
     );
-  }, [filteredDepartments, loadingData, searchTerm, viewMode, handleView, handleEdit, handleDelete, handleNewDepartment]);
+  }, [loadingData, filteredDepartments, viewMode, searchTerm, handleNewDepartment, handleSeedData, handleView, handleEdit, handleDelete, handleCardClick]);
 
   return (
     <div className="space-y-6">
@@ -297,7 +436,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       </div>
 
       {/* Barra de búsqueda y filtros */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white shadow-md rounded-xl p-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-4 flex-1">
             <div className="relative flex-1 max-w-md">

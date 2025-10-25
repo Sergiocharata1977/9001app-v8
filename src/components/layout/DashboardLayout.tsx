@@ -64,8 +64,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
-          {children}
+        <main className="flex-1 overflow-y-auto py-6">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

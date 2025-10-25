@@ -42,10 +42,10 @@ export function RRHHDashboardCard({
   estadisticas
 }: RRHHDashboardCardProps) {
   const cardContent = (
-    <Card className={`h-full transition-all duration-300 ${
+    <Card className={`h-full transition-all duration-300 border-0 ${
       habilitado
-        ? 'hover:shadow-xl hover:scale-105 cursor-pointer border-2 hover:border-emerald-300'
-        : 'opacity-60 cursor-not-allowed'
+        ? 'hover:shadow-xl hover:scale-105 cursor-pointer shadow-md'
+        : 'opacity-60 cursor-not-allowed shadow-md'
     }`}>
       <CardContent className="p-6">
         {/* Badge de estado */}

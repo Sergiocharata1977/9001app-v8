@@ -3,6 +3,8 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
+yarn.lock
 
 # Next.js
 .next/
@@ -55,8 +57,48 @@ firebase-debug.*.log
 tmp/
 temp/
 
-# Documentation files (keep only essential)
+# Documentation files (exclude all .md files)
 *.md
 !README.md
-!CHANGELOG.md
-!LICENSE.md
+
+# Node.js specific
+.npm
+.pnpm-debug.log*
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Build artifacts
+dist/
+build/
+.next/
+out/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.firebaserc
+firebase.json
+
+# Environment and secrets
+.env*
+!.env.example

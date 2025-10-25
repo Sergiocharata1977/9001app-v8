@@ -64,7 +64,7 @@ export function RRHHStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {estadisticas.map((stat, index) => (
-        <Card key={index} className="p-4">
+        <Card key={index} className="p-4 border-0 shadow-md">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-600">{stat.titulo}</p>

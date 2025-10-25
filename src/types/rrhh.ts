@@ -35,14 +35,28 @@ export interface Personnel {
   telefono_emergencia?: string;
   fecha_contratacion?: Date;
   numero_legajo?: string;
-  estado: 'Activo' | 'Inactivo';
+  estado: 'Activo' | 'Inactivo' | 'Licencia';
   meta_mensual: number;
   comision_porcentaje: number;
   supervisor_id?: string;
   especialidad_ventas?: string;
   fecha_inicio_ventas?: Date;
-  tipo_personal: 'administrativo' | 'ventas' | 'técnico' | 'supervisor' | 'gerencial';
+  tipo_personal:
+    | 'administrativo'
+    | 'ventas'
+    | 'técnico'
+    | 'supervisor'
+    | 'gerencial';
   zona_venta?: string;
+  // Campos adicionales para UI
+  foto?: string;
+  puesto?: string;
+  departamento?: string;
+  supervisor_nombre?: string; // Nombre del supervisor para UI
+  fecha_ingreso?: Date | { seconds: number; nanoseconds: number };
+  salario?: string;
+  certificaciones?: string[];
+  ultima_evaluacion?: Date | { seconds: number; nanoseconds: number };
   created_at: Date;
   updated_at: Date;
 }
@@ -118,8 +132,21 @@ export interface PersonnelFormData {
   supervisor_id?: string;
   especialidad_ventas?: string;
   fecha_inicio_ventas?: Date;
-  tipo_personal: 'administrativo' | 'ventas' | 'técnico' | 'supervisor' | 'gerencial';
+  tipo_personal:
+    | 'administrativo'
+    | 'ventas'
+    | 'técnico'
+    | 'supervisor'
+    | 'gerencial';
   zona_venta?: string;
+  // Campos adicionales para UI
+  foto?: string;
+  puesto?: string;
+  departamento?: string;
+  supervisor?: string;
+  fecha_ingreso?: Date;
+  salario?: string;
+  certificaciones?: string[];
 }
 
 export interface TrainingFormData {
@@ -168,7 +195,12 @@ export interface PositionFilters {
 export interface PersonnelFilters {
   search?: string;
   estado?: 'Activo' | 'Inactivo';
-  tipo_personal?: 'administrativo' | 'ventas' | 'técnico' | 'supervisor' | 'gerencial';
+  tipo_personal?:
+    | 'administrativo'
+    | 'ventas'
+    | 'técnico'
+    | 'supervisor'
+    | 'gerencial';
   supervisor_id?: string;
 }
 
@@ -232,7 +264,8 @@ export interface TrainingWithRelations extends Training {
   participants_data?: Personnel[];
 }
 
-export interface PerformanceEvaluationWithRelations extends PerformanceEvaluation {
+export interface PerformanceEvaluationWithRelations
+  extends PerformanceEvaluation {
   personnel_data?: Personnel;
   evaluador_data?: Personnel;
 }

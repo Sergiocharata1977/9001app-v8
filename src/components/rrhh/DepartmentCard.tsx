@@ -19,9 +19,10 @@ interface DepartmentCardProps {
   onView: (department: Department) => void;
   onEdit: (department: Department) => void;
   onDelete: (department: Department) => void;
+  onCardClick?: (department: Department) => void;
 }
 
-export function DepartmentCard({ department, onView, onEdit, onDelete }: DepartmentCardProps) {
+export function DepartmentCard({ department, onView, onEdit, onDelete, onCardClick }: DepartmentCardProps) {
   // Función para obtener iniciales del departamento
   const getInitials = (nombre: string) => {
     if (!nombre) return 'DP';
@@ -33,8 +34,24 @@ export function DepartmentCard({ department, onView, onEdit, onDelete }: Departm
     return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
   };
 
+  const handleCardClick = () => {
+    onCardClick?.(department);
+  };
+
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow">
+    <Card
+      className="bg-white shadow-md p-6 hover:shadow-lg hover:scale-[1.02] cursor-pointer transition-all duration-200 rounded-xl border-0"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+      aria-label={`Ver detalles de ${department.name}`}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Icono del departamento */}
@@ -71,27 +88,30 @@ export function DepartmentCard({ department, onView, onEdit, onDelete }: Departm
         </Badge>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
+      <div className="mt-4 pt-4">
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="sm"
             className="flex-1 flex items-center justify-center gap-2"
             onClick={() => onView(department)}
+            aria-label={`Ver detalles de ${department.name}`}
           >
             <Eye className="h-4 w-4" />
             Ver Detalles
           </Button>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="outline"
             onClick={() => onEdit(department)}
+            aria-label={`Editar ${department.name}`}
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="outline"
             onClick={() => onDelete(department)}
+            aria-label={`Eliminar ${department.name}`}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

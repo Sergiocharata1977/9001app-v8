@@ -22,7 +22,12 @@ import {
     Building,
     GraduationCap,
     UserCheck,
-    BarChart3
+    BarChart3,
+    FileSpreadsheet,
+    Kanban,
+    Target,
+    Activity,
+    TrendingUp
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -51,7 +56,6 @@ const navigation: MenuItem[] = [
       { name: 'Acciones', href: '/dashboard/acciones', icon: CheckCircle }
     ]
   },
-  { name: 'Procesos', href: '/dashboard/procesos', icon: Workflow },
   { name: 'Documentos', href: '/dashboard/documentos', icon: FileText },
   { name: 'Puntos de la norma', href: '/dashboard/normas', icon: BookOpen },
   { name: 'CRM', href: '/dashboard/crm', icon: Briefcase },
@@ -69,28 +73,71 @@ const navigation: MenuItem[] = [
       { name: 'Kanban', href: '/dashboard/rrhh/kanban', icon: Workflow }
     ]
   },
+  {
+    name: 'Procesos',
+    href: '/dashboard/procesos',
+    icon: FileSpreadsheet,
+    children: [
+      { name: 'Definiciones', href: '/dashboard/procesos', icon: FileText },
+      { name: 'Registros', href: '/dashboard/procesos/registros', icon: Kanban }
+    ]
+  },
+  {
+    name: 'Calidad',
+    href: '/dashboard/quality',
+    icon: Award,
+    children: [
+      { name: 'Dashboard', href: '/dashboard/quality', icon: BarChart3 },
+      { name: 'Objetivos', href: '/dashboard/quality/objetivos', icon: Target },
+      { name: 'Indicadores', href: '/dashboard/quality/indicadores', icon: Activity },
+      { name: 'Mediciones', href: '/dashboard/quality/mediciones', icon: TrendingUp }
+    ]
+  },
   { name: 'Test Firestore', href: '/dashboard/test-firestore', icon: Settings },
 ];
 
+// Componente para renderizar iconos de manera segura
+const SafeIcon = memo(({ Icon, className, isMounted }: { 
+  Icon: React.ComponentType<{ className?: string }>, 
+  className?: string,
+  isMounted: boolean 
+}) => {
+  if (!isMounted) {
+    return <div className={className} style={{ width: '1.25rem', height: '1.25rem' }} />;
+  }
+  return <Icon className={className} />;
+});
+SafeIcon.displayName = 'SafeIcon';
+
 export const Sidebar = memo(function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set(['RRHH']));
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set(['RRHH', 'Procesos']));
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 
   // Evitar errores de hidratación renderizando solo en el cliente
   useEffect(() => {
-    setIsMounted(true);
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Componente para renderizar iconos de manera segura
-  const SafeIcon = memo(({ Icon, className }: { Icon: React.ComponentType<{ className?: string }>, className?: string }) => {
-    if (!isMounted) {
-      return <div className={className} style={{ width: '1.25rem', height: '1.25rem' }} />;
-    }
-    return <Icon className={className} />;
-  });
-  SafeIcon.displayName = 'SafeIcon';
+  // Asegurar que los menús estén expandidos cuando se está en sus rutas
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (pathname.startsWith('/dashboard/rrhh')) {
+        setExpandedMenus(prev => new Set([...prev, 'RRHH']));
+      }
+      if (pathname.startsWith('/dashboard/procesos')) {
+        setExpandedMenus(prev => new Set([...prev, 'Procesos']));
+      }
+      if (pathname.startsWith('/dashboard/quality')) {
+        setExpandedMenus(prev => new Set([...prev, 'Calidad']));
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   // Optimización: Memoizar función de toggle para evitar recreación
   const toggleMenu = useCallback((menuName: string) => {
@@ -126,7 +173,16 @@ export const Sidebar = memo(function Sidebar() {
   }, [activeMenus]);
 
   return (
-    <div className={`bg-slate-800 text-white h-screen flex flex-col transition-[width] duration-200 ease-in-out ${collapsed ? 'w-16' : 'w-64'}`}>
+    <div className="w-64 flex-shrink-0">
+      <div 
+        className={`sidebar-container bg-slate-800 text-white h-screen flex flex-col transition-[width] duration-200 ease-in-out overflow-hidden mx-4 my-4 rounded-lg ${collapsed ? 'w-16' : 'w-56'}`}
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          background: '#1e293b',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        }}
+      >
       {/* Logo Section */}
       <div className="p-4 border-b border-slate-700">
         <div className="flex items-center space-x-3">
@@ -145,14 +201,14 @@ export const Sidebar = memo(function Sidebar() {
           className="p-1 rounded-md hover:bg-slate-700 transition-colors"
         >
           {collapsed ? (
-            <SafeIcon Icon={ChevronRight} className="h-5 w-5" />
+            <SafeIcon Icon={ChevronRight} className="h-5 w-5" isMounted={isMounted} />
           ) : (
-            <SafeIcon Icon={ChevronLeft} className="h-5 w-5" />
+            <SafeIcon Icon={ChevronLeft} className="h-5 w-5" isMounted={isMounted} />
           )}
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-4">
+      <nav className="flex-1 overflow-y-auto px-2 py-4 scrollbar-hide">
         <div className="space-y-1">
           {navigation.map((item) => {
             const isActive = isMenuActive(item);
@@ -173,14 +229,15 @@ export const Sidebar = memo(function Sidebar() {
                     <SafeIcon 
                       Icon={item.icon}
                       className={`${collapsed ? 'mr-0' : 'mr-3'} h-5 w-5 flex-shrink-0`}
+                      isMounted={isMounted}
                     />
                     {!collapsed && (
                       <>
                         <span className="flex-1 text-left">{item.name}</span>
                         {isExpanded ? (
-                          <SafeIcon Icon={ChevronUp} className="h-4 w-4" />
+                          <SafeIcon Icon={ChevronUp} className="h-4 w-4" isMounted={isMounted} />
                         ) : (
-                          <SafeIcon Icon={ChevronDown} className="h-4 w-4" />
+                          <SafeIcon Icon={ChevronDown} className="h-4 w-4" isMounted={isMounted} />
                         )}
                       </>
                     )}
@@ -197,6 +254,7 @@ export const Sidebar = memo(function Sidebar() {
                     <SafeIcon 
                       Icon={item.icon}
                       className={`${collapsed ? 'mr-0' : 'mr-3'} h-5 w-5 flex-shrink-0`}
+                      isMounted={isMounted}
                     />
                     {!collapsed && item.name}
                   </Link>
@@ -217,7 +275,7 @@ export const Sidebar = memo(function Sidebar() {
                               : 'text-white hover:bg-slate-600 hover:text-white'
                           }`}
                         >
-                          <SafeIcon Icon={child.icon} className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <SafeIcon Icon={child.icon} className="mr-2 h-4 w-4 flex-shrink-0" isMounted={isMounted} />
                           {child.name}
                         </Link>
                       );
@@ -231,13 +289,13 @@ export const Sidebar = memo(function Sidebar() {
       </nav>
 
       {!collapsed && (
-        <div className="p-4 border-t border-slate-700 mt-auto">
+        <div className="p-4 border-t border-slate-700 mt-auto bg-slate-800">
           <Link href="/dashboard/configuracion" className="block">
             <div className="bg-slate-700 rounded-lg p-3 hover:bg-slate-600 transition-colors cursor-pointer group">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="h-8 w-8 rounded-full bg-emerald-600 flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
-                    <SafeIcon Icon={Users} className="h-4 w-4 text-white" />
+                    <SafeIcon Icon={Users} className="h-4 w-4 text-white" isMounted={isMounted} />
                   </div>
                 </div>
                 <div className="ml-3 flex-1">
@@ -245,13 +303,14 @@ export const Sidebar = memo(function Sidebar() {
                   <p className="text-xs text-slate-400">Administrador</p>
                 </div>
                 <div className="flex-shrink-0">
-                  <SafeIcon Icon={Settings} className="h-4 w-4 text-slate-400 group-hover:text-white transition-colors" />
+                  <SafeIcon Icon={Settings} className="h-4 w-4 text-slate-400 group-hover:text-white transition-colors" isMounted={isMounted} />
                 </div>
               </div>
             </div>
           </Link>
         </div>
       )}
+      </div>
     </div>
   );
 });

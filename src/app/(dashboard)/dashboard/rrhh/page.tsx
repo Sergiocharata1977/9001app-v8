@@ -90,7 +90,7 @@ export default function RRHHDashboardPage() {
         </div>
 
         {/* Estadísticas */}
-        <Card>
+        <Card className="border-0 shadow-md">
           <CardHeader>
             <CardTitle>Estadísticas Generales</CardTitle>
           </CardHeader>
@@ -120,13 +120,13 @@ export default function RRHHDashboardPage() {
         </div>
 
         {/* Acciones rápidas */}
-        <Card>
+        <Card className="border-0 shadow-md">
           <CardHeader>
             <CardTitle>Acciones Rápidas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-0 shadow-sm">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Building2 className="w-6 h-6 text-blue-600" />
@@ -137,7 +137,7 @@ export default function RRHHDashboardPage() {
                   </div>
                 </div>
               </Card>
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-0 shadow-sm">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <UserCheck className="w-6 h-6 text-green-600" />
@@ -148,7 +148,7 @@ export default function RRHHDashboardPage() {
                   </div>
                 </div>
               </Card>
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-0 shadow-sm">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                     <GraduationCap className="w-6 h-6 text-orange-600" />

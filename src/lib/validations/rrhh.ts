@@ -40,14 +40,22 @@ export const personnelSchema = z.object({
   telefono_emergencia: z.string().max(20, 'Máximo 20 caracteres').optional(),
   fecha_contratacion: z.date().optional(),
   numero_legajo: z.string().max(20, 'Máximo 20 caracteres').optional(),
-  estado: z.enum(['Activo', 'Inactivo']).default('Activo'),
-  meta_mensual: z.number().min(0, 'Debe ser mayor o igual a 0').default(0),
-  comision_porcentaje: z.number().min(0, 'Debe ser mayor o igual a 0').max(100, 'Máximo 100%').default(0),
+  estado: z.enum(['Activo', 'Inactivo']),
+  meta_mensual: z.number().min(0, 'Debe ser mayor o igual a 0'),
+  comision_porcentaje: z.number().min(0, 'Debe ser mayor o igual a 0').max(100, 'Máximo 100%'),
   supervisor_id: z.string().optional(),
   especialidad_ventas: z.string().max(100, 'Máximo 100 caracteres').optional(),
   fecha_inicio_ventas: z.date().optional(),
-  tipo_personal: z.enum(['administrativo', 'ventas', 'técnico', 'supervisor', 'gerencial']).default('administrativo'),
+  tipo_personal: z.enum(['administrativo', 'ventas', 'técnico', 'supervisor', 'gerencial']),
   zona_venta: z.string().max(50, 'Máximo 50 caracteres').optional(),
+  // Campos adicionales para UI
+  foto: z.string().optional(),
+  puesto: z.string().optional(),
+  departamento: z.string().optional(),
+  supervisor: z.string().optional(),
+  fecha_ingreso: z.date().optional(),
+  salario: z.string().optional(),
+  certificaciones: z.array(z.string()).optional(),
 });
 
 export const personnelFormSchema = personnelSchema;

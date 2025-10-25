@@ -147,7 +147,7 @@ export default function Dashboard() {
         {/* Métricas principales */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {metrics.map((metric, index) => (
-            <Card key={index} className="p-4">
+            <Card key={index} className="bg-white shadow-md hover:shadow-lg rounded-xl p-4 transition-all duration-200">
                 <div className="flex items-center gap-4">
                 <div className={`p-3 rounded-lg ${getColorClasses(metric.color)}`}>
                   <metric.icon className="h-6 w-6" />
@@ -166,9 +166,9 @@ export default function Dashboard() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {modules.map((module, index) => {
             const ModuleCard = (
-              <Card className={`p-6 h-full transition-all duration-300 ${
+              <Card className={`bg-white shadow-md rounded-xl p-6 h-full transition-all duration-300 ${
                 module.enabled 
-                  ? 'hover:shadow-lg hover:scale-105 cursor-pointer border-2 hover:border-green-300' 
+                  ? 'hover:shadow-xl hover:scale-[1.02] cursor-pointer' 
                   : 'opacity-60 cursor-not-allowed'
               }`}>
                 <div className="flex items-start justify-between mb-4">
@@ -237,7 +237,7 @@ export default function Dashboard() {
               </div>
 
         {/* Acciones rápidas */}
-        <Card>
+        <Card className="bg-white shadow-md hover:shadow-lg rounded-xl transition-all duration-200">
           <CardHeader>
             <CardTitle>Acciones Rápidas</CardTitle>
           </CardHeader>
