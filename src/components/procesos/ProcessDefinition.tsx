@@ -77,7 +77,7 @@ export function ProcessDefinitionForm({
     remove: removeEntrada
   } = useFieldArray({
     control,
-    name: 'entradas' as const
+    name: 'entradas'
   });
 
   const {
@@ -86,7 +86,7 @@ export function ProcessDefinitionForm({
     remove: removeSalida
   } = useFieldArray({
     control,
-    name: 'salidas' as const
+    name: 'salidas'
   });
 
   const {
@@ -95,7 +95,7 @@ export function ProcessDefinitionForm({
     remove: removeControl
   } = useFieldArray({
     control,
-    name: 'controles' as const
+    name: 'controles'
   });
 
   const {
@@ -104,7 +104,7 @@ export function ProcessDefinitionForm({
     remove: removeIndicador
   } = useFieldArray({
     control,
-    name: 'indicadores' as const
+    name: 'indicadores'
   });
 
   const {
@@ -113,7 +113,7 @@ export function ProcessDefinitionForm({
     remove: removeDocumento
   } = useFieldArray({
     control,
-    name: 'documentos' as const
+    name: 'documentos'
   });
 
   const handleFormSubmit = async (data: ProcessDefinitionFormData) => {
