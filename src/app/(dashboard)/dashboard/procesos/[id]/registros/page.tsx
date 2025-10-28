@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProcessKanban } from '@/components/procesos/ProcessKanban';
 import { ProcessRecordForm } from '@/components/procesos/ProcessRecordForm';
 import { ProcessRecordFormData } from '@/lib/validations/procesos';

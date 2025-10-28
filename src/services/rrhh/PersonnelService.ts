@@ -190,7 +190,7 @@ export class PersonnelService {
       // Remove undefined values
       Object.keys(updateData).forEach(key => {
         if ((updateData as any)[key] === undefined) {
-          delete (updateData as any)[key];
+          delete (updateData as unknown)[key];
         }
       });
 
@@ -268,6 +268,124 @@ export class PersonnelService {
     } catch (error) {
       console.error('Error getting active personnel:', error);
       throw new Error('Error al obtener personal activo');
+    }
+  }
+
+  // ============================================
+  // NEW METHODS FOR IA CONTEXT ASSIGNMENTS
+  // ============================================
+
+  /**
+   * Assign processes to personnel
+   * @param personnelId Personnel ID
+   * @param processIds Array of process definition IDs
+   */
+  static async assignProcesses(personnelId: string, processIds: string[]): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, personnelId);
+      await updateDoc(docRef, {
+        procesos_asignados: processIds,
+        updated_at: Timestamp.now()
+      });
+    } catch (error) {
+      console.error('Error assigning processes:', error);
+      throw new Error('Error al asignar procesos');
+    }
+  }
+
+  /**
+   * Assign objectives to personnel
+   * @param personnelId Personnel ID
+   * @param objectiveIds Array of quality objective IDs
+   */
+  static async assignObjectives(personnelId: string, objectiveIds: string[]): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, personnelId);
+      await updateDoc(docRef, {
+        objetivos_asignados: objectiveIds,
+        updated_at: Timestamp.now()
+      });
+    } catch (error) {
+      console.error('Error assigning objectives:', error);
+      throw new Error('Error al asignar objetivos');
+    }
+  }
+
+  /**
+   * Assign indicators to personnel
+   * @param personnelId Personnel ID
+   * @param indicatorIds Array of quality indicator IDs
+   */
+  static async assignIndicators(personnelId: string, indicatorIds: string[]): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, personnelId);
+      await updateDoc(docRef, {
+        indicadores_asignados: indicatorIds,
+        updated_at: Timestamp.now()
+      });
+    } catch (error) {
+      console.error('Error assigning indicators:', error);
+      throw new Error('Error al asignar indicadores');
+    }
+  }
+
+  /**
+   * Get personnel with all assignments populated
+   * @param personnelId Personnel ID
+   * @returns Personnel with assignment details
+   */
+  static async getWithAssignments(personnelId: string): Promise<Personnel | null> {
+    try {
+      // For now, just return the personnel record
+      // The UserContextService will handle fetching related data
+      return await this.getById(personnelId);
+    } catch (error) {
+      console.error('Error getting personnel with assignments:', error);
+      throw new Error('Error al obtener personal con asignaciones');
+    }
+  }
+
+  /**
+   * Remove deleted process/objective/indicator from all personnel
+   * @param type Type of assignment to remove
+   * @param id ID to remove
+   */
+  static async removeAssignmentFromAll(
+    type: 'proceso' | 'objetivo' | 'indicador',
+    id: string
+  ): Promise<void> {
+    try {
+      const fieldMap = {
+        proceso: 'procesos_asignados',
+        objetivo: 'objetivos_asignados',
+        indicador: 'indicadores_asignados'
+      };
+
+      const field = fieldMap[type];
+      
+      // Get all personnel with this assignment
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where(field, 'array-contains', id)
+      );
+      const querySnapshot = await getDocs(q);
+
+      // Remove the ID from each personnel's array
+      const updates = querySnapshot.docs.map(async (docSnapshot) => {
+        const data = docSnapshot.data();
+        const currentArray = data[field] || [];
+        const newArray = currentArray.filter((item: string) => item !== id);
+
+        await updateDoc(docSnapshot.ref, {
+          [field]: newArray,
+          updated_at: Timestamp.now()
+        });
+      });
+
+      await Promise.all(updates);
+    } catch (error) {
+      console.error('Error removing assignment from all personnel:', error);
+      throw new Error('Error al remover asignación de todo el personal');
     }
   }
 }

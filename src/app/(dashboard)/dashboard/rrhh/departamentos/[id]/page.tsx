@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DepartmentForm } from '@/components/rrhh/DepartmentForm';
 import { DepartmentFormData } from '@/types/rrhh';
 import { DepartmentService } from '@/services/rrhh/DepartmentService';

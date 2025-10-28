@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Search, Filter, Calendar, Users, BarChart3, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 // Tipos para los registros de procesos
 interface ProcessRecord {
@@ -230,7 +229,7 @@ export default function ProcessRecordsPage() {
   }
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -453,7 +452,7 @@ export default function ProcessRecordsPage() {
         </TabsContent>
       </Tabs>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 

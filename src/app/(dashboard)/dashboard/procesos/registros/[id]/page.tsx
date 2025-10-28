@@ -3,22 +3,19 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, 
   Plus, 
   MoreHorizontal, 
   Calendar, 
-  User, 
-  MessageSquare,
+  User,
   CheckCircle,
   Clock,
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 // Tipos para el tablero Kanban
 interface KanbanCard {
@@ -233,23 +230,25 @@ export default function ProcessRecordKanbanPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
-        </div>
-        
-        <div className="flex gap-6">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex-1">
-              <div className="h-12 bg-gray-200 rounded mb-4 animate-pulse"></div>
-              <div className="space-y-3">
-                {[...Array(2)].map((_, j) => (
-                  <div key={j} className="h-24 bg-gray-200 rounded animate-pulse"></div>
-                ))}
+      <div className="p-6">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          
+          <div className="flex gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex-1">
+                <div className="h-12 bg-gray-200 rounded mb-4 animate-pulse"></div>
+                <div className="space-y-3">
+                  {[...Array(2)].map((_, j) => (
+                    <div key={j} className="h-24 bg-gray-200 rounded animate-pulse"></div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -257,41 +256,43 @@ export default function ProcessRecordKanbanPage() {
 
   if (!processRecord) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard/procesos/registros">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al listado
-            </Button>
-          </Link>
-        </div>
-        
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-12 text-center">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <AlertCircle className="h-12 w-12 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Registro de proceso no encontrado
-            </h3>
-            <p className="text-gray-500 mb-6">
-              El registro de proceso que buscas no existe o ha sido eliminado.
-            </p>
+      <div className="p-6">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
             <Link href="/dashboard/procesos/registros">
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Volver al listado
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+          
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-12 text-center">
+              <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle className="h-12 w-12 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Registro de proceso no encontrado
+              </h3>
+              <p className="text-gray-500 mb-6">
+                El registro de proceso que buscas no existe o ha sido eliminado.
+              </p>
+              <Link href="/dashboard/procesos/registros">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Volver al listado
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -357,7 +358,7 @@ export default function ProcessRecordKanbanPage() {
       {/* Tablero Kanban */}
       <div className="flex gap-6 overflow-x-auto pb-4">
         {processRecord.lists.map((list) => (
-          <div key={list.id} className="flex-shrink-0 w-80">
+          <div key={list.id} className="shrink-0 w-80">
             <Card className="border-0 shadow-md">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -441,7 +442,7 @@ export default function ProcessRecordKanbanPage() {
         ))}
       </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 

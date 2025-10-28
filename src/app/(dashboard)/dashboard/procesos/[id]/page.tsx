@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProcessDefinitionForm } from '@/components/procesos/ProcessDefinition';
 import { ProcessQualityObjectives } from '@/components/procesos/ProcessQualityObjectives';
 import { ProcessQualityMetrics } from '@/components/procesos/ProcessQualityMetrics';
@@ -110,17 +109,17 @@ export default function ProcessDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (!process) {
     return (
-      <DashboardLayout>
+      <div className="p-6">
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Proceso no encontrado</h3>
@@ -135,13 +134,13 @@ export default function ProcessDetailPage() {
             Volver al listado
           </Button>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (editing) {
     return (
-      <DashboardLayout>
+      <div className="p-6">
         <div className="space-y-6">
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
@@ -160,12 +159,12 @@ export default function ProcessDetailPage() {
             />
           </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="space-y-6">
         {/* Header con navegación */}
         <div className="flex items-center justify-between p-6 bg-gradient-to-r from-white to-emerald-50/20 rounded-xl shadow-lg border border-emerald-100/30">
@@ -363,6 +362,6 @@ export default function ProcessDetailPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

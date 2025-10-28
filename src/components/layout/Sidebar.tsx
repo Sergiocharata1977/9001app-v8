@@ -27,11 +27,14 @@ import {
     Kanban,
     Target,
     Activity,
-    TrendingUp
+    TrendingUp,
+    Bot,
+    Shield
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { DonCandidoChat } from '@/components/ia/DonCandidoChat';
 
 interface MenuItem {
   name: string;
@@ -56,8 +59,8 @@ const navigation: MenuItem[] = [
       { name: 'Acciones', href: '/dashboard/acciones', icon: CheckCircle }
     ]
   },
-  { name: 'Documentos', href: '/dashboard/documentos', icon: FileText },
-  { name: 'Puntos de la norma', href: '/dashboard/normas', icon: BookOpen },
+  { name: 'Documentos', href: '/documentos', icon: FileText },
+  { name: 'Puntos de Norma', href: '/puntos-norma', icon: BookOpen },
   { name: 'CRM', href: '/dashboard/crm', icon: Briefcase },
   {
     name: 'RRHH',
@@ -93,6 +96,15 @@ const navigation: MenuItem[] = [
       { name: 'Mediciones', href: '/dashboard/quality/mediciones', icon: TrendingUp }
     ]
   },
+  {
+    name: 'Administración',
+    href: '/admin',
+    icon: Shield,
+    children: [
+      { name: 'Asignar Personal', href: '/admin/usuarios', icon: Users },
+      { name: 'Gestión Usuarios', href: '/admin/usuarios/lista', icon: Settings }
+    ]
+  },
   { name: 'Test Firestore', href: '/dashboard/test-firestore', icon: Settings },
 ];
 
@@ -113,6 +125,7 @@ export const Sidebar = memo(function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set(['RRHH', 'Procesos']));
   const [isMounted, setIsMounted] = useState(false);
+  const [mostrarDonCandido, setMostrarDonCandido] = useState(false);
   const pathname = usePathname();
 
   // Evitar errores de hidratación renderizando solo en el cliente
@@ -288,9 +301,46 @@ export const Sidebar = memo(function Sidebar() {
         </div>
       </nav>
 
+      {/* Mi Contexto Link */}
+      {!collapsed && (
+        <div className="px-4 pb-2">
+          <Link
+            href="/mi-contexto"
+            className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              pathname === '/mi-contexto'
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'bg-slate-700 text-white hover:bg-slate-600'
+            }`}
+          >
+            <Users className="h-5 w-5" />
+            <span>Mi Contexto</span>
+          </Link>
+        </div>
+      )}
+
+      {/* Don Cándido Button */}
+      {!collapsed && (
+        <div className="px-4 pb-2">
+          <button
+            onClick={() => setMostrarDonCandido(true)}
+            className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              mostrarDonCandido
+                ? 'bg-green-600 text-white shadow-lg'
+                : 'bg-green-700 text-white hover:bg-green-600'
+            }`}
+          >
+            <Bot className="h-5 w-5" />
+            <span>Don Cándido</span>
+            {mostrarDonCandido && (
+              <span className="ml-auto w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+            )}
+          </button>
+        </div>
+      )}
+
       {!collapsed && (
         <div className="p-4 border-t border-slate-700 mt-auto bg-slate-800">
-          <Link href="/dashboard/configuracion" className="block">
+          <Link href="/usuarios" className="block">
             <div className="bg-slate-700 rounded-lg p-3 hover:bg-slate-600 transition-colors cursor-pointer group">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -311,6 +361,14 @@ export const Sidebar = memo(function Sidebar() {
         </div>
       )}
       </div>
+
+      {/* Don Cándido Chat Component */}
+      {mostrarDonCandido && (
+        <DonCandidoChat 
+          onClose={() => setMostrarDonCandido(false)}
+          modulo={pathname.split('/')[2]}
+        />
+      )}
     </div>
   );
 });

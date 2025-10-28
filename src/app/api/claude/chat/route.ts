@@ -1,0 +1,193 @@
+// API endpoint for Don Cándido chat
+
+import { NextRequest, NextResponse } from 'next/server';
+import { UserContextService } from '@/services/context/UserContextService';
+import { ClaudeService } from '@/lib/claude/client';
+import { PromptService } from '@/lib/claude/prompts';
+import { ValidationService } from '@/lib/claude/validators';
+import { ChatSessionService } from '@/services/chat/ChatSessionService';
+import { UsageTrackingService } from '@/services/tracking/UsageTrackingService';
+import { sanitizeInput, sanitizeOutput } from '@/lib/utils/sanitization';
+import { checkRateLimit, createRateLimitResponse } from '@/lib/utils/rate-limiter';
+import { errorLogger, ErrorSeverity } from '@/lib/utils/ErrorLogger';
+
+interface ChatRequest {
+  mensaje: string;
+  userId: string;
+  sessionId: string;
+  modulo?: string;
+}
+
+export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+
+  try {
+    // Parse request body
+    const body: ChatRequest = await request.json();
+    const { mensaje, userId, sessionId, modulo } = body;
+
+    // Validate required parameters
+    if (!mensaje || !userId || !sessionId) {
+      errorLogger.logError(
+        'Missing required parameters',
+        { userId, sessionId, operation: 'chat' },
+        ErrorSeverity.WARNING
+      );
+      return NextResponse.json(
+        { 
+          error: 'Parámetros requeridos faltantes',
+          details: {
+            mensaje: !mensaje ? 'requerido' : 'ok',
+            userId: !userId ? 'requerido' : 'ok',
+            sessionId: !sessionId ? 'requerido' : 'ok'
+          }
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check rate limit
+    const rateLimit = checkRateLimit(userId);
+    if (!rateLimit.allowed) {
+      errorLogger.logError(
+        'Rate limit exceeded',
+        { userId, sessionId, operation: 'chat' },
+        ErrorSeverity.WARNING
+      );
+      return createRateLimitResponse(rateLimit.resetIn);
+    }
+
+    // Sanitize input
+    const mensajeSanitizado = sanitizeInput(mensaje);
+
+    console.log('[API /claude/chat] Processing request:', {
+      userId,
+      sessionId,
+      messageLength: mensajeSanitizado.length,
+      rateLimitRemaining: rateLimit.remaining
+    });
+
+    // Validate query is about ISO 9001
+    const validacion = ValidationService.validarConsulta(mensajeSanitizado);
+    if (!validacion.valida) {
+      // Return rejection message without calling Claude
+      return NextResponse.json({
+        respuesta: validacion.respuesta,
+        tokens: { input: 0, output: 0 },
+        tiempo_respuesta_ms: Date.now() - startTime
+      });
+    }
+
+    // Get user context
+    console.log('[API /claude/chat] Fetching user context...');
+    const contexto = await UserContextService.getUserFullContext(userId);
+
+    // Generate contextual prompt
+    const systemPrompt = modulo
+      ? PromptService.generarPromptModulo(modulo, contexto)
+      : PromptService.generarPromptDonCandidos(contexto);
+
+    // Get session history (last 5 messages)
+    const session = await ChatSessionService.getSession(sessionId);
+    const historial = session?.mensajes.slice(-5) || [];
+
+    // Prepare messages for Claude
+    const mensajesClaude = [
+      ...historial.map(msg => ({
+        role: msg.tipo === 'usuario' ? ('user' as const) : ('assistant' as const),
+        content: msg.contenido
+      })),
+      {
+        role: 'user' as const,
+        content: mensajeSanitizado
+      }
+    ];
+
+    // Call Claude API
+    console.log('[API /claude/chat] Calling Claude API...');
+    const response = await ClaudeService.enviarMensaje(
+      systemPrompt,
+      mensajesClaude,
+      2000
+    );
+
+    const tiempo_respuesta_ms = Date.now() - startTime;
+
+    // Sanitize output
+    const respuestaSanitizada = sanitizeOutput(response.content);
+
+    // Save user message to session
+    await ChatSessionService.agregarMensaje(sessionId, {
+      tipo: 'usuario',
+      contenido: mensajeSanitizado,
+      via: 'texto'
+    });
+
+    // Save assistant message to session
+    await ChatSessionService.agregarMensaje(sessionId, {
+      tipo: 'asistente',
+      contenido: respuestaSanitizada,
+      via: 'texto',
+      tokens: response.usage
+    });
+
+    // Track usage
+    await UsageTrackingService.registrar({
+      userId,
+      sessionId,
+      tipoOperacion: 'chat',
+      tokens: response.usage,
+      metadata: {
+        modulo: modulo || 'general',
+        tiempo_respuesta_ms
+      }
+    });
+
+    // Log usage and performance
+    errorLogger.logClaudeUsage(
+      userId,
+      response.usage.input,
+      response.usage.output,
+      UsageTrackingService.calcularCosto(response.usage.input, response.usage.output),
+      tiempo_respuesta_ms
+    );
+
+    console.log('[API /claude/chat] Request completed:', {
+      tiempo_respuesta_ms,
+      tokens: response.usage,
+      rateLimitRemaining: rateLimit.remaining
+    });
+
+    // Return response
+    return NextResponse.json({
+      respuesta: respuestaSanitizada,
+      tokens: response.usage,
+      tiempo_respuesta_ms,
+      rateLimitRemaining: rateLimit.remaining
+    });
+
+  } catch (error) {
+    const tiempo_respuesta_ms = Date.now() - startTime;
+    
+    errorLogger.logError(
+      error as Error,
+      { 
+        userId: (await request.json()).userId,
+        sessionId: (await request.json()).sessionId,
+        operation: 'chat',
+        metadata: { tiempo_respuesta_ms }
+      },
+      ErrorSeverity.ERROR
+    );
+
+    const userFriendlyMessage = errorLogger.getUserFriendlyMessage(error as Error);
+
+    return NextResponse.json(
+      {
+        error: userFriendlyMessage,
+        tiempo_respuesta_ms
+      },
+      { status: 500 }
+    );
+  }
+}

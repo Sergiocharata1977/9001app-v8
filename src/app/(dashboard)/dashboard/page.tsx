@@ -1,6 +1,5 @@
 'use client';
 
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -134,8 +133,8 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardLayout>
-          <div className="space-y-6">
+    <div className="p-6">
+      <div className="space-y-6">
         {/* Header */}
             <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
@@ -265,6 +264,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

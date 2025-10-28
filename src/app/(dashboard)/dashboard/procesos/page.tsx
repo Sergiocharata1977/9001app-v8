@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Search, Filter, Calendar, Users, BarChart3, Trash2, FileText } from 'lucide-react';
 import Link from 'next/link';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 // Tipos para las definiciones de procesos
 interface ProcessDefinition {
@@ -200,7 +199,7 @@ export default function ProcessDefinitionsPage() {
   }
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -420,6 +419,6 @@ export default function ProcessDefinitionsPage() {
         </TabsContent>
       </Tabs>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

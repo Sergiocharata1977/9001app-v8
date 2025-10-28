@@ -1,6 +1,5 @@
 'use client';
 
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { RRHHStats } from '@/components/rrhh/RRHHStats';
 import { RRHHDashboardCard } from '@/components/rrhh/RRHHDashboardCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,7 +78,7 @@ export default function RRHHDashboardPage() {
   ];
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -163,6 +162,6 @@ export default function RRHHDashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

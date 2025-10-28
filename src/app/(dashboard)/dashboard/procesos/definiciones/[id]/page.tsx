@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProcessDefinitionForm } from '@/components/procesos/ProcessDefinition';
 import { ProcessQualityObjectives } from '@/components/procesos/ProcessQualityObjectives';
 import { ProcessQualityMetrics } from '@/components/procesos/ProcessQualityMetrics';
@@ -10,11 +9,11 @@ import { ProcessDefinitionFormData } from '@/lib/validations/procesos';
 import { ProcessService } from '@/services/procesos/ProcessService';
 import { ProcessDefinition } from '@/types/procesos';
 import { QualityObjective, QualityIndicator, Measurement } from '@/types/quality';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Edit, Trash2, FileText, Tag, File, User, Clock, CheckCircle, Target, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, FileText, Tag, File, User, Clock, CheckCircle, Target } from 'lucide-react';
 
 export default function ProcessDefinitionDetailPage() {
   const params = useParams();
@@ -166,17 +165,17 @@ export default function ProcessDefinitionDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (!process) {
     return (
-      <DashboardLayout>
+      <div className="p-6">
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Proceso no encontrado</h3>
@@ -191,13 +190,13 @@ export default function ProcessDefinitionDetailPage() {
             Volver al listado
           </Button>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (editing) {
     return (
-      <DashboardLayout>
+      <div className="p-6">
         <div className="space-y-6">
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
@@ -216,12 +215,12 @@ export default function ProcessDefinitionDetailPage() {
             />
           </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -270,7 +269,7 @@ export default function ProcessDefinitionDetailPage() {
                       </div>
                     )}
                   </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor} flex-shrink-0`}>
+                  <div className={`p-3 rounded-lg ${stat.bgColor} shrink-0`}>
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -430,6 +429,6 @@ export default function ProcessDefinitionDetailPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

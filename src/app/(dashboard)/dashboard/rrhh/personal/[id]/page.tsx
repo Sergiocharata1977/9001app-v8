@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PersonnelForm } from '@/components/rrhh/PersonnelForm';
 import { PersonnelFormData } from '@/types/rrhh';
 import { PersonnelService } from '@/services/rrhh/PersonnelService';

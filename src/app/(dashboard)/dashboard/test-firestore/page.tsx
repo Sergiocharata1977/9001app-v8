@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { DepartmentService } from '@/services/rrhh/DepartmentService';
 import { PositionService } from '@/services/rrhh/PositionService';
 import { PersonnelService } from '@/services/rrhh/PersonnelService';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -122,7 +121,7 @@ export default function TestFirestorePage() {
   };
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="space-y-6">
@@ -196,7 +195,7 @@ export default function TestFirestorePage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import UnifiedKanban from '@/components/ui/unified-kanban';
 import type { KanbanItem, KanbanColumn } from '@/types/rrhh';
 import { Button } from '@/components/ui/button';
@@ -141,7 +140,7 @@ export default function RRHHKanbanPage() {
   };
 
   return (
-    <DashboardLayout>
+    <div className="p-6">
       <div className="p-6">
         <div className="mb-6">
           <div className="flex justify-between items-center">
@@ -221,7 +220,7 @@ export default function RRHHKanbanPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 

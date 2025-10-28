@@ -57,6 +57,12 @@ export interface Personnel {
   salario?: string;
   certificaciones?: string[];
   ultima_evaluacion?: Date | { seconds: number; nanoseconds: number };
+  
+  // NEW FIELDS for IA Context:
+  procesos_asignados?: string[];      // Array of processDefinition IDs
+  objetivos_asignados?: string[];     // Array of qualityObjective IDs
+  indicadores_asignados?: string[];   // Array of qualityIndicator IDs
+  
   created_at: Date;
   updated_at: Date;
 }
@@ -147,6 +153,11 @@ export interface PersonnelFormData {
   fecha_ingreso?: Date;
   salario?: string;
   certificaciones?: string[];
+  
+  // NEW FIELDS for IA Context:
+  procesos_asignados?: string[];
+  objetivos_asignados?: string[];
+  indicadores_asignados?: string[];
 }
 
 export interface TrainingFormData {

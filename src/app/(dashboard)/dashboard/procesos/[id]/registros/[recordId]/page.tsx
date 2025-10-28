@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProcessRecordForm } from '@/components/procesos/ProcessRecordForm';
 import { ProcessRecordFormData } from '@/lib/validations/procesos';
 import { ProcessRecordService } from '@/services/procesos/ProcessRecordService';
