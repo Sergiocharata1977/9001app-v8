@@ -5,7 +5,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Trash2, User, Briefcase, X, Save } from 'lucide-react';
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  User,
+  Briefcase,
+  X,
+  Save,
+} from 'lucide-react';
 import { PositionWithAssignments, Personnel } from '@/types/rrhh';
 import { ProcessDefinition } from '@/types/procesos';
 import { AssignPersonnelDialog } from '@/components/positions/AssignPersonnelDialog';
@@ -15,7 +23,9 @@ export default function PositionDetailPage() {
   const router = useRouter();
   const positionId = params.id as string;
 
-  const [position, setPosition] = useState<PositionWithAssignments | null>(null);
+  const [position, setPosition] = useState<PositionWithAssignments | null>(
+    null
+  );
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [allProcesses, setAllProcesses] = useState<ProcessDefinition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +37,7 @@ export default function PositionDetailPage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Cargar puesto con asignaciones
       const posRes = await fetch(`/api/positions/${positionId}`);
       const posData = await posRes.json();
@@ -59,7 +69,7 @@ export default function PositionDetailPage() {
   const handleSaveProcesses = async () => {
     try {
       setSaving(true);
-      
+
       const res = await fetch(`/api/positions/${positionId}/assignments`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -92,7 +102,7 @@ export default function PositionDetailPage() {
         const res = await fetch(`/api/positions/${positionId}`, {
           method: 'DELETE',
         });
-        
+
         if (res.ok) {
           router.push('/dashboard/rrhh/positions');
         } else {
@@ -129,7 +139,7 @@ export default function PositionDetailPage() {
           }),
         });
       }
-      
+
       // Recargar datos
       await loadData();
       alert(`${personnelIds.length} persona(s) asignada(s) exitosamente`);
@@ -158,7 +168,9 @@ export default function PositionDetailPage() {
       <div className="space-y-6 p-6">
         <div className="text-center py-12">
           <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Puesto no encontrado</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Puesto no encontrado
+          </h3>
           <Button onClick={() => router.push('/dashboard/rrhh/positions')}>
             Volver a Puestos
           </Button>
@@ -168,7 +180,8 @@ export default function PositionDetailPage() {
   }
 
   const assignedPerson = personnel[0]; // Relación 1:1
-  const assignedProcessesDetails = (position.procesos_details || []) as ProcessDefinition[];
+  const assignedProcessesDetails = (position.procesos_details ||
+    []) as ProcessDefinition[];
 
   return (
     <div className="space-y-6 p-6">
@@ -180,8 +193,12 @@ export default function PositionDetailPage() {
             Volver
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{position.nombre}</h1>
-            <p className="text-gray-600 mt-1">{position.descripcion_responsabilidades}</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {position.nombre}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {position.descripcion_responsabilidades}
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -206,22 +223,29 @@ export default function PositionDetailPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 rounded-lg bg-green-50">
                   <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                    {assignedPerson.nombres?.[0]}{assignedPerson.apellidos?.[0]}
+                    {assignedPerson.nombres?.[0]}
+                    {assignedPerson.apellidos?.[0]}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">
                       {assignedPerson.nombres} {assignedPerson.apellidos}
                     </h3>
-                    <p className="text-sm text-gray-600">{assignedPerson.email}</p>
+                    <p className="text-sm text-gray-600">
+                      {assignedPerson.email}
+                    </p>
                     <Badge className="mt-2 bg-green-100 text-green-800">
                       {assignedPerson.estado}
                     </Badge>
                   </div>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
-                  onClick={() => router.push(`/dashboard/rrhh/personnel/${assignedPerson.id}`)}
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/rrhh/personnel/${assignedPerson.id}`
+                    )
+                  }
                 >
                   Ver Detalle
                 </Button>
@@ -229,8 +253,13 @@ export default function PositionDetailPage() {
             ) : (
               <div className="text-center py-8">
                 <User className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 mb-4">No hay personal asignado a este puesto</p>
-                <Button variant="outline" onClick={() => setShowAssignDialog(true)}>
+                <p className="text-gray-500 mb-4">
+                  No hay personal asignado a este puesto
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAssignDialog(true)}
+                >
                   Asignar Persona
                 </Button>
               </div>
@@ -248,20 +277,36 @@ export default function PositionDetailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-500">Departamento</label>
-              <p className="text-gray-900">{position.departamento_id || 'No especificado'}</p>
+              <label className="text-sm font-medium text-gray-500">
+                Departamento
+              </label>
+              <p className="text-gray-900">
+                {position.departamento_id || 'No especificado'}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Reporta a</label>
-              <p className="text-gray-900">{position.reporta_a_id || 'No especificado'}</p>
+              <label className="text-sm font-medium text-gray-500">
+                Reporta a
+              </label>
+              <p className="text-gray-900">
+                {position.reporta_a_id || 'No especificado'}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Requisitos de Experiencia</label>
-              <p className="text-gray-700 text-sm">{position.requisitos_experiencia || 'No especificado'}</p>
+              <label className="text-sm font-medium text-gray-500">
+                Requisitos de Experiencia
+              </label>
+              <p className="text-gray-700 text-sm">
+                {position.requisitos_experiencia || 'No especificado'}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Requisitos de Formación</label>
-              <p className="text-gray-700 text-sm">{position.requisitos_formacion || 'No especificado'}</p>
+              <label className="text-sm font-medium text-gray-500">
+                Requisitos de Formación
+              </label>
+              <p className="text-gray-700 text-sm">
+                {position.requisitos_formacion || 'No especificado'}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -276,7 +321,7 @@ export default function PositionDetailPage() {
               Procesos Asignados ({selectedProcesses.length})
             </CardTitle>
             {!editingProcesses ? (
-              <Button 
+              <Button
                 onClick={() => setEditingProcesses(true)}
                 className="bg-green-600 hover:bg-green-700"
               >
@@ -285,7 +330,7 @@ export default function PositionDetailPage() {
               </Button>
             ) : (
               <div className="flex gap-2">
-                <Button 
+                <Button
                   onClick={handleSaveProcesses}
                   disabled={saving}
                   className="bg-green-600 hover:bg-green-700"
@@ -293,7 +338,7 @@ export default function PositionDetailPage() {
                   <Save className="h-4 w-4 mr-2" />
                   {saving ? 'Guardando...' : 'Guardar'}
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
                     setSelectedProcesses(position.procesos_asignados || []);
@@ -314,7 +359,7 @@ export default function PositionDetailPage() {
               </label>
               <select
                 className="w-full p-2 border rounded-lg"
-                onChange={(e) => {
+                onChange={e => {
                   if (e.target.value) {
                     addProcess(e.target.value);
                     e.target.value = '';
@@ -336,16 +381,19 @@ export default function PositionDetailPage() {
           {selectedProcesses.length === 0 ? (
             <div className="text-center py-8">
               <Briefcase className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No hay procesos asignados a este puesto</p>
+              <p className="text-gray-500">
+                No hay procesos asignados a este puesto
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
               {selectedProcesses.map(processId => {
-                const process = allProcesses.find(p => p.id === processId) || 
-                               assignedProcessesDetails.find((p) => p.id === processId);
-                
+                const process =
+                  allProcesses.find(p => p.id === processId) ||
+                  assignedProcessesDetails.find(p => p.id === processId);
+
                 return (
-                  <div 
+                  <div
                     key={processId}
                     className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
                   >
@@ -362,7 +410,9 @@ export default function PositionDetailPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => router.push(`/dashboard/procesos/${processId}`)}
+                          onClick={() =>
+                            router.push(`/dashboard/procesos/${processId}`)
+                          }
                         >
                           Ver Detalle
                         </Button>

@@ -24,14 +24,18 @@ export async function POST(request: NextRequest) {
           error: 'Parámetros requeridos faltantes',
           details: {
             userId: !userId ? 'requerido' : 'ok',
-            tipo: !tipo ? 'requerido' : 'ok'
-          }
+            tipo: !tipo ? 'requerido' : 'ok',
+          },
         },
         { status: 400 }
       );
     }
 
-    console.log('[API /ia/sessions] Creating session:', { userId, tipo, modulo });
+    console.log('[API /ia/sessions] Creating session:', {
+      userId,
+      tipo,
+      modulo,
+    });
 
     // Get user context
     const contexto = await UserContextService.getUserFullContext(userId);
@@ -49,16 +53,15 @@ export async function POST(request: NextRequest) {
     // Return session ID and context
     return NextResponse.json({
       sessionId,
-      contexto
+      contexto,
     });
-
   } catch (error) {
     console.error('[API /ia/sessions] Error:', error);
 
     return NextResponse.json(
       {
         error: 'Error interno del servidor',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -73,10 +76,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'userId requerido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'userId requerido' }, { status: 400 });
     }
 
     console.log('[API /ia/sessions] Getting sessions for user:', userId);
@@ -85,16 +85,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       sessions,
-      count: sessions.length
+      count: sessions.length,
     });
-
   } catch (error) {
     console.error('[API /ia/sessions GET] Error:', error);
 
     return NextResponse.json(
       {
         error: 'Error interno del servidor',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

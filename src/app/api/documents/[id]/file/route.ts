@@ -9,7 +9,7 @@ export async function POST(
   try {
     const { id } = await params;
     console.log('[API] Subiendo archivo para documento:', id);
-    
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const userId = formData.get('userId') as string;
@@ -36,18 +36,15 @@ export async function POST(
     return NextResponse.json({ url: downloadURL });
   } catch (error) {
     console.error('[API] Error completo al subir archivo:', error);
-    
+
     if (error instanceof Error) {
       console.error('[API] Mensaje de error:', error.message);
       console.error('[API] Stack:', error.stack);
-      
-      if (
-        error.message.includes('tipo') ||
-        error.message.includes('tamaño')
-      ) {
+
+      if (error.message.includes('tipo') || error.message.includes('tamaño')) {
         return NextResponse.json({ error: error.message }, { status: 400 });
       }
-      
+
       // Retornar el mensaje de error específico
       return NextResponse.json(
         { error: `Error al subir archivo: ${error.message}` },

@@ -9,7 +9,14 @@ import { ProcessRecord } from '@/types/procesos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, FileText, Calendar, User, AlertTriangle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Edit,
+  FileText,
+  Calendar,
+  User,
+  AlertTriangle,
+} from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 export default function ProcessRecordDetailPage() {
@@ -107,12 +114,16 @@ export default function ProcessRecordDetailPage() {
       <DashboardLayout>
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Registro no encontrado</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            Registro no encontrado
+          </h3>
           <p className="mt-1 text-sm text-gray-500">
             El registro que buscas no existe o ha sido eliminado.
           </p>
           <Button
-            onClick={() => router.push(`/dashboard/procesos/${processId}/registros`)}
+            onClick={() =>
+              router.push(`/dashboard/procesos/${processId}/registros`)
+            }
             className="mt-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -159,7 +170,9 @@ export default function ProcessRecordDetailPage() {
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
-              onClick={() => router.push(`/dashboard/procesos/${processId}/registros`)}
+              onClick={() =>
+                router.push(`/dashboard/procesos/${processId}/registros`)
+              }
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver a Registros
@@ -173,11 +186,15 @@ export default function ProcessRecordDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <Badge className={getEstadoColor(record.estado)}>
-              {record.estado === 'pendiente' ? 'Pendiente' :
-               record.estado === 'en-progreso' ? 'En Progreso' : 'Completado'}
+              {record.estado === 'pendiente'
+                ? 'Pendiente'
+                : record.estado === 'en-progreso'
+                  ? 'En Progreso'
+                  : 'Completado'}
             </Badge>
             <Badge className={getPrioridadColor(record.prioridad)}>
-              {record.prioridad.charAt(0).toUpperCase() + record.prioridad.slice(1)}
+              {record.prioridad.charAt(0).toUpperCase() +
+                record.prioridad.slice(1)}
             </Badge>
             <Button onClick={() => setEditing(true)}>
               <Edit className="mr-2 h-4 w-4" />
@@ -195,7 +212,9 @@ export default function ProcessRecordDetailPage() {
                 <CardTitle>Descripción</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{record.descripcion}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">
+                  {record.descripcion}
+                </p>
               </CardContent>
             </Card>
 
@@ -213,11 +232,19 @@ export default function ProcessRecordDetailPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Fecha de vencimiento:</span>
-                    <span className={`font-medium ${daysUntilDue < 0 ? 'text-red-600' : daysUntilDue <= 3 ? 'text-orange-600' : 'text-gray-900'}`}>
-                      {new Date(record.fecha_vencimiento).toLocaleDateString('es-ES')}
+                    <span className="text-sm text-gray-600">
+                      Fecha de vencimiento:
+                    </span>
+                    <span
+                      className={`font-medium ${daysUntilDue < 0 ? 'text-red-600' : daysUntilDue <= 3 ? 'text-orange-600' : 'text-gray-900'}`}
+                    >
+                      {new Date(record.fecha_vencimiento).toLocaleDateString(
+                        'es-ES'
+                      )}
                       {daysUntilDue < 0 && (
-                        <span className="ml-1">({Math.abs(daysUntilDue)} días vencida)</span>
+                        <span className="ml-1">
+                          ({Math.abs(daysUntilDue)} días vencida)
+                        </span>
                       )}
                       {daysUntilDue === 0 && (
                         <span className="ml-1">(Vence hoy)</span>
@@ -241,21 +268,31 @@ export default function ProcessRecordDetailPage() {
               <CardContent className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-2">Estado actual</p>
-                  <Badge className={`${getEstadoColor(record.estado)} text-sm px-3 py-1`}>
-                    {record.estado === 'pendiente' ? 'Pendiente' :
-                     record.estado === 'en-progreso' ? 'En Progreso' : 'Completado'}
+                  <Badge
+                    className={`${getEstadoColor(record.estado)} text-sm px-3 py-1`}
+                  >
+                    {record.estado === 'pendiente'
+                      ? 'Pendiente'
+                      : record.estado === 'en-progreso'
+                        ? 'En Progreso'
+                        : 'Completado'}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-2">Prioridad</p>
-                  <Badge className={`${getPrioridadColor(record.prioridad)} text-sm px-3 py-1`}>
-                    {record.prioridad.charAt(0).toUpperCase() + record.prioridad.slice(1)}
+                  <Badge
+                    className={`${getPrioridadColor(record.prioridad)} text-sm px-3 py-1`}
+                  >
+                    {record.prioridad.charAt(0).toUpperCase() +
+                      record.prioridad.slice(1)}
                   </Badge>
                 </div>
                 {daysUntilDue < 0 && (
                   <div className="flex items-center gap-2 p-3 bg-red-50 rounded-md">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <span className="text-sm text-red-700">Registro vencido</span>
+                    <span className="text-sm text-red-700">
+                      Registro vencido
+                    </span>
                   </div>
                 )}
               </CardContent>
@@ -284,7 +321,9 @@ export default function ProcessRecordDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">ID del Proceso</p>
-                  <p className="text-sm font-mono break-all">{record.processId}</p>
+                  <p className="text-sm font-mono break-all">
+                    {record.processId}
+                  </p>
                 </div>
               </CardContent>
             </Card>

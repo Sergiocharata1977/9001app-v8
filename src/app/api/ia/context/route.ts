@@ -11,13 +11,12 @@ export async function GET(request: NextRequest) {
 
     // Validate userId parameter
     if (!userId) {
-      return NextResponse.json(
-        { error: 'userId requerido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'userId requerido' }, { status: 400 });
     }
 
-    console.log('[API /ia/context] Getting context for user:', userId, { light });
+    console.log('[API /ia/context] Getting context for user:', userId, {
+      light,
+    });
 
     // Get context (light or full)
     const contexto = light
@@ -25,7 +24,6 @@ export async function GET(request: NextRequest) {
       : await UserContextService.getUserFullContext(userId);
 
     return NextResponse.json({ contexto });
-
   } catch (error) {
     console.error('[API /ia/context] Error:', error);
 
@@ -34,7 +32,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Usuario no encontrado',
-          message: error.message
+          message: error.message,
         },
         { status: 404 }
       );
@@ -43,7 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Error interno del servidor',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -57,10 +55,7 @@ export async function POST(request: NextRequest) {
     const { userId } = body;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'userId requerido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'userId requerido' }, { status: 400 });
     }
 
     console.log('[API /ia/context] Refreshing context for user:', userId);
@@ -70,16 +65,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       contexto,
-      refreshed: true
+      refreshed: true,
     });
-
   } catch (error) {
     console.error('[API /ia/context POST] Error:', error);
 
     return NextResponse.json(
       {
         error: 'Error interno del servidor',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

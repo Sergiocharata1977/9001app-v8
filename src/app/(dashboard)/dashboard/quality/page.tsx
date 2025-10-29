@@ -1,7 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +20,7 @@ import {
   Plus,
   Eye,
   Edit,
-  Trash2
+  Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -43,10 +49,12 @@ export default function QualityDashboard() {
     medicionesMes: 0,
     cumplimientoPromedio: 0,
     alertasActivas: 0,
-    procesosMonitoreados: 0
+    procesosMonitoreados: 0,
   });
 
-  const [recentObjectives, setRecentObjectives] = useState<RecentObjective[]>([]);
+  const [recentObjectives, setRecentObjectives] = useState<RecentObjective[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,7 +72,7 @@ export default function QualityDashboard() {
         medicionesMes: 156,
         cumplimientoPromedio: 87,
         alertasActivas: 3,
-        procesosMonitoreados: 8
+        procesosMonitoreados: 8,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -82,7 +90,7 @@ export default function QualityDashboard() {
           title: 'Mejorar eficiencia del proceso de producción',
           status: 'activo',
           progress_percentage: 75,
-          responsible_user_id: 'user1'
+          responsible_user_id: 'user1',
         },
         {
           id: '2',
@@ -90,8 +98,8 @@ export default function QualityDashboard() {
           title: 'Reducir tiempo de respuesta al cliente',
           status: 'activo',
           progress_percentage: 60,
-          responsible_user_id: 'user2'
-        }
+          responsible_user_id: 'user2',
+        },
       ]);
     } catch (error) {
       console.error('Error fetching recent objectives:', error);
@@ -102,21 +110,31 @@ export default function QualityDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'activo': return 'bg-blue-100 text-blue-800';
-      case 'completado': return 'bg-green-100 text-green-800';
-      case 'atrasado': return 'bg-red-100 text-red-800';
-      case 'cancelado': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'activo':
+        return 'bg-blue-100 text-blue-800';
+      case 'completado':
+        return 'bg-green-100 text-green-800';
+      case 'atrasado':
+        return 'bg-red-100 text-red-800';
+      case 'cancelado':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'activo': return 'Activo';
-      case 'completado': return 'Completado';
-      case 'atrasado': return 'Atrasado';
-      case 'cancelado': return 'Cancelado';
-      default: return status;
+      case 'activo':
+        return 'Activo';
+      case 'completado':
+        return 'Completado';
+      case 'atrasado':
+        return 'Atrasado';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return status;
     }
   };
 
@@ -133,7 +151,9 @@ export default function QualityDashboard() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard de Calidad</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Dashboard de Calidad
+          </h1>
           <p className="text-gray-600 mt-1">
             Monitoreo de objetivos, indicadores y mediciones de calidad
           </p>
@@ -150,7 +170,9 @@ export default function QualityDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Objetivos Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Objetivos Activos
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -163,11 +185,15 @@ export default function QualityDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Indicadores Monitoreados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Indicadores Monitoreados
+            </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.indicadoresMonitoreados}</div>
+            <div className="text-2xl font-bold">
+              {stats.indicadoresMonitoreados}
+            </div>
             <p className="text-xs text-muted-foreground">
               +5 desde el mes pasado
             </p>
@@ -176,7 +202,9 @@ export default function QualityDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mediciones del Mes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Mediciones del Mes
+            </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -189,11 +217,15 @@ export default function QualityDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cumplimiento Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Cumplimiento Promedio
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.cumplimientoPromedio}%</div>
+            <div className="text-2xl font-bold">
+              {stats.cumplimientoPromedio}%
+            </div>
             <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
               <div
                 className="bg-green-600 h-2 rounded-full"
@@ -205,7 +237,9 @@ export default function QualityDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Activas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Activas
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -218,11 +252,15 @@ export default function QualityDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Procesos Monitoreados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Procesos Monitoreados
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.procesosMonitoreados}</div>
+            <div className="text-2xl font-bold">
+              {stats.procesosMonitoreados}
+            </div>
             <p className="text-xs text-muted-foreground">
               Procesos con objetivos activos
             </p>
@@ -241,16 +279,17 @@ export default function QualityDashboard() {
               </CardDescription>
             </div>
             <Button variant="outline" asChild>
-              <Link href="/dashboard/quality/objetivos">
-                Ver Todos
-              </Link>
+              <Link href="/dashboard/quality/objetivos">Ver Todos</Link>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentObjectives.map((objective) => (
-              <div key={objective.id} className="flex items-center justify-between p-4 border rounded-lg">
+            {recentObjectives.map(objective => (
+              <div
+                key={objective.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <h3 className="font-medium">{objective.code}</h3>
@@ -258,7 +297,9 @@ export default function QualityDashboard() {
                       {getStatusText(objective.status)}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{objective.title}</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {objective.title}
+                  </p>
                   <div className="flex items-center space-x-2">
                     <div className="flex-1 max-w-xs bg-gray-200 rounded-full h-2">
                       <div
@@ -266,7 +307,9 @@ export default function QualityDashboard() {
                         style={{ width: `${objective.progress_percentage}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-gray-500">{objective.progress_percentage}%</span>
+                    <span className="text-sm text-gray-500">
+                      {objective.progress_percentage}%
+                    </span>
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -314,7 +357,9 @@ export default function QualityDashboard() {
           </CardHeader>
           <CardContent className="text-center">
             <Button asChild>
-              <Link href="/dashboard/quality/indicadores">Ir a Indicadores</Link>
+              <Link href="/dashboard/quality/indicadores">
+                Ir a Indicadores
+              </Link>
             </Button>
           </CardContent>
         </Card>

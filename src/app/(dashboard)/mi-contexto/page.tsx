@@ -26,7 +26,9 @@ export default function MiContextoPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-red-900 mb-2">Error al cargar contexto</h2>
+          <h2 className="text-lg font-semibold text-red-900 mb-2">
+            Error al cargar contexto
+          </h2>
           <p className="text-red-700">{error.message}</p>
         </div>
       </div>
@@ -41,7 +43,8 @@ export default function MiContextoPage() {
             Contexto no disponible
           </h2>
           <p className="text-yellow-700">
-            No se pudo cargar tu información de contexto. Por favor, contacta al administrador.
+            No se pudo cargar tu información de contexto. Por favor, contacta al
+            administrador.
           </p>
         </div>
       </div>
@@ -54,7 +57,8 @@ export default function MiContextoPage() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Mi Contexto</h1>
         <p className="text-gray-600 mt-2">
-          Esta es la información que Don Cándido conoce sobre ti y tu rol en la organización.
+          Esta es la información que Don Cándido conoce sobre ti y tu rol en la
+          organización.
         </p>
       </div>
 

@@ -1,11 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   BarChart3,
   Plus,
@@ -14,7 +26,7 @@ import {
   Edit,
   TrendingUp,
   TrendingDown,
-  Minus
+  Minus,
 } from 'lucide-react';
 import Link from 'next/link';
 import { QualityIndicator } from '@/types/quality';
@@ -45,11 +57,13 @@ export default function IndicadoresListing() {
   };
 
   const filteredIndicators = indicators.filter(indicator => {
-    const matchesSearch = indicator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         indicator.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         indicator.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      indicator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      indicator.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      indicator.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || indicator.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'all' || indicator.status === statusFilter;
     const matchesType = typeFilter === 'all' || indicator.type === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
@@ -57,46 +71,66 @@ export default function IndicadoresListing() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'activo': return 'bg-green-100 text-green-800';
-      case 'inactivo': return 'bg-gray-100 text-gray-800';
-      case 'suspendido': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'activo':
+        return 'bg-green-100 text-green-800';
+      case 'inactivo':
+        return 'bg-gray-100 text-gray-800';
+      case 'suspendido':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'activo': return 'Activo';
-      case 'inactivo': return 'Inactivo';
-      case 'suspendido': return 'Suspendido';
-      default: return status;
+      case 'activo':
+        return 'Activo';
+      case 'inactivo':
+        return 'Inactivo';
+      case 'suspendido':
+        return 'Suspendido';
+      default:
+        return status;
     }
   };
 
   const getTypeText = (type: string) => {
     switch (type) {
-      case 'eficacia': return 'Eficacia';
-      case 'eficiencia': return 'Eficiencia';
-      case 'efectividad': return 'Efectividad';
-      case 'calidad': return 'Calidad';
-      case 'productividad': return 'Productividad';
-      default: return type;
+      case 'eficacia':
+        return 'Eficacia';
+      case 'eficiencia':
+        return 'Eficiencia';
+      case 'efectividad':
+        return 'Efectividad';
+      case 'calidad':
+        return 'Calidad';
+      case 'productividad':
+        return 'Productividad';
+      default:
+        return type;
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'ascendente': return <TrendingUp className="h-4 w-4 text-green-600" />;
-      case 'descendente': return <TrendingDown className="h-4 w-4 text-red-600" />;
-      default: return <Minus className="h-4 w-4 text-gray-600" />;
+      case 'ascendente':
+        return <TrendingUp className="h-4 w-4 text-green-600" />;
+      case 'descendente':
+        return <TrendingDown className="h-4 w-4 text-red-600" />;
+      default:
+        return <Minus className="h-4 w-4 text-gray-600" />;
     }
   };
 
   const getTrendText = (trend: string) => {
     switch (trend) {
-      case 'ascendente': return 'Ascendente';
-      case 'descendente': return 'Descendente';
-      default: return 'Estable';
+      case 'ascendente':
+        return 'Ascendente';
+      case 'descendente':
+        return 'Descendente';
+      default:
+        return 'Estable';
     }
   };
 
@@ -113,7 +147,9 @@ export default function IndicadoresListing() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Indicadores de Calidad</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Indicadores de Calidad
+          </h1>
           <p className="text-gray-600 mt-1">
             Métricas y KPIs para monitoreo continuo
           </p>
@@ -136,7 +172,7 @@ export default function IndicadoresListing() {
                 <Input
                   placeholder="Buscar indicadores..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -171,8 +207,11 @@ export default function IndicadoresListing() {
 
       {/* Indicators Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredIndicators.map((indicator) => (
-          <Card key={indicator.id} className="hover:shadow-lg transition-shadow">
+        {filteredIndicators.map(indicator => (
+          <Card
+            key={indicator.id}
+            className="hover:shadow-lg transition-shadow"
+          >
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -187,7 +226,9 @@ export default function IndicadoresListing() {
               </div>
             </CardHeader>
             <CardContent>
-              <h3 className="font-medium text-gray-900 mb-2">{indicator.name}</h3>
+              <h3 className="font-medium text-gray-900 mb-2">
+                {indicator.name}
+              </h3>
               <p className="text-sm text-gray-600 mb-4 line-clamp-2">
                 {indicator.description}
               </p>
@@ -198,7 +239,9 @@ export default function IndicadoresListing() {
                   <span className="text-sm font-medium">Valor Actual</span>
                   <div className="flex items-center space-x-1">
                     {getTrendIcon(indicator.trend)}
-                    <span className="text-sm text-gray-600">{getTrendText(indicator.trend)}</span>
+                    <span className="text-sm text-gray-600">
+                      {getTrendText(indicator.trend)}
+                    </span>
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-blue-600">
@@ -208,8 +251,12 @@ export default function IndicadoresListing() {
 
               {/* Targets */}
               <div className="text-sm text-gray-500 space-y-1 mb-4">
-                <div>Meta Mín: {indicator.target_min} {indicator.unit}</div>
-                <div>Meta Máx: {indicator.target_max} {indicator.unit}</div>
+                <div>
+                  Meta Mín: {indicator.target_min} {indicator.unit}
+                </div>
+                <div>
+                  Meta Máx: {indicator.target_max} {indicator.unit}
+                </div>
                 <div>Frecuencia: {indicator.measurement_frequency}</div>
               </div>
 
@@ -225,18 +272,24 @@ export default function IndicadoresListing() {
               <div className="flex justify-between items-center">
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/quality/indicadores/${indicator.id}`}>
+                    <Link
+                      href={`/dashboard/quality/indicadores/${indicator.id}`}
+                    >
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/quality/indicadores/${indicator.id}/edit`}>
+                    <Link
+                      href={`/dashboard/quality/indicadores/${indicator.id}/edit`}
+                    >
                       <Edit className="h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/dashboard/quality/indicadores/${indicator.id}/mediciones`}>
+                  <Link
+                    href={`/dashboard/quality/indicadores/${indicator.id}/mediciones`}
+                  >
                     <BarChart3 className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -256,8 +309,7 @@ export default function IndicadoresListing() {
             <p className="text-gray-600 mb-4">
               {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
                 ? 'Intenta ajustar los filtros de búsqueda'
-                : 'Comienza creando tu primer indicador de calidad'
-              }
+                : 'Comienza creando tu primer indicador de calidad'}
             </p>
             <Button asChild>
               <Link href="/dashboard/quality/indicadores/new">

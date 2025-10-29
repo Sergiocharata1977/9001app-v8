@@ -16,7 +16,7 @@ export default function DetalleUsuarioPage() {
   const params = useParams();
   const router = useRouter();
   const userId = params.id as string;
-  
+
   const [contexto, setContexto] = useState<UserContext | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -56,10 +56,12 @@ export default function DetalleUsuarioPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="bg-red-50 rounded-lg p-6 shadow-lg shadow-red-500/20">
-          <h2 className="text-lg font-semibold text-red-900 mb-2">Error al cargar contexto</h2>
+          <h2 className="text-lg font-semibold text-red-900 mb-2">
+            Error al cargar contexto
+          </h2>
           <p className="text-red-700">{error.message}</p>
-          <Button 
-            onClick={() => router.back()} 
+          <Button
+            onClick={() => router.back()}
             className="mt-4 shadow-sm"
             variant="outline"
           >
@@ -81,8 +83,8 @@ export default function DetalleUsuarioPage() {
           <p className="text-yellow-700">
             No se pudo cargar la información de contexto del usuario.
           </p>
-          <Button 
-            onClick={() => router.back()} 
+          <Button
+            onClick={() => router.back()}
             className="mt-4 shadow-sm"
             variant="outline"
           >
@@ -94,7 +96,7 @@ export default function DetalleUsuarioPage() {
     );
   }
 
-  const userName = contexto.personnel 
+  const userName = contexto.personnel
     ? `${contexto.personnel.nombres} ${contexto.personnel.apellidos}`
     : contexto.user.email;
 
@@ -121,7 +123,7 @@ export default function DetalleUsuarioPage() {
             Vista completa del contexto y responsabilidades del usuario
           </p>
         </div>
-        
+
         <Button
           onClick={() => router.push(`/admin/usuarios/${userId}/editar`)}
           className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
@@ -151,10 +153,13 @@ export default function DetalleUsuarioPage() {
       <div className="bg-white rounded-lg shadow-lg shadow-emerald-500/10 p-6">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl">📊</span>
-          <h2 className="text-xl font-bold text-gray-900">Actividad Reciente</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            Actividad Reciente
+          </h2>
         </div>
         <p className="text-gray-600">
-          Próximamente: Historial de sesiones con Don Cándido, consultas realizadas, etc.
+          Próximamente: Historial de sesiones con Don Cándido, consultas
+          realizadas, etc.
         </p>
       </div>
     </div>

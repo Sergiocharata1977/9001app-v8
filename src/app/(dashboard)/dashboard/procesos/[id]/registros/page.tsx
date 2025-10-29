@@ -17,7 +17,9 @@ export default function ProcessRecordsPage() {
   const processId = params.id as string;
 
   const [showForm, setShowForm] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<ProcessRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<ProcessRecord | null>(
+    null
+  );
   const [processName, setProcessName] = useState('Proceso');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -92,7 +94,9 @@ export default function ProcessRecordsPage() {
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
-                  onClick={() => router.push(`/dashboard/procesos/${processId}`)}
+                  onClick={() =>
+                    router.push(`/dashboard/procesos/${processId}`)
+                  }
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Volver al Proceso

@@ -40,7 +40,9 @@ export async function PUT(
     const body = await request.json();
 
     // Validate with Zod (partial update)
-    const validatedData = NormPointSchema.partial().parse(body) as Partial<NormPointFormData>;
+    const validatedData = NormPointSchema.partial().parse(
+      body
+    ) as Partial<NormPointFormData>;
 
     const normPoint = await NormPointService.update(id, validatedData);
 

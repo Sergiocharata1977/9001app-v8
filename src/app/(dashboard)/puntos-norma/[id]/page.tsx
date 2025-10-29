@@ -51,7 +51,9 @@ export default function NormPointDetailPage() {
 
   const fetchRelatedDocuments = async (normPointId: string) => {
     try {
-      const response = await fetch(`/api/documents?norm_point_id=${normPointId}`);
+      const response = await fetch(
+        `/api/documents?norm_point_id=${normPointId}`
+      );
       if (response.ok) {
         const data = await response.json();
         setRelatedDocuments(data.data || []);
@@ -124,7 +126,9 @@ export default function NormPointDetailPage() {
                   <h1 className="text-3xl font-bold text-gray-900">
                     {normPoint.code}
                   </h1>
-                  <p className="text-lg text-gray-700 mt-1">{normPoint.title}</p>
+                  <p className="text-lg text-gray-700 mt-1">
+                    {normPoint.title}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-3">
@@ -148,7 +152,9 @@ export default function NormPointDetailPage() {
 
             <div className="flex gap-2">
               <Button
-                onClick={() => router.push(`/puntos-norma/${normPoint.id}/edit`)}
+                onClick={() =>
+                  router.push(`/puntos-norma/${normPoint.id}/edit`)
+                }
                 variant="outline"
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -169,13 +175,17 @@ export default function NormPointDetailPage() {
           <FileText className="h-5 w-5 text-green-600" />
           Descripción
         </h2>
-        <p className="text-gray-700 whitespace-pre-wrap">{normPoint.description}</p>
+        <p className="text-gray-700 whitespace-pre-wrap">
+          {normPoint.description}
+        </p>
       </div>
 
       {/* Requisito */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Requisito</h2>
-        <p className="text-gray-700 whitespace-pre-wrap">{normPoint.requirement}</p>
+        <p className="text-gray-700 whitespace-pre-wrap">
+          {normPoint.requirement}
+        </p>
       </div>
 
       {/* Documentos Relacionados */}
@@ -187,7 +197,7 @@ export default function NormPointDetailPage() {
         </h2>
         {relatedDocuments.length > 0 ? (
           <div className="space-y-2">
-            {relatedDocuments.map((doc) => (
+            {relatedDocuments.map(doc => (
               <div
                 key={doc.id}
                 className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"

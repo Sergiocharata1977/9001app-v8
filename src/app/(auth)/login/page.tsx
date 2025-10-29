@@ -18,13 +18,13 @@ export default function LoginPage() {
     setError('');
 
     const result = await signIn(email, password);
-    
+
     if (result.success) {
       router.push('/dashboard');
     } else {
       setError(result.error || 'Error al iniciar sesión');
     }
-    
+
     setLoading(false);
   };
 
@@ -39,7 +39,7 @@ export default function LoginPage() {
             Sistema de Gestión ISO 9001
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -54,7 +54,7 @@ export default function LoginPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -69,15 +69,13 @@ export default function LoginPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Contraseña"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
               />
             </div>
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
+            <div className="text-red-600 text-sm text-center">{error}</div>
           )}
 
           <div>
@@ -93,7 +91,10 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-sm text-gray-600">
               ¿No tienes cuenta?{' '}
-              <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link
+                href="/register"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
                 Regístrate aquí
               </Link>
             </p>
@@ -103,9 +104,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
-
-
-
-

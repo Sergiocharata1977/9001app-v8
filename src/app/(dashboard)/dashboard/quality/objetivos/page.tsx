@@ -1,11 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Target,
   Plus,
@@ -14,7 +26,7 @@ import {
   Eye,
   Edit,
   Trash2,
-  MoreHorizontal
+  MoreHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { QualityObjective } from '@/types/quality';
@@ -45,11 +57,13 @@ export default function ObjetivosListing() {
   };
 
   const filteredObjectives = objectives.filter(objective => {
-    const matchesSearch = objective.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         objective.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         objective.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      objective.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      objective.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      objective.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || objective.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'all' || objective.status === statusFilter;
     const matchesType = typeFilter === 'all' || objective.type === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
@@ -57,30 +71,44 @@ export default function ObjetivosListing() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'activo': return 'bg-blue-100 text-blue-800';
-      case 'completado': return 'bg-green-100 text-green-800';
-      case 'atrasado': return 'bg-red-100 text-red-800';
-      case 'cancelado': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'activo':
+        return 'bg-blue-100 text-blue-800';
+      case 'completado':
+        return 'bg-green-100 text-green-800';
+      case 'atrasado':
+        return 'bg-red-100 text-red-800';
+      case 'cancelado':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'activo': return 'Activo';
-      case 'completado': return 'Completado';
-      case 'atrasado': return 'Atrasado';
-      case 'cancelado': return 'Cancelado';
-      default: return status;
+      case 'activo':
+        return 'Activo';
+      case 'completado':
+        return 'Completado';
+      case 'atrasado':
+        return 'Atrasado';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return status;
     }
   };
 
   const getTypeText = (type: string) => {
     switch (type) {
-      case 'estrategico': return 'Estratégico';
-      case 'tactico': return 'Táctico';
-      case 'operativo': return 'Operativo';
-      default: return type;
+      case 'estrategico':
+        return 'Estratégico';
+      case 'tactico':
+        return 'Táctico';
+      case 'operativo':
+        return 'Operativo';
+      default:
+        return type;
     }
   };
 
@@ -97,7 +125,9 @@ export default function ObjetivosListing() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Objetivos de Calidad</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Objetivos de Calidad
+          </h1>
           <p className="text-gray-600 mt-1">
             Gestión de objetivos SMART vinculados a procesos
           </p>
@@ -120,7 +150,7 @@ export default function ObjetivosListing() {
                 <Input
                   placeholder="Buscar objetivos..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -154,8 +184,11 @@ export default function ObjetivosListing() {
 
       {/* Objectives Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredObjectives.map((objective) => (
-          <Card key={objective.id} className="hover:shadow-lg transition-shadow">
+        {filteredObjectives.map(objective => (
+          <Card
+            key={objective.id}
+            className="hover:shadow-lg transition-shadow"
+          >
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -170,7 +203,9 @@ export default function ObjetivosListing() {
               </div>
             </CardHeader>
             <CardContent>
-              <h3 className="font-medium text-gray-900 mb-2">{objective.title}</h3>
+              <h3 className="font-medium text-gray-900 mb-2">
+                {objective.title}
+              </h3>
               <p className="text-sm text-gray-600 mb-4 line-clamp-2">
                 {objective.description}
               </p>
@@ -191,9 +226,15 @@ export default function ObjetivosListing() {
 
               {/* Meta info */}
               <div className="text-sm text-gray-500 space-y-1 mb-4">
-                <div>Meta: {objective.target_value} {objective.unit}</div>
-                <div>Actual: {objective.current_value} {objective.unit}</div>
-                <div>Vence: {new Date(objective.due_date).toLocaleDateString()}</div>
+                <div>
+                  Meta: {objective.target_value} {objective.unit}
+                </div>
+                <div>
+                  Actual: {objective.current_value} {objective.unit}
+                </div>
+                <div>
+                  Vence: {new Date(objective.due_date).toLocaleDateString()}
+                </div>
               </div>
 
               {/* Actions */}
@@ -205,7 +246,9 @@ export default function ObjetivosListing() {
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/quality/objetivos/${objective.id}/edit`}>
+                    <Link
+                      href={`/dashboard/quality/objetivos/${objective.id}/edit`}
+                    >
                       <Edit className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -229,8 +272,7 @@ export default function ObjetivosListing() {
             <p className="text-gray-600 mb-4">
               {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
                 ? 'Intenta ajustar los filtros de búsqueda'
-                : 'Comienza creando tu primer objetivo de calidad'
-              }
+                : 'Comienza creando tu primer objetivo de calidad'}
             </p>
             <Button asChild>
               <Link href="/dashboard/quality/objetivos/new">

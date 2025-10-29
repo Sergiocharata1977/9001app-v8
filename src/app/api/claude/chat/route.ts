@@ -8,7 +8,10 @@ import { ValidationService } from '@/lib/claude/validators';
 import { ChatSessionService } from '@/services/chat/ChatSessionService';
 import { UsageTrackingService } from '@/services/tracking/UsageTrackingService';
 import { sanitizeInput, sanitizeOutput } from '@/lib/utils/sanitization';
-import { checkRateLimit, createRateLimitResponse } from '@/lib/utils/rate-limiter';
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+} from '@/lib/utils/rate-limiter';
 import { errorLogger, ErrorSeverity } from '@/lib/utils/ErrorLogger';
 
 interface ChatRequest {
@@ -34,13 +37,13 @@ export async function POST(request: NextRequest) {
         ErrorSeverity.WARNING
       );
       return NextResponse.json(
-        { 
+        {
           error: 'Parámetros requeridos faltantes',
           details: {
             mensaje: !mensaje ? 'requerido' : 'ok',
             userId: !userId ? 'requerido' : 'ok',
-            sessionId: !sessionId ? 'requerido' : 'ok'
-          }
+            sessionId: !sessionId ? 'requerido' : 'ok',
+          },
         },
         { status: 400 }
       );
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
       userId,
       sessionId,
       messageLength: mensajeSanitizado.length,
-      rateLimitRemaining: rateLimit.remaining
+      rateLimitRemaining: rateLimit.remaining,
     });
 
     // Validate query is about ISO 9001
@@ -74,7 +77,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         respuesta: validacion.respuesta,
         tokens: { input: 0, output: 0 },
-        tiempo_respuesta_ms: Date.now() - startTime
+        tiempo_respuesta_ms: Date.now() - startTime,
       });
     }
 
@@ -94,13 +97,14 @@ export async function POST(request: NextRequest) {
     // Prepare messages for Claude
     const mensajesClaude = [
       ...historial.map(msg => ({
-        role: msg.tipo === 'usuario' ? ('user' as const) : ('assistant' as const),
-        content: msg.contenido
+        role:
+          msg.tipo === 'usuario' ? ('user' as const) : ('assistant' as const),
+        content: msg.contenido,
       })),
       {
         role: 'user' as const,
-        content: mensajeSanitizado
-      }
+        content: mensajeSanitizado,
+      },
     ];
 
     // Call Claude API
@@ -120,7 +124,7 @@ export async function POST(request: NextRequest) {
     await ChatSessionService.agregarMensaje(sessionId, {
       tipo: 'usuario',
       contenido: mensajeSanitizado,
-      via: 'texto'
+      via: 'texto',
     });
 
     // Save assistant message to session
@@ -128,7 +132,7 @@ export async function POST(request: NextRequest) {
       tipo: 'asistente',
       contenido: respuestaSanitizada,
       via: 'texto',
-      tokens: response.usage
+      tokens: response.usage,
     });
 
     // Track usage
@@ -139,8 +143,8 @@ export async function POST(request: NextRequest) {
       tokens: response.usage,
       metadata: {
         modulo: modulo || 'general',
-        tiempo_respuesta_ms
-      }
+        tiempo_respuesta_ms,
+      },
     });
 
     // Log usage and performance
@@ -148,14 +152,17 @@ export async function POST(request: NextRequest) {
       userId,
       response.usage.input,
       response.usage.output,
-      UsageTrackingService.calcularCosto(response.usage.input, response.usage.output),
+      UsageTrackingService.calcularCosto(
+        response.usage.input,
+        response.usage.output
+      ),
       tiempo_respuesta_ms
     );
 
     console.log('[API /claude/chat] Request completed:', {
       tiempo_respuesta_ms,
       tokens: response.usage,
-      rateLimitRemaining: rateLimit.remaining
+      rateLimitRemaining: rateLimit.remaining,
     });
 
     // Return response
@@ -163,29 +170,30 @@ export async function POST(request: NextRequest) {
       respuesta: respuestaSanitizada,
       tokens: response.usage,
       tiempo_respuesta_ms,
-      rateLimitRemaining: rateLimit.remaining
+      rateLimitRemaining: rateLimit.remaining,
     });
-
   } catch (error) {
     const tiempo_respuesta_ms = Date.now() - startTime;
-    
+
     errorLogger.logError(
       error as Error,
-      { 
+      {
         userId: (await request.json()).userId,
         sessionId: (await request.json()).sessionId,
         operation: 'chat',
-        metadata: { tiempo_respuesta_ms }
+        metadata: { tiempo_respuesta_ms },
       },
       ErrorSeverity.ERROR
     );
 
-    const userFriendlyMessage = errorLogger.getUserFriendlyMessage(error as Error);
+    const userFriendlyMessage = errorLogger.getUserFriendlyMessage(
+      error as Error
+    );
 
     return NextResponse.json(
       {
         error: userFriendlyMessage,
-        tiempo_respuesta_ms
+        tiempo_respuesta_ms,
       },
       { status: 500 }
     );

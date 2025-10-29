@@ -16,7 +16,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[API /admin/users/create] Creating admin user:', { uid, email, role });
+    console.log('[API /admin/users/create] Creating admin user:', {
+      uid,
+      email,
+      role,
+    });
 
     // Check if user already exists
     const existingUser = await UserService.getById(uid);
@@ -32,20 +36,22 @@ export async function POST(request: NextRequest) {
     // Update role to admin
     await UserService.updateRole(uid, role as any);
 
-    console.log('[API /admin/users/create] Admin user created successfully:', user.id);
+    console.log(
+      '[API /admin/users/create] Admin user created successfully:',
+      user.id
+    );
 
     return NextResponse.json({
       user,
-      message: 'Usuario administrador creado exitosamente'
+      message: 'Usuario administrador creado exitosamente',
     });
-
   } catch (error) {
     console.error('[API /admin/users/create] Error:', error);
 
     return NextResponse.json(
       {
         error: 'Error al crear usuario administrador',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

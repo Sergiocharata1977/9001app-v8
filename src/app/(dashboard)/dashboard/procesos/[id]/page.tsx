@@ -8,13 +8,28 @@ import { ProcessQualityMetrics } from '@/components/procesos/ProcessQualityMetri
 import { ProcessDefinitionFormData } from '@/lib/validations/procesos';
 import { ProcessService } from '@/services/procesos/ProcessService';
 import { ProcessDefinition } from '@/types/procesos';
-import { QualityObjective, QualityIndicator, Measurement } from '@/types/quality';
+import {
+  QualityObjective,
+  QualityIndicator,
+  Measurement,
+} from '@/types/quality';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronDown, ChevronRight, Edit, ArrowLeft, FileText, Target } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Edit,
+  ArrowLeft,
+  FileText,
+  Target,
+} from 'lucide-react';
 
 export default function ProcessDetailPage() {
   const params = useParams();
@@ -31,7 +46,7 @@ export default function ProcessDetailPage() {
     salidas: false,
     controles: false,
     indicadores: false,
-    documentos: false
+    documentos: false,
   });
 
   useEffect(() => {
@@ -55,13 +70,21 @@ export default function ProcessDetailPage() {
     setIsLoading(true);
     try {
       // Transform array fields from objects to strings
-      const transformedData: Partial<Omit<ProcessDefinition, 'id' | 'createdAt'>> = {
+      const transformedData: Partial<
+        Omit<ProcessDefinition, 'id' | 'createdAt'>
+      > = {
         ...data,
-        entradas: data.entradas.map(e => typeof e === 'string' ? e : e.value),
-        salidas: data.salidas.map(s => typeof s === 'string' ? s : s.value),
-        controles: data.controles.map(c => typeof c === 'string' ? c : c.value),
-        indicadores: data.indicadores.map(i => typeof i === 'string' ? i : i.value),
-        documentos: data.documentos.map(d => typeof d === 'string' ? d : d.value),
+        entradas: data.entradas.map(e => (typeof e === 'string' ? e : e.value)),
+        salidas: data.salidas.map(s => (typeof s === 'string' ? s : s.value)),
+        controles: data.controles.map(c =>
+          typeof c === 'string' ? c : c.value
+        ),
+        indicadores: data.indicadores.map(i =>
+          typeof i === 'string' ? i : i.value
+        ),
+        documentos: data.documentos.map(d =>
+          typeof d === 'string' ? d : d.value
+        ),
       };
 
       await ProcessService.update(processId, transformedData);
@@ -82,34 +105,52 @@ export default function ProcessDetailPage() {
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
-  const renderArrayField = (title: string, items: string[] | undefined, section: string) => {
+  const renderArrayField = (
+    title: string,
+    items: string[] | undefined,
+    section: string
+  ) => {
     const safeItems = items || [];
-    
+
     return (
       <Collapsible
         open={openSections[section]}
         onOpenChange={() => toggleSection(section)}
       >
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-4 h-auto hover:bg-emerald-50/50 transition-colors duration-200">
-            <span className="font-medium text-gray-800">{title} ({safeItems.length})</span>
-            {openSections[section] ? <ChevronDown className="h-4 w-4 text-emerald-600" /> : <ChevronRight className="h-4 w-4 text-emerald-600" />}
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-4 h-auto hover:bg-emerald-50/50 transition-colors duration-200"
+          >
+            <span className="font-medium text-gray-800">
+              {title} ({safeItems.length})
+            </span>
+            {openSections[section] ? (
+              <ChevronDown className="h-4 w-4 text-emerald-600" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-emerald-600" />
+            )}
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="px-4 pb-4">
           <div className="space-y-2">
             {safeItems.length > 0 ? (
               safeItems.map((item, index) => (
-                <div key={index} className="p-3 bg-gradient-to-r from-emerald-50/30 to-white rounded-lg shadow-sm border border-emerald-100/30 hover:shadow-md transition-all duration-200">
+                <div
+                  key={index}
+                  className="p-3 bg-gradient-to-r from-emerald-50/30 to-white rounded-lg shadow-sm border border-emerald-100/30 hover:shadow-md transition-all duration-200"
+                >
                   {item}
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 italic p-3 bg-gray-50/50 rounded-lg">No hay elementos definidos</p>
+              <p className="text-gray-500 italic p-3 bg-gray-50/50 rounded-lg">
+                No hay elementos definidos
+              </p>
             )}
           </div>
         </CollapsibleContent>
@@ -132,7 +173,9 @@ export default function ProcessDetailPage() {
       <div className="p-6">
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Proceso no encontrado</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            Proceso no encontrado
+          </h3>
           <p className="mt-1 text-sm text-gray-500">
             El proceso que buscas no existe o ha sido eliminado.
           </p>
@@ -191,14 +234,22 @@ export default function ProcessDetailPage() {
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                 {process.nombre}
               </h1>
-              <p className="text-emerald-700 font-medium">Código: {process.codigo}</p>
+              <p className="text-emerald-700 font-medium">
+                Código: {process.codigo}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className={process.estado === 'activo' ? 'bg-emerald-100 text-emerald-800 shadow-sm' : 'bg-gray-100 text-gray-800 shadow-sm'}>
+            <Badge
+              className={
+                process.estado === 'activo'
+                  ? 'bg-emerald-100 text-emerald-800 shadow-sm'
+                  : 'bg-gray-100 text-gray-800 shadow-sm'
+              }
+            >
               {process.estado === 'activo' ? 'Activo' : 'Inactivo'}
             </Badge>
-            <Button 
+            <Button
               onClick={() => setEditing(true)}
               className="bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all duration-200"
             >
@@ -214,7 +265,9 @@ export default function ProcessDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50/30">
               <CardHeader className="bg-gradient-to-r from-emerald-50 to-transparent border-b border-emerald-100/50">
-                <CardTitle className="text-emerald-800">Información General</CardTitle>
+                <CardTitle className="text-emerald-800">
+                  Información General
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 p-6">
                 <div className="p-4 bg-white/60 rounded-lg shadow-sm border border-emerald-100/30">
@@ -226,7 +279,9 @@ export default function ProcessDetailPage() {
                   <p className="mt-1 text-gray-600">{process.alcance}</p>
                 </div>
                 <div className="p-4 bg-white/60 rounded-lg shadow-sm border border-emerald-100/30">
-                  <h3 className="font-medium text-gray-900 mb-2">Responsable</h3>
+                  <h3 className="font-medium text-gray-900 mb-2">
+                    Responsable
+                  </h3>
                   <p className="mt-1 text-gray-600">{process.responsable}</p>
                 </div>
               </CardContent>
@@ -238,8 +293,16 @@ export default function ProcessDetailPage() {
                 {renderArrayField('Entradas', process.entradas, 'entradas')}
                 {renderArrayField('Salidas', process.salidas, 'salidas')}
                 {renderArrayField('Controles', process.controles, 'controles')}
-                {renderArrayField('Indicadores', process.indicadores, 'indicadores')}
-                {renderArrayField('Documentos', process.documentos, 'documentos')}
+                {renderArrayField(
+                  'Indicadores',
+                  process.indicadores,
+                  'indicadores'
+                )}
+                {renderArrayField(
+                  'Documentos',
+                  process.documentos,
+                  'documentos'
+                )}
               </CardContent>
             </Card>
           </div>
@@ -249,16 +312,20 @@ export default function ProcessDetailPage() {
             {/* Registro de Procesos */}
             <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50/30">
               <CardHeader className="bg-gradient-to-r from-emerald-50 to-transparent border-b border-emerald-100/50">
-                <CardTitle className="text-emerald-800">Registro de Procesos</CardTitle>
+                <CardTitle className="text-emerald-800">
+                  Registro de Procesos
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 p-6">
                 {/* Documentos Relacionados */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">Documentos Relacionados</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Documentos Relacionados
+                  </h4>
                   <div className="space-y-1">
                     {process.documentos && process.documentos.length > 0 ? (
                       process.documentos.slice(0, 3).map((doc, index) => (
-                        <div 
+                        <div
                           key={index}
                           className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors"
                         >
@@ -280,26 +347,38 @@ export default function ProcessDetailPage() {
 
                 {/* Puntos de la Norma */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">Puntos de la Norma</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Puntos de la Norma
+                  </h4>
                   <div className="space-y-1">
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">ISO 9001:2015 - Cláusula 4.4</span>
+                      <span className="text-sm text-gray-600">
+                        ISO 9001:2015 - Cláusula 4.4
+                      </span>
                     </div>
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">ISO 9001:2015 - Cláusula 8.1</span>
+                      <span className="text-sm text-gray-600">
+                        ISO 9001:2015 - Cláusula 8.1
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Objetivos de Calidad */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">Objetivos de Calidad</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Objetivos de Calidad
+                  </h4>
                   <div className="space-y-1">
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">Mejorar satisfacción del cliente</span>
+                      <span className="text-sm text-gray-600">
+                        Mejorar satisfacción del cliente
+                      </span>
                     </div>
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">Reducir tiempo de entrega</span>
+                      <span className="text-sm text-gray-600">
+                        Reducir tiempo de entrega
+                      </span>
                     </div>
                     <div className="text-xs text-emerald-600 cursor-pointer hover:text-emerald-700">
                       +2 más...
@@ -309,26 +388,38 @@ export default function ProcessDetailPage() {
 
                 {/* Indicadores de Calidad */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">Indicadores de Calidad</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Indicadores de Calidad
+                  </h4>
                   <div className="space-y-1">
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">Tiempo promedio de entrega</span>
+                      <span className="text-sm text-gray-600">
+                        Tiempo promedio de entrega
+                      </span>
                     </div>
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">Nivel de satisfacción</span>
+                      <span className="text-sm text-gray-600">
+                        Nivel de satisfacción
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Mediciones */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">Mediciones</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Mediciones
+                  </h4>
                   <div className="space-y-1">
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">Medición Q1 2024</span>
+                      <span className="text-sm text-gray-600">
+                        Medición Q1 2024
+                      </span>
                     </div>
                     <div className="p-2 bg-white/60 rounded border border-emerald-100/30 hover:bg-emerald-50/50 cursor-pointer transition-colors">
-                      <span className="text-sm text-gray-600">Medición Q2 2024</span>
+                      <span className="text-sm text-gray-600">
+                        Medición Q2 2024
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -337,7 +428,9 @@ export default function ProcessDetailPage() {
                 <div className="pt-4 border-t border-emerald-100/30">
                   <Button
                     className="w-full bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all duration-200"
-                    onClick={() => router.push(`/dashboard/procesos/${processId}/registros`)}
+                    onClick={() =>
+                      router.push(`/dashboard/procesos/${processId}/registros`)
+                    }
                   >
                     <FileText className="mr-2 h-4 w-4" />
                     Ver Todos los Registros
@@ -348,7 +441,9 @@ export default function ProcessDetailPage() {
 
             <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50/20">
               <CardHeader className="bg-gradient-to-r from-emerald-50 to-transparent border-b border-emerald-100/50">
-                <CardTitle className="text-emerald-800">Información del Sistema</CardTitle>
+                <CardTitle className="text-emerald-800">
+                  Información del Sistema
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 p-6">
                 <div className="p-3 bg-white/60 rounded-lg shadow-sm border border-emerald-100/30">
@@ -358,14 +453,18 @@ export default function ProcessDetailPage() {
                   </p>
                 </div>
                 <div className="p-3 bg-white/60 rounded-lg shadow-sm border border-emerald-100/30">
-                  <p className="text-sm text-gray-500 mb-1">Última actualización</p>
+                  <p className="text-sm text-gray-500 mb-1">
+                    Última actualización
+                  </p>
                   <p className="text-sm font-medium text-gray-900">
                     {new Date(process.updatedAt).toLocaleDateString('es-ES')}
                   </p>
                 </div>
                 <div className="p-3 bg-white/60 rounded-lg shadow-sm border border-emerald-100/30">
                   <p className="text-sm text-gray-500 mb-1">ID</p>
-                  <p className="text-sm font-mono break-all text-gray-700">{process.id}</p>
+                  <p className="text-sm font-mono break-all text-gray-700">
+                    {process.id}
+                  </p>
                 </div>
               </CardContent>
             </Card>

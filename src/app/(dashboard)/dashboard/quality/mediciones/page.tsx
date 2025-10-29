@@ -1,11 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Activity,
   Plus,
@@ -14,7 +26,7 @@ import {
   Edit,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Measurement } from '@/types/quality';
@@ -44,38 +56,53 @@ export default function MedicionesListing() {
   };
 
   const filteredMeasurements = measurements.filter(measurement => {
-    const matchesSearch = measurement.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         measurement.measurement_method.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         measurement.data_source.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      measurement.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      measurement.measurement_method
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      measurement.data_source.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || measurement.validation_status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'all' || measurement.validation_status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'validado': return 'bg-green-100 text-green-800';
-      case 'rechazado': return 'bg-red-100 text-red-800';
-      case 'pendiente': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'validado':
+        return 'bg-green-100 text-green-800';
+      case 'rechazado':
+        return 'bg-red-100 text-red-800';
+      case 'pendiente':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'validado': return 'Validado';
-      case 'rechazado': return 'Rechazado';
-      case 'pendiente': return 'Pendiente';
-      default: return status;
+      case 'validado':
+        return 'Validado';
+      case 'rechazado':
+        return 'Rechazado';
+      case 'pendiente':
+        return 'Pendiente';
+      default:
+        return status;
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'validado': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'rechazado': return <XCircle className="h-4 w-4 text-red-600" />;
-      default: return <Clock className="h-4 w-4 text-yellow-600" />;
+      case 'validado':
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'rechazado':
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      default:
+        return <Clock className="h-4 w-4 text-yellow-600" />;
     }
   };
 
@@ -92,7 +119,9 @@ export default function MedicionesListing() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Mediciones de Calidad</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Mediciones de Calidad
+          </h1>
           <p className="text-gray-600 mt-1">
             Registro y validación de valores medidos
           </p>
@@ -115,7 +144,7 @@ export default function MedicionesListing() {
                 <Input
                   placeholder="Buscar mediciones..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -137,8 +166,11 @@ export default function MedicionesListing() {
 
       {/* Measurements List */}
       <div className="space-y-4">
-        {filteredMeasurements.map((measurement) => (
-          <Card key={measurement.id} className="hover:shadow-lg transition-shadow">
+        {filteredMeasurements.map(measurement => (
+          <Card
+            key={measurement.id}
+            className="hover:shadow-lg transition-shadow"
+          >
             <CardContent className="pt-6">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
@@ -149,10 +181,14 @@ export default function MedicionesListing() {
                     <div className="text-sm text-gray-500">
                       ID Indicador: {measurement.indicator_id}
                     </div>
-                    <Badge className={getStatusColor(measurement.validation_status)}>
+                    <Badge
+                      className={getStatusColor(measurement.validation_status)}
+                    >
                       <div className="flex items-center space-x-1">
                         {getStatusIcon(measurement.validation_status)}
-                        <span>{getStatusText(measurement.validation_status)}</span>
+                        <span>
+                          {getStatusText(measurement.validation_status)}
+                        </span>
                       </div>
                     </Badge>
                   </div>
@@ -160,7 +196,11 @@ export default function MedicionesListing() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                       <span className="font-medium">Fecha de Medición:</span>
-                      <div>{new Date(measurement.measurement_date).toLocaleDateString()}</div>
+                      <div>
+                        {new Date(
+                          measurement.measurement_date
+                        ).toLocaleDateString()}
+                      </div>
                     </div>
                     <div>
                       <span className="font-medium">Método:</span>
@@ -183,34 +223,50 @@ export default function MedicionesListing() {
                     {measurement.validation_date && (
                       <div>
                         <span className="font-medium">Fecha Validación:</span>
-                        <div>{new Date(measurement.validation_date).toLocaleDateString()}</div>
+                        <div>
+                          {new Date(
+                            measurement.validation_date
+                          ).toLocaleDateString()}
+                        </div>
                       </div>
                     )}
                   </div>
 
                   {measurement.notes && (
                     <div className="mt-3">
-                      <span className="font-medium text-sm">Observaciones:</span>
-                      <p className="text-sm text-gray-600 mt-1">{measurement.notes}</p>
+                      <span className="font-medium text-sm">
+                        Observaciones:
+                      </span>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {measurement.notes}
+                      </p>
                     </div>
                   )}
 
                   {measurement.validation_notes && (
                     <div className="mt-3">
-                      <span className="font-medium text-sm">Notas de Validación:</span>
-                      <p className="text-sm text-gray-600 mt-1">{measurement.validation_notes}</p>
+                      <span className="font-medium text-sm">
+                        Notas de Validación:
+                      </span>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {measurement.validation_notes}
+                      </p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex space-x-2 ml-4">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/quality/mediciones/${measurement.id}`}>
+                    <Link
+                      href={`/dashboard/quality/mediciones/${measurement.id}`}
+                    >
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/quality/mediciones/${measurement.id}/edit`}>
+                    <Link
+                      href={`/dashboard/quality/mediciones/${measurement.id}/edit`}
+                    >
                       <Edit className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -231,8 +287,7 @@ export default function MedicionesListing() {
             <p className="text-gray-600 mb-4">
               {searchTerm || statusFilter !== 'all'
                 ? 'Intenta ajustar los filtros de búsqueda'
-                : 'Comienza registrando tu primera medición de calidad'
-              }
+                : 'Comienza registrando tu primera medición de calidad'}
             </p>
             <Button asChild>
               <Link href="/dashboard/quality/mediciones/new">

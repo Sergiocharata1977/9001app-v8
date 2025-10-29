@@ -68,19 +68,16 @@ export async function DELETE(
   try {
     const { id } = await params;
     console.log('[API DELETE] Eliminando documento:', id);
-    
+
     await DocumentService.archive(id);
-    
+
     console.log('[API DELETE] Documento archivado exitosamente:', id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[API DELETE] Error completo:', error);
     if (error instanceof Error) {
       console.error('[API DELETE] Mensaje:', error.message);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json(
       { error: 'Error al eliminar documento' },

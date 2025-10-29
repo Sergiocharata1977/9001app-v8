@@ -7,9 +7,12 @@ export default function ConocimientosPage() {
     <div className="p-6">
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Base de Conocimientos</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Base de Conocimientos
+          </h1>
           <p className="text-gray-600 mt-2">
-            Gestión y organización de la base de conocimientos del sistema ISO 9001
+            Gestión y organización de la base de conocimientos del sistema ISO
+            9001
           </p>
         </div>
 
@@ -19,7 +22,8 @@ export default function ConocimientosPage() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600">
-              Esta sección está en desarrollo. Próximamente podrás gestionar la base de conocimientos.
+              Esta sección está en desarrollo. Próximamente podrás gestionar la
+              base de conocimientos.
             </p>
           </CardContent>
         </Card>

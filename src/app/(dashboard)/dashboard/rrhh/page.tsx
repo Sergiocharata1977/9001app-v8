@@ -3,14 +3,14 @@
 import { RRHHStats } from '@/components/rrhh/RRHHStats';
 import { RRHHDashboardCard } from '@/components/rrhh/RRHHDashboardCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Building2, 
-  Briefcase, 
-  UserCheck, 
-  GraduationCap, 
+import {
+  Building2,
+  Briefcase,
+  UserCheck,
+  GraduationCap,
   FileText,
   BarChart3,
-  Workflow
+  Workflow,
 } from 'lucide-react';
 
 export default function RRHHDashboardPage() {
@@ -23,7 +23,7 @@ export default function RRHHDashboardPage() {
       ruta: '/dashboard/rrhh/departments',
       color: 'blue',
       habilitado: true,
-      estadisticas: { total: 6, activos: 6 }
+      estadisticas: { total: 6, activos: 6 },
     },
     {
       id: 'positions',
@@ -33,7 +33,7 @@ export default function RRHHDashboardPage() {
       ruta: '/dashboard/rrhh/positions',
       color: 'green',
       habilitado: true,
-      estadisticas: { total: 12, activos: 12 }
+      estadisticas: { total: 12, activos: 12 },
     },
     {
       id: 'personnel',
@@ -43,7 +43,7 @@ export default function RRHHDashboardPage() {
       ruta: '/dashboard/rrhh/personnel',
       color: 'purple',
       habilitado: true,
-      estadisticas: { total: 24, activos: 24 }
+      estadisticas: { total: 24, activos: 24 },
     },
     {
       id: 'trainings',
@@ -53,7 +53,7 @@ export default function RRHHDashboardPage() {
       ruta: '/dashboard/rrhh/trainings',
       color: 'orange',
       habilitado: true,
-      estadisticas: { total: 8, en_curso: 3 }
+      estadisticas: { total: 8, en_curso: 3 },
     },
     {
       id: 'evaluations',
@@ -63,7 +63,7 @@ export default function RRHHDashboardPage() {
       ruta: '/dashboard/rrhh/evaluations',
       color: 'red',
       habilitado: true,
-      estadisticas: { total: 15, pendientes: 5 }
+      estadisticas: { total: 15, pendientes: 5 },
     },
     {
       id: 'kanban',
@@ -73,8 +73,8 @@ export default function RRHHDashboardPage() {
       ruta: '/dashboard/rrhh/kanban',
       color: 'indigo',
       habilitado: true,
-      estadisticas: { tareas: 12, completadas: 8 }
-    }
+      estadisticas: { tareas: 12, completadas: 8 },
+    },
   ];
 
   return (
@@ -82,7 +82,9 @@ export default function RRHHDashboardPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard RRHH</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Dashboard RRHH
+          </h1>
           <p className="text-gray-600 mt-2">
             Gestión integral de Recursos Humanos - Sistema ISO 9001
           </p>
@@ -100,9 +102,11 @@ export default function RRHHDashboardPage() {
 
         {/* Módulos RRHH */}
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-6">Módulos RRHH</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-6">
+            Módulos RRHH
+          </h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {modules.map((module) => (
+            {modules.map(module => (
               <RRHHDashboardCard
                 key={module.id}
                 id={module.id}

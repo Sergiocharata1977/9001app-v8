@@ -84,7 +84,10 @@ export default function DocumentDetailPage() {
   const getStatusBadge = (status: DocumentStatus) => {
     const config: Record<
       DocumentStatus,
-      { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }
+      {
+        variant: 'default' | 'secondary' | 'destructive' | 'outline';
+        label: string;
+      }
     > = {
       borrador: { variant: 'secondary', label: '✏️ Borrador' },
       en_revision: { variant: 'outline', label: '👀 En Revisión' },
@@ -205,7 +208,9 @@ export default function DocumentDetailPage() {
           </h2>
           <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium text-gray-500">Código</label>
+              <label className="text-sm font-medium text-gray-500">
+                Código
+              </label>
               <p className="text-gray-900">{document.code}</p>
             </div>
             <div>
@@ -213,11 +218,15 @@ export default function DocumentDetailPage() {
               <p className="text-gray-900">{getTypeLabel(document.type)}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Estado</label>
+              <label className="text-sm font-medium text-gray-500">
+                Estado
+              </label>
               <div className="mt-1">{getStatusBadge(document.status)}</div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Versión</label>
+              <label className="text-sm font-medium text-gray-500">
+                Versión
+              </label>
               <p className="text-gray-900">{document.version}</p>
             </div>
             {document.category && (
@@ -256,11 +265,14 @@ export default function DocumentDetailPage() {
                   Fecha Efectiva
                 </label>
                 <p className="text-gray-900">
-                  {new Date(document.effective_date).toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {new Date(document.effective_date).toLocaleDateString(
+                    'es-ES',
+                    {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }
+                  )}
                 </p>
               </div>
             )}
@@ -313,7 +325,9 @@ export default function DocumentDetailPage() {
                 <p className="text-gray-900">{document.mime_type || 'N/A'}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Tamaño</label>
+                <label className="text-sm font-medium text-gray-500">
+                  Tamaño
+                </label>
                 <p className="text-gray-900">
                   {document.file_size
                     ? `${(document.file_size / 1024 / 1024).toFixed(2)} MB`

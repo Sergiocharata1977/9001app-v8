@@ -18,11 +18,7 @@ export async function POST(
       })
       .parse(body);
 
-    const newVersion = await DocumentService.createVersion(
-      id,
-      reason,
-      userId
-    );
+    const newVersion = await DocumentService.createVersion(id, reason, userId);
 
     return NextResponse.json(newVersion, { status: 201 });
   } catch (error) {

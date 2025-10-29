@@ -12,8 +12,10 @@ export async function GET(request: NextRequest) {
     // Parse filters
     const filters: Record<string, string | boolean | undefined> = {};
     if (searchParams.get('type')) filters.type = searchParams.get('type')!;
-    if (searchParams.get('status')) filters.status = searchParams.get('status')!;
-    if (searchParams.get('category')) filters.category = searchParams.get('category')!;
+    if (searchParams.get('status'))
+      filters.status = searchParams.get('status')!;
+    if (searchParams.get('category'))
+      filters.category = searchParams.get('category')!;
     if (searchParams.get('responsible_user_id'))
       filters.responsible_user_id = searchParams.get('responsible_user_id')!;
     if (searchParams.get('process_id'))
@@ -50,7 +52,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate with Zod
-    const validatedData = DocumentCreateSchema.parse(body) as DocumentCreateData;
+    const validatedData = DocumentCreateSchema.parse(
+      body
+    ) as DocumentCreateData;
 
     const document = await DocumentService.create(validatedData);
 

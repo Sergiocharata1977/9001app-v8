@@ -8,12 +8,27 @@ import { ProcessQualityMetrics } from '@/components/procesos/ProcessQualityMetri
 import { ProcessDefinitionFormData } from '@/lib/validations/procesos';
 import { ProcessService } from '@/services/procesos/ProcessService';
 import { ProcessDefinition } from '@/types/procesos';
-import { QualityObjective, QualityIndicator, Measurement } from '@/types/quality';
+import {
+  QualityObjective,
+  QualityIndicator,
+  Measurement,
+} from '@/types/quality';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Edit, Trash2, FileText, Tag, File, User, Clock, CheckCircle, Target } from 'lucide-react';
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  FileText,
+  Tag,
+  File,
+  User,
+  Clock,
+  CheckCircle,
+  Target,
+} from 'lucide-react';
 
 export default function ProcessDefinitionDetailPage() {
   const params = useParams();
@@ -26,9 +41,15 @@ export default function ProcessDefinitionDetailPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Quality data state
-  const [qualityObjectives, setQualityObjectives] = useState<QualityObjective[]>([]);
-  const [qualityIndicators, setQualityIndicators] = useState<QualityIndicator[]>([]);
-  const [qualityMeasurements, setQualityMeasurements] = useState<Measurement[]>([]);
+  const [qualityObjectives, setQualityObjectives] = useState<
+    QualityObjective[]
+  >([]);
+  const [qualityIndicators, setQualityIndicators] = useState<
+    QualityIndicator[]
+  >([]);
+  const [qualityMeasurements, setQualityMeasurements] = useState<Measurement[]>(
+    []
+  );
 
   // Mock stats - in a real app, these would come from the backend
   const stats = [
@@ -39,7 +60,7 @@ export default function ProcessDefinitionDetailPage() {
       changeType: 'positive' as const,
       icon: FileText,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
+      bgColor: 'bg-blue-100',
     },
     {
       title: 'Versión Actual',
@@ -48,7 +69,7 @@ export default function ProcessDefinitionDetailPage() {
       changeType: 'neutral' as const,
       icon: Tag,
       color: 'text-green-600',
-      bgColor: 'bg-green-100'
+      bgColor: 'bg-green-100',
     },
     {
       title: 'Documentos',
@@ -57,7 +78,7 @@ export default function ProcessDefinitionDetailPage() {
       changeType: 'positive' as const,
       icon: File,
       color: 'text-purple-600',
-      bgColor: 'bg-purple-100'
+      bgColor: 'bg-purple-100',
     },
     {
       title: 'Responsable',
@@ -66,7 +87,7 @@ export default function ProcessDefinitionDetailPage() {
       changeType: 'neutral' as const,
       icon: User,
       color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
+      bgColor: 'bg-orange-100',
     },
     {
       title: 'Última Actualización',
@@ -75,7 +96,7 @@ export default function ProcessDefinitionDetailPage() {
       changeType: 'positive' as const,
       icon: Clock,
       color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100'
+      bgColor: 'bg-indigo-100',
     },
     {
       title: 'Estado',
@@ -84,8 +105,8 @@ export default function ProcessDefinitionDetailPage() {
       changeType: 'positive' as const,
       icon: CheckCircle,
       color: 'text-teal-600',
-      bgColor: 'bg-teal-100'
-    }
+      bgColor: 'bg-teal-100',
+    },
   ];
 
   useEffect(() => {
@@ -103,14 +124,18 @@ export default function ProcessDefinitionDetailPage() {
     const fetchQualityData = async () => {
       try {
         // Fetch quality objectives for this process
-        const objectives = await fetch(`/api/quality/processes/${processId}/objectives`).then(res => res.json());
+        const objectives = await fetch(
+          `/api/quality/processes/${processId}/objectives`
+        ).then(res => res.json());
         setQualityObjectives(objectives);
 
         // Get all indicators for these objectives
         const objectiveIds = objectives.map((obj: QualityObjective) => obj.id);
         const allIndicators: QualityIndicator[] = [];
         for (const objId of objectiveIds) {
-          const indicators = await fetch(`/api/quality/objectives/${objId}/indicators`).then(res => res.json());
+          const indicators = await fetch(
+            `/api/quality/objectives/${objId}/indicators`
+          ).then(res => res.json());
           allIndicators.push(...indicators);
         }
         setQualityIndicators(allIndicators);
@@ -119,7 +144,9 @@ export default function ProcessDefinitionDetailPage() {
         const indicatorIds = allIndicators.map(ind => ind.id);
         const allMeasurements: Measurement[] = [];
         for (const indId of indicatorIds) {
-          const measurements = await fetch(`/api/quality/indicators/${indId}/measurements`).then(res => res.json());
+          const measurements = await fetch(
+            `/api/quality/indicators/${indId}/measurements`
+          ).then(res => res.json());
           allMeasurements.push(...measurements.slice(0, 5)); // Last 5 measurements per indicator
         }
         setQualityMeasurements(allMeasurements);
@@ -138,13 +165,21 @@ export default function ProcessDefinitionDetailPage() {
     setIsLoading(true);
     try {
       // Transform array fields from objects to strings
-      const transformedData: Partial<Omit<ProcessDefinition, 'id' | 'createdAt'>> = {
+      const transformedData: Partial<
+        Omit<ProcessDefinition, 'id' | 'createdAt'>
+      > = {
         ...data,
-        entradas: data.entradas.map(e => typeof e === 'string' ? e : e.value),
-        salidas: data.salidas.map(s => typeof s === 'string' ? s : s.value),
-        controles: data.controles.map(c => typeof c === 'string' ? c : c.value),
-        indicadores: data.indicadores.map(i => typeof i === 'string' ? i : i.value),
-        documentos: data.documentos.map(d => typeof d === 'string' ? d : d.value),
+        entradas: data.entradas.map(e => (typeof e === 'string' ? e : e.value)),
+        salidas: data.salidas.map(s => (typeof s === 'string' ? s : s.value)),
+        controles: data.controles.map(c =>
+          typeof c === 'string' ? c : c.value
+        ),
+        indicadores: data.indicadores.map(i =>
+          typeof i === 'string' ? i : i.value
+        ),
+        documentos: data.documentos.map(d =>
+          typeof d === 'string' ? d : d.value
+        ),
       };
 
       await ProcessService.update(processId, transformedData);
@@ -163,7 +198,12 @@ export default function ProcessDefinitionDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta definición de proceso?')) return;
+    if (
+      !confirm(
+        '¿Estás seguro de que quieres eliminar esta definición de proceso?'
+      )
+    )
+      return;
 
     try {
       await ProcessService.delete(processId);
@@ -188,7 +228,9 @@ export default function ProcessDefinitionDetailPage() {
       <div className="p-6">
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Proceso no encontrado</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            Proceso no encontrado
+          </h3>
           <p className="mt-1 text-sm text-gray-500">
             El proceso que buscas no existe o ha sido eliminado.
           </p>
@@ -240,12 +282,20 @@ export default function ProcessDefinitionDetailPage() {
               Volver
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{process.nombre}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {process.nombre}
+              </h1>
               <p className="text-gray-600 mt-1">Código: {process.codigo}</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Badge className={process.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+            <Badge
+              className={
+                process.estado === 'activo'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-gray-100 text-gray-800'
+              }
+            >
               {process.estado === 'activo' ? 'Activo' : 'Inactivo'}
             </Badge>
             <Button variant="outline" onClick={() => setEditing(true)}>
@@ -262,20 +312,33 @@ export default function ProcessDefinitionDetailPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           {stats.map((stat, index) => (
-            <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-shadow">
+            <Card
+              key={index}
+              className="border-0 shadow-md hover:shadow-lg transition-shadow"
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                    <p className="text-sm font-medium text-gray-600 mb-1">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900 mb-1">
+                      {stat.value}
+                    </p>
                     {stat.change && (
                       <div className="flex items-center gap-1">
-                        <span className={`text-sm font-medium ${
-                          stat.changeType === 'positive' ? 'text-green-600' : 'text-gray-500'
-                        }`}>
+                        <span
+                          className={`text-sm font-medium ${
+                            stat.changeType === 'positive'
+                              ? 'text-green-600'
+                              : 'text-gray-500'
+                          }`}
+                        >
                           {stat.change}
                         </span>
-                        <span className="text-xs text-gray-500">vs mes anterior</span>
+                        <span className="text-xs text-gray-500">
+                          vs mes anterior
+                        </span>
                       </div>
                     )}
                   </div>
@@ -301,7 +364,9 @@ export default function ProcessDefinitionDetailPage() {
           <TabsContent value="overview">
             <Card className="border-0 shadow-md">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Información General</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Información General
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Objetivo</h4>
@@ -312,12 +377,20 @@ export default function ProcessDefinitionDetailPage() {
                     <p className="text-gray-600">{process.alcance}</p>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Responsable</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Responsable
+                    </h4>
                     <p className="text-gray-600">{process.responsable}</p>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Estado</h4>
-                    <Badge className={process.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                    <Badge
+                      className={
+                        process.estado === 'activo'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }
+                    >
                       {process.estado === 'activo' ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </div>
@@ -346,26 +419,38 @@ export default function ProcessDefinitionDetailPage() {
           <TabsContent value="details">
             <Card className="border-0 shadow-md">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Detalles del Proceso</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Detalles del Proceso
+                </h3>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre
+                    </label>
                     <p className="text-gray-900">{process.nombre}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Código
+                    </label>
                     <p className="text-gray-900">{process.codigo}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Objetivo</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Objetivo
+                    </label>
                     <p className="text-gray-900">{process.objetivo}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Alcance</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Alcance
+                    </label>
                     <p className="text-gray-900">{process.alcance}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Responsable
+                    </label>
                     <p className="text-gray-900">{process.responsable}</p>
                   </div>
                 </div>
@@ -376,33 +461,55 @@ export default function ProcessDefinitionDetailPage() {
           <TabsContent value="related">
             <Card className="border-0 shadow-md">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Entidades Relacionadas</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Entidades Relacionadas
+                </h3>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Registros de Proceso</h4>
-                    <p className="text-gray-600">Registros asociados a esta definición de proceso</p>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Registros de Proceso
+                    </h4>
+                    <p className="text-gray-600">
+                      Registros asociados a esta definición de proceso
+                    </p>
                     <Button
                       className="mt-2"
-                      onClick={() => router.push(`/dashboard/procesos/${processId}/registros`)}
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/procesos/${processId}/registros`
+                        )
+                      }
                     >
                       <FileText className="mr-2 h-4 w-4" />
                       Ver Registros
                     </Button>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Objetivos de Calidad</h4>
-                    <p className="text-gray-600">Objetivos SMART vinculados a este proceso</p>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Objetivos de Calidad
+                    </h4>
+                    <p className="text-gray-600">
+                      Objetivos SMART vinculados a este proceso
+                    </p>
                     <Button
                       className="mt-2"
-                      onClick={() => router.push(`/dashboard/quality/objetivos?process_definition_id=${processId}`)}
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/quality/objetivos?process_definition_id=${processId}`
+                        )
+                      }
                     >
                       <Target className="mr-2 h-4 w-4" />
                       Ver Objetivos
                     </Button>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Documentos</h4>
-                    <p className="text-gray-600">Documentos asociados al proceso</p>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Documentos
+                    </h4>
+                    <p className="text-gray-600">
+                      Documentos asociados al proceso
+                    </p>
                     {/* Aquí iría la lista de documentos */}
                   </div>
                 </div>
@@ -413,23 +520,33 @@ export default function ProcessDefinitionDetailPage() {
           <TabsContent value="history">
             <Card className="border-0 shadow-md">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Historial de Cambios</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Historial de Cambios
+                </h3>
                 <div className="space-y-4">
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Proceso creado</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Proceso creado
+                      </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(process.createdAt).toLocaleDateString('es-ES')}
+                        {new Date(process.createdAt).toLocaleDateString(
+                          'es-ES'
+                        )}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Última actualización</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Última actualización
+                      </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(process.updatedAt).toLocaleDateString('es-ES')}
+                        {new Date(process.updatedAt).toLocaleDateString(
+                          'es-ES'
+                        )}
                       </p>
                     </div>
                   </div>

@@ -11,10 +11,14 @@ export async function GET(request: NextRequest) {
 
     // Parse filters
     const filters: Record<string, string | number | boolean | undefined> = {};
-    if (searchParams.get('tipo_norma')) filters.tipo_norma = searchParams.get('tipo_norma')!;
-    if (searchParams.get('chapter')) filters.chapter = parseInt(searchParams.get('chapter')!);
-    if (searchParams.get('category')) filters.category = searchParams.get('category')!;
-    if (searchParams.get('priority')) filters.priority = searchParams.get('priority')!;
+    if (searchParams.get('tipo_norma'))
+      filters.tipo_norma = searchParams.get('tipo_norma')!;
+    if (searchParams.get('chapter'))
+      filters.chapter = parseInt(searchParams.get('chapter')!);
+    if (searchParams.get('category'))
+      filters.category = searchParams.get('category')!;
+    if (searchParams.get('priority'))
+      filters.priority = searchParams.get('priority')!;
     if (searchParams.get('is_mandatory'))
       filters.is_mandatory = searchParams.get('is_mandatory') === 'true';
     if (searchParams.get('process_id'))

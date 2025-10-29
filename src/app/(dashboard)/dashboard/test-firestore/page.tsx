@@ -12,35 +12,39 @@ export default function TestFirestorePage() {
   const [results, setResults] = useState<string[]>([]);
 
   const addResult = (message: string) => {
-    setResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+    setResults(prev => [
+      ...prev,
+      `${new Date().toLocaleTimeString()}: ${message}`,
+    ]);
   };
 
   const testFirestoreConnection = async () => {
     setLoading(true);
     setResults([]);
-    
+
     try {
       addResult('🔍 Probando conexión a Firestore...');
-      
+
       // Test Departments
       addResult('📁 Probando Departamentos...');
       const departments = await DepartmentService.getAll();
       addResult(`✅ Departamentos encontrados: ${departments.length}`);
-      
+
       // Test Positions
       addResult('👔 Probando Puestos...');
       const positions = await PositionService.getAll();
       addResult(`✅ Puestos encontrados: ${positions.length}`);
-      
+
       // Test Personnel
       addResult('👥 Probando Personal...');
       const personnel = await PersonnelService.getAll();
       addResult(`✅ Personal encontrado: ${personnel.length}`);
-      
+
       addResult('🎉 ¡Conexión exitosa!');
-      
     } catch (error) {
-      addResult(`❌ Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      addResult(
+        `❌ Error: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      );
       console.error('Error testing Firestore:', error);
     } finally {
       setLoading(false);
@@ -50,10 +54,10 @@ export default function TestFirestorePage() {
   const createTestData = async () => {
     setLoading(true);
     setResults([]);
-    
+
     try {
       addResult('🌱 Creando datos de prueba...');
-      
+
       // Crear departamento de prueba
       const department = await DepartmentService.create({
         name: 'Departamento de Prueba',
@@ -61,7 +65,7 @@ export default function TestFirestorePage() {
         is_active: true,
       });
       addResult(`✅ Departamento creado: ${department.name}`);
-      
+
       // Crear puesto de prueba
       const positionId = await PositionService.create({
         nombre: 'Puesto de Prueba',
@@ -69,7 +73,7 @@ export default function TestFirestorePage() {
         departamento_id: department.id,
       });
       addResult(`✅ Puesto creado: ${positionId}`);
-      
+
       // Crear personal de prueba
       const personnel = await PersonnelService.create({
         nombres: 'Juan',
@@ -80,12 +84,15 @@ export default function TestFirestorePage() {
         comision_porcentaje: 0,
         tipo_personal: 'administrativo',
       });
-      addResult(`✅ Personal creado: ${personnel.nombres} ${personnel.apellidos}`);
-      
+      addResult(
+        `✅ Personal creado: ${personnel.nombres} ${personnel.apellidos}`
+      );
+
       addResult('🎉 ¡Datos de prueba creados exitosamente!');
-      
     } catch (error) {
-      addResult(`❌ Error creando datos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      addResult(
+        `❌ Error creando datos: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      );
       console.error('Error creating test data:', error);
     } finally {
       setLoading(false);
@@ -95,25 +102,26 @@ export default function TestFirestorePage() {
   const runSeed = async () => {
     setLoading(true);
     setResults([]);
-    
+
     try {
       addResult('🌱 Ejecutando seed de datos...');
-      
+
       const response = await fetch('/api/seed/rrhh', {
         method: 'POST',
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         addResult('🎉 ¡Seed ejecutado exitosamente!');
         addResult(result.message);
       } else {
         addResult(`❌ Error en seed: ${result.error}`);
       }
-      
     } catch (error) {
-      addResult(`❌ Error ejecutando seed: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      addResult(
+        `❌ Error ejecutando seed: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      );
       console.error('Error running seed:', error);
     } finally {
       setLoading(false);
@@ -126,22 +134,24 @@ export default function TestFirestorePage() {
         <div className="px-4 py-6 sm:px-0">
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Test Firestore</h1>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Test Firestore
+              </h1>
               <p className="text-gray-600">
                 Prueba la conexión y funcionalidad de Firestore
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              <Button 
+              <Button
                 onClick={testFirestoreConnection}
                 disabled={loading}
                 className="w-full"
               >
                 {loading ? 'Probando...' : 'Probar Conexión'}
               </Button>
-              
-              <Button 
+
+              <Button
                 onClick={createTestData}
                 disabled={loading}
                 variant="outline"
@@ -149,8 +159,8 @@ export default function TestFirestorePage() {
               >
                 {loading ? 'Creando...' : 'Crear Datos de Prueba'}
               </Button>
-              
-              <Button 
+
+              <Button
                 onClick={runSeed}
                 disabled={loading}
                 variant="secondary"
@@ -183,11 +193,21 @@ export default function TestFirestorePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
-                  <p><strong>1. Probar Conexión:</strong> Verifica que Firestore esté funcionando</p>
-                  <p><strong>2. Crear Datos de Prueba:</strong> Crea un departamento, puesto y personal de prueba</p>
-                  <p><strong>3. Ejecutar Seed Completo:</strong> Pobla la base de datos con datos completos</p>
+                  <p>
+                    <strong>1. Probar Conexión:</strong> Verifica que Firestore
+                    esté funcionando
+                  </p>
+                  <p>
+                    <strong>2. Crear Datos de Prueba:</strong> Crea un
+                    departamento, puesto y personal de prueba
+                  </p>
+                  <p>
+                    <strong>3. Ejecutar Seed Completo:</strong> Pobla la base de
+                    datos con datos completos
+                  </p>
                   <p className="text-red-600 mt-4">
-                    <strong>Nota:</strong> Si hay errores, verifica que Firestore esté habilitado en Firebase Console
+                    <strong>Nota:</strong> Si hay errores, verifica que
+                    Firestore esté habilitado en Firebase Console
                   </p>
                 </div>
               </CardContent>
@@ -198,4 +218,3 @@ export default function TestFirestorePage() {
     </div>
   );
 }
-

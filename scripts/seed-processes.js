@@ -6,14 +6,14 @@ const serviceAccount = require('../firebase-service-account.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://app-4b05c-default-rtdb.firebaseio.com"
+  databaseURL: 'https://app-4b05c-default-rtdb.firebaseio.com',
 });
 
 const db = admin.firestore();
 
 async function clearCollections() {
   console.log('🧹 Limpiando colecciones existentes...');
-  
+
   try {
     // Limpiar definiciones de procesos
     const definitionsSnapshot = await db.collection('processDefinitions').get();
@@ -22,7 +22,9 @@ async function clearCollections() {
       definitionsBatch.delete(doc.ref);
     });
     await definitionsBatch.commit();
-    console.log(`✅ Eliminadas ${definitionsSnapshot.size} definiciones de procesos`);
+    console.log(
+      `✅ Eliminadas ${definitionsSnapshot.size} definiciones de procesos`
+    );
 
     // Limpiar registros de procesos
     const recordsSnapshot = await db.collection('processRecords').get();
@@ -32,7 +34,6 @@ async function clearCollections() {
     });
     await recordsBatch.commit();
     console.log(`✅ Eliminados ${recordsSnapshot.size} registros de procesos`);
-
   } catch (error) {
     console.error('❌ Error limpiando colecciones:', error);
     throw error;
@@ -41,7 +42,7 @@ async function clearCollections() {
 
 async function seedProcessDefinitions() {
   console.log('📋 Creando definiciones de procesos...');
-  
+
   const definitionsData = [
     {
       name: 'Gestión de Calidad',
@@ -54,7 +55,7 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Auditorías Internas',
@@ -67,7 +68,7 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Mejora Continua',
@@ -80,7 +81,7 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Gestión de Documentos',
@@ -93,11 +94,12 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Control de No Conformidades',
-      description: 'Proceso para gestionar no conformidades y acciones correctivas',
+      description:
+        'Proceso para gestionar no conformidades y acciones correctivas',
       category: 'no-conformidades',
       responsible: 'calidad@empresa.com',
       department: 'Calidad',
@@ -106,7 +108,7 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Gestión de Riesgos',
@@ -119,11 +121,12 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Capacitación y Competencias',
-      description: 'Proceso para gestionar capacitaciones y competencias del personal',
+      description:
+        'Proceso para gestionar capacitaciones y competencias del personal',
       category: 'rrhh',
       responsible: 'rrhh@empresa.com',
       department: 'Recursos Humanos',
@@ -132,7 +135,7 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Gestión de Proveedores',
@@ -145,8 +148,8 @@ async function seedProcessDefinitions() {
       createdBy: 'admin@empresa.com',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
-    }
+      isActive: true,
+    },
   ];
 
   const definitionsRefs = [];
@@ -162,11 +165,12 @@ async function seedProcessDefinitions() {
 
 async function seedProcessRecords(definitionsRefs) {
   console.log('📊 Creando registros de procesos...');
-  
+
   const recordsData = [
     {
       name: 'Implementación ISO 9001 Q3',
-      description: 'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
+      description:
+        'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
       processDefinitionId: definitionsRefs[0].id,
       processDefinitionName: 'Gestión de Calidad',
       status: 'activo',
@@ -177,9 +181,9 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 12,
         pendingCards: 3,
         inProgressCards: 5,
-        completedCards: 4
+        completedCards: 4,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Auditoría Interna 2024',
@@ -194,9 +198,9 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 8,
         pendingCards: 2,
         inProgressCards: 3,
-        completedCards: 3
+        completedCards: 3,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Mejora Continua Sistema',
@@ -211,9 +215,9 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 15,
         pendingCards: 0,
         inProgressCards: 0,
-        completedCards: 15
+        completedCards: 15,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Actualización Documental 2024',
@@ -228,13 +232,14 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 6,
         pendingCards: 2,
         inProgressCards: 2,
-        completedCards: 2
+        completedCards: 2,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Control No Conformidades Q4',
-      description: 'Proceso de control de no conformidades del cuarto trimestre',
+      description:
+        'Proceso de control de no conformidades del cuarto trimestre',
       processDefinitionId: definitionsRefs[4].id,
       processDefinitionName: 'Control de No Conformidades',
       status: 'activo',
@@ -245,9 +250,9 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 9,
         pendingCards: 4,
         inProgressCards: 3,
-        completedCards: 2
+        completedCards: 2,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Evaluación de Riesgos 2024',
@@ -262,9 +267,9 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 7,
         pendingCards: 1,
         inProgressCards: 4,
-        completedCards: 2
+        completedCards: 2,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Capacitación Personal Q3',
@@ -279,9 +284,9 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 11,
         pendingCards: 5,
         inProgressCards: 4,
-        completedCards: 2
+        completedCards: 2,
       },
-      isActive: true
+      isActive: true,
     },
     {
       name: 'Evaluación Proveedores 2024',
@@ -296,10 +301,10 @@ async function seedProcessRecords(definitionsRefs) {
         totalCards: 5,
         pendingCards: 1,
         inProgressCards: 2,
-        completedCards: 2
+        completedCards: 2,
       },
-      isActive: true
-    }
+      isActive: true,
+    },
   ];
 
   const recordsRefs = [];
@@ -315,11 +320,11 @@ async function seedProcessRecords(definitionsRefs) {
 
 async function seedKanbanBoards(recordsRefs) {
   console.log('🎯 Creando tableros Kanban...');
-  
+
   for (let i = 0; i < recordsRefs.length; i++) {
     const record = recordsRefs[i];
     console.log(`🎯 Creando tablero para: ${record.name}`);
-    
+
     // Crear listas Kanban
     const listsData = [
       {
@@ -328,7 +333,7 @@ async function seedKanbanBoards(recordsRefs) {
         color: 'bg-gray-100',
         position: 0,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         title: 'En Progreso',
@@ -336,7 +341,7 @@ async function seedKanbanBoards(recordsRefs) {
         color: 'bg-blue-100',
         position: 1,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         title: 'Completado',
@@ -344,14 +349,17 @@ async function seedKanbanBoards(recordsRefs) {
         color: 'bg-green-100',
         position: 2,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     const listRefs = [];
     for (const list of listsData) {
-      const listRef = await db.collection('processRecords').doc(record.id)
-        .collection('kanbanLists').add(list);
+      const listRef = await db
+        .collection('processRecords')
+        .doc(record.id)
+        .collection('kanbanLists')
+        .add(list);
       listRefs.push({ id: listRef.id, ...list });
     }
 
@@ -369,7 +377,7 @@ async function seedKanbanBoards(recordsRefs) {
         status: 'pending',
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         title: 'Capacitación del equipo',
@@ -382,9 +390,9 @@ async function seedKanbanBoards(recordsRefs) {
         status: 'pending',
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
-      
+
       // Tarjetas para "En Progreso"
       {
         title: 'Implementar procedimientos',
@@ -397,7 +405,7 @@ async function seedKanbanBoards(recordsRefs) {
         status: 'in-progress',
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         title: 'Auditoría interna',
@@ -410,9 +418,9 @@ async function seedKanbanBoards(recordsRefs) {
         status: 'in-progress',
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
-      
+
       // Tarjetas para "Completado"
       {
         title: 'Análisis de riesgos',
@@ -425,7 +433,7 @@ async function seedKanbanBoards(recordsRefs) {
         status: 'completed',
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         title: 'Reunión de kick-off',
@@ -438,14 +446,18 @@ async function seedKanbanBoards(recordsRefs) {
         status: 'completed',
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     for (const card of cardsData) {
-      await db.collection('processRecords').doc(record.id)
-        .collection('kanbanLists').doc(card.listId)
-        .collection('cards').add(card);
+      await db
+        .collection('processRecords')
+        .doc(record.id)
+        .collection('kanbanLists')
+        .doc(card.listId)
+        .collection('cards')
+        .add(card);
     }
 
     console.log(`✅ Tablero Kanban creado para: ${record.name}`);
@@ -457,24 +469,24 @@ async function seedKanbanBoards(recordsRefs) {
 async function main() {
   try {
     console.log('🚀 Iniciando seeding de colecciones de Procesos...\n');
-    
+
     // Limpiar colecciones existentes
     await clearCollections();
-    
+
     // Crear definiciones de procesos
     const definitionsRefs = await seedProcessDefinitions();
-    
+
     // Crear registros de procesos
     const recordsRefs = await seedProcessRecords(definitionsRefs);
-    
+
     // Crear tableros Kanban
     await seedKanbanBoards(recordsRefs);
-    
+
     console.log('\n🎉 ¡Seeding completado exitosamente!');
     console.log(`📋 Definiciones de procesos: ${definitionsRefs.length}`);
     console.log(`📊 Registros de procesos: ${recordsRefs.length}`);
     console.log(`🎯 Tableros Kanban: ${recordsRefs.length}`);
-    
+
     process.exit(0);
   } catch (error) {
     console.error('❌ Error durante el seeding:', error);
@@ -483,14 +495,3 @@ async function main() {
 }
 
 main();
-
-
-
-
-
-
-
-
-
-
-

@@ -10,7 +10,7 @@ export default function RegisterPage() {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function RegisterPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -42,14 +42,14 @@ export default function RegisterPage() {
     }
 
     const result = await signUp(formData.email, formData.password);
-    
+
     if (result.success) {
       // Aquí podrías guardar el nombre del usuario en Firestore
       router.push('/dashboard');
     } else {
       setError(result.error || 'Error al crear la cuenta');
     }
-    
+
     setLoading(false);
   };
 
@@ -64,11 +64,14 @@ export default function RegisterPage() {
             Sistema de Gestión ISO 9001
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Nombre Completo
               </label>
               <input
@@ -82,9 +85,12 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email
               </label>
               <input
@@ -98,9 +104,12 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Contraseña
               </label>
               <input
@@ -114,9 +123,12 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirmar Contraseña
               </label>
               <input
@@ -133,9 +145,7 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
+            <div className="text-red-600 text-sm text-center">{error}</div>
           )}
 
           <div>
@@ -151,7 +161,10 @@ export default function RegisterPage() {
           <div className="text-center">
             <p className="text-sm text-gray-600">
               ¿Ya tienes cuenta?{' '}
-              <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link
+                href="/login"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
                 Inicia sesión aquí
               </Link>
             </p>
@@ -161,9 +174,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-
-
-
-
-

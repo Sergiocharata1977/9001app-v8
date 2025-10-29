@@ -28,13 +28,16 @@ export async function PUT(
     }
 
     await PersonnelService.updateAssignments(id, assignments);
-    
+
     return NextResponse.json({
       message: 'Asignaciones actualizadas exitosamente',
     });
   } catch (error) {
     console.error('Error updating personnel assignments:', error);
-    const message = error instanceof Error ? error.message : 'Error al actualizar asignaciones';
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Error al actualizar asignaciones';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

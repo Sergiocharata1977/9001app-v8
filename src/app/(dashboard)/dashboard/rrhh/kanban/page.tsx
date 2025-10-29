@@ -15,7 +15,7 @@ export default function RRHHKanbanPage() {
       color: '#6B7280',
       maxItems: 10,
       allowDrop: true,
-      order: 1
+      order: 1,
     },
     {
       id: 'in-progress',
@@ -23,7 +23,7 @@ export default function RRHHKanbanPage() {
       color: '#3B82F6',
       maxItems: 8,
       allowDrop: true,
-      order: 2
+      order: 2,
     },
     {
       id: 'review',
@@ -31,7 +31,7 @@ export default function RRHHKanbanPage() {
       color: '#F59E0B',
       maxItems: 6,
       allowDrop: true,
-      order: 3
+      order: 3,
     },
     {
       id: 'done',
@@ -39,8 +39,8 @@ export default function RRHHKanbanPage() {
       color: '#10B981',
       maxItems: 20,
       allowDrop: true,
-      order: 4
-    }
+      order: 4,
+    },
   ]);
 
   const [items, setItems] = useState<KanbanItem[]>([
@@ -53,7 +53,7 @@ export default function RRHHKanbanPage() {
       tags: ['políticas', 'documentación'],
       assignee: 'Juan Pérez',
       dueDate: '2024-01-15',
-      progress: 0
+      progress: 0,
     },
     {
       id: '2',
@@ -64,7 +64,7 @@ export default function RRHHKanbanPage() {
       tags: ['capacitación', 'seguridad'],
       assignee: 'María García',
       dueDate: '2024-01-20',
-      progress: 60
+      progress: 60,
     },
     {
       id: '3',
@@ -75,7 +75,7 @@ export default function RRHHKanbanPage() {
       tags: ['evaluación', 'desempeño'],
       assignee: 'Carlos López',
       dueDate: '2024-01-10',
-      progress: 90
+      progress: 90,
     },
     {
       id: '4',
@@ -86,14 +86,19 @@ export default function RRHHKanbanPage() {
       tags: ['contratación'],
       assignee: 'Ana Martínez',
       dueDate: '2024-01-05',
-      progress: 100
-    }
+      progress: 100,
+    },
   ]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleItemMove = (itemId: string, sourceColumnId: string, targetColumnId: string, newIndex: number) => {
+  const handleItemMove = (
+    itemId: string,
+    sourceColumnId: string,
+    targetColumnId: string,
+    newIndex: number
+  ) => {
     setItems(prevItems => {
       const updatedItems = prevItems.map(item => {
         if (item.id === itemId) {
@@ -103,8 +108,10 @@ export default function RRHHKanbanPage() {
       });
       return updatedItems;
     });
-    
-    console.log(`Moved item ${itemId} from ${sourceColumnId} to ${targetColumnId} at index ${newIndex}`);
+
+    console.log(
+      `Moved item ${itemId} from ${sourceColumnId} to ${targetColumnId} at index ${newIndex}`
+    );
   };
 
   const handleItemClick = (item: KanbanItem) => {
@@ -132,10 +139,12 @@ export default function RRHHKanbanPage() {
       priority: 'medium',
       tags: ['nuevo'],
       assignee: 'Usuario Actual',
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      progress: 0
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0],
+      progress: 0,
     };
-    
+
     setItems(prevItems => [...prevItems, newItem]);
   };
 
@@ -146,9 +155,14 @@ export default function RRHHKanbanPage() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Kanban RRHH</h1>
-              <p className="text-gray-600">Gestión visual de tareas y procesos de recursos humanos</p>
+              <p className="text-gray-600">
+                Gestión visual de tareas y procesos de recursos humanos
+              </p>
             </div>
-            <Button onClick={handleAddItem} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={handleAddItem}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nueva Tarea
             </Button>
@@ -159,7 +173,9 @@ export default function RRHHKanbanPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Por Hacer</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Por Hacer
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">
@@ -169,7 +185,9 @@ export default function RRHHKanbanPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">En Progreso</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                En Progreso
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
@@ -179,7 +197,9 @@ export default function RRHHKanbanPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">En Revisión</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                En Revisión
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
@@ -189,7 +209,9 @@ export default function RRHHKanbanPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Completado</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Completado
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
@@ -223,4 +245,3 @@ export default function RRHHKanbanPage() {
     </div>
   );
 }
-

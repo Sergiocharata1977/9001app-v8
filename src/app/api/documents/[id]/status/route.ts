@@ -20,11 +20,7 @@ export async function PATCH(
       })
       .parse(body);
 
-    const document = await DocumentService.changeStatus(
-      id,
-      status,
-      userId
-    );
+    const document = await DocumentService.changeStatus(id, status, userId);
 
     return NextResponse.json(document);
   } catch (error) {

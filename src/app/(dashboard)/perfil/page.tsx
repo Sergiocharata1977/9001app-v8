@@ -70,7 +70,7 @@ export default function UserProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: 'current-user' }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setContext(data.contexto);
@@ -84,7 +84,9 @@ export default function UserProfilePage() {
 
   const fetchRecentDocuments = async () => {
     try {
-      const response = await fetch('/api/documents?limit=5&sort=updated_at&order=desc');
+      const response = await fetch(
+        '/api/documents?limit=5&sort=updated_at&order=desc'
+      );
       if (response.ok) {
         const data = await response.json();
         setRecentDocuments(data.data || []);
@@ -131,7 +133,9 @@ export default function UserProfilePage() {
           disabled={refreshing}
           variant="outline"
         >
-          <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`}
+          />
           {refreshing ? 'Actualizando...' : 'Actualizar Contexto'}
         </Button>
       </div>
@@ -152,7 +156,10 @@ export default function UserProfilePage() {
                 {context.user?.email || 'No disponible'}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                <Badge
+                  variant="secondary"
+                  className="bg-white/20 text-white border-white/30"
+                >
                   {context.user?.role || 'Usuario'}
                 </Badge>
               </div>
@@ -165,22 +172,30 @@ export default function UserProfilePage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-lg p-6 text-center">
           <Folder className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-blue-600">{context.procesos?.length || 0}</p>
+          <p className="text-2xl font-bold text-blue-600">
+            {context.procesos?.length || 0}
+          </p>
           <p className="text-sm text-gray-600">Procesos Asignados</p>
         </div>
         <div className="bg-white rounded-lg shadow-lg p-6 text-center">
           <Target className="h-8 w-8 text-green-600 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-green-600">{context.objetivos?.length || 0}</p>
+          <p className="text-2xl font-bold text-green-600">
+            {context.objetivos?.length || 0}
+          </p>
           <p className="text-sm text-gray-600">Objetivos de Calidad</p>
         </div>
         <div className="bg-white rounded-lg shadow-lg p-6 text-center">
           <BarChart3 className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-orange-600">{context.indicadores?.length || 0}</p>
+          <p className="text-2xl font-bold text-orange-600">
+            {context.indicadores?.length || 0}
+          </p>
           <p className="text-sm text-gray-600">Indicadores</p>
         </div>
         <div className="bg-white rounded-lg shadow-lg p-6 text-center">
           <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-purple-600">{context.processRecords?.length || 0}</p>
+          <p className="text-2xl font-bold text-purple-600">
+            {context.processRecords?.length || 0}
+          </p>
           <p className="text-sm text-gray-600">Registros de Proceso</p>
         </div>
       </div>
@@ -196,22 +211,32 @@ export default function UserProfilePage() {
             </h3>
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-500">Nombre Completo</label>
-                <p className="text-gray-900">{context.personnel.nombre} {context.personnel.apellido}</p>
+                <label className="text-sm font-medium text-gray-500">
+                  Nombre Completo
+                </label>
+                <p className="text-gray-900">
+                  {context.personnel.nombre} {context.personnel.apellido}
+                </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Legajo</label>
+                <label className="text-sm font-medium text-gray-500">
+                  Legajo
+                </label>
                 <p className="text-gray-900">{context.personnel.legajo}</p>
               </div>
               {context.personnel.email && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Email
+                  </label>
                   <p className="text-gray-900">{context.personnel.email}</p>
                 </div>
               )}
               {context.personnel.telefono && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Teléfono</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Teléfono
+                  </label>
                   <p className="text-gray-900">{context.personnel.telefono}</p>
                 </div>
               )}
@@ -232,9 +257,13 @@ export default function UserProfilePage() {
                   <Briefcase className="h-4 w-4" />
                   Puesto
                 </label>
-                <p className="text-gray-900 font-medium">{context.position.nombre}</p>
+                <p className="text-gray-900 font-medium">
+                  {context.position.nombre}
+                </p>
                 {context.position.descripcion && (
-                  <p className="text-sm text-gray-600 mt-1">{context.position.descripcion}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {context.position.descripcion}
+                  </p>
                 )}
               </div>
             )}
@@ -244,9 +273,13 @@ export default function UserProfilePage() {
                   <Building className="h-4 w-4" />
                   Departamento
                 </label>
-                <p className="text-gray-900 font-medium">{context.department.nombre}</p>
+                <p className="text-gray-900 font-medium">
+                  {context.department.nombre}
+                </p>
                 {context.department.descripcion && (
-                  <p className="text-sm text-gray-600 mt-1">{context.department.descripcion}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {context.department.descripcion}
+                  </p>
                 )}
               </div>
             )}
@@ -256,7 +289,9 @@ export default function UserProfilePage() {
                   <Users className="h-4 w-4" />
                   Supervisor
                 </label>
-                <p className="text-gray-900">{context.supervisor.nombre} {context.supervisor.apellido}</p>
+                <p className="text-gray-900">
+                  {context.supervisor.nombre} {context.supervisor.apellido}
+                </p>
               </div>
             )}
           </div>
@@ -306,13 +341,21 @@ export default function UserProfilePage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{objetivo.descripcion}</p>
+                    <p className="font-medium text-gray-900">
+                      {objetivo.descripcion}
+                    </p>
                     {objetivo.meta && (
-                      <p className="text-sm text-gray-600 mt-1">Meta: {objetivo.meta}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Meta: {objetivo.meta}
+                      </p>
                     )}
                   </div>
                   {objetivo.estado && (
-                    <Badge variant={objetivo.estado === 'cumplido' ? 'default' : 'secondary'}>
+                    <Badge
+                      variant={
+                        objetivo.estado === 'cumplido' ? 'default' : 'secondary'
+                      }
+                    >
                       {objetivo.estado}
                     </Badge>
                   )}
@@ -339,7 +382,9 @@ export default function UserProfilePage() {
               >
                 <p className="font-medium text-gray-900">{indicador.nombre}</p>
                 {indicador.formula && (
-                  <p className="text-sm text-gray-600 mt-1">Fórmula: {indicador.formula}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Fórmula: {indicador.formula}
+                  </p>
                 )}
                 {indicador.frecuencia && (
                   <Badge variant="outline" className="mt-2">
@@ -360,11 +405,11 @@ export default function UserProfilePage() {
             Documentos Recientes
           </h3>
           <div className="space-y-2">
-            {recentDocuments.map((doc) => (
+            {recentDocuments.map(doc => (
               <div
                 key={doc.id}
                 className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                onClick={() => window.location.href = `/documentos/${doc.id}`}
+                onClick={() => (window.location.href = `/documentos/${doc.id}`)}
               >
                 <p className="font-medium text-gray-900">{doc.title}</p>
                 <p className="text-sm text-gray-500">{doc.code}</p>
@@ -383,14 +428,19 @@ export default function UserProfilePage() {
               ¿Cómo usa Don Cándido este contexto?
             </h4>
             <ul className="space-y-1 text-sm text-purple-800">
-              <li>• Personaliza las respuestas según tu puesto y departamento</li>
+              <li>
+                • Personaliza las respuestas según tu puesto y departamento
+              </li>
               <li>• Conoce los procesos que gestionas</li>
               <li>• Entiende tus objetivos e indicadores de calidad</li>
-              <li>• Puede sugerir acciones basadas en tu contexto específico</li>
+              <li>
+                • Puede sugerir acciones basadas en tu contexto específico
+              </li>
               <li>• Filtra información relevante para tu rol</li>
             </ul>
             <p className="text-sm text-purple-700 mt-3">
-              💡 Este contexto se actualiza automáticamente cada 5 minutos o puedes actualizarlo manualmente.
+              💡 Este contexto se actualiza automáticamente cada 5 minutos o
+              puedes actualizarlo manualmente.
             </p>
           </div>
         </div>
