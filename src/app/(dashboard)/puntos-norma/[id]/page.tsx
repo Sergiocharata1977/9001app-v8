@@ -20,7 +20,7 @@ export default function NormPointDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [normPoint, setNormPoint] = useState<NormPoint | null>(null);
-  const [relatedDocuments, setRelatedDocuments] = useState<unknown[]>([]);
+  const [relatedDocuments, setRelatedDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

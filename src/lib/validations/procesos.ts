@@ -7,11 +7,11 @@ export const processDefinitionSchema = z.object({
   objetivo: z.string().min(1, 'El objetivo es requerido').max(1000, 'Máximo 1000 caracteres'),
   alcance: z.string().min(1, 'El alcance es requerido').max(1000, 'Máximo 1000 caracteres'),
   responsable: z.string().min(1, 'El responsable es requerido').max(100, 'Máximo 100 caracteres'),
-  entradas: z.array(z.string().min(1, 'Entrada no puede estar vacía')),
-  salidas: z.array(z.string().min(1, 'Salida no puede estar vacía')),
-  controles: z.array(z.string().min(1, 'Control no puede estar vacío')),
-  indicadores: z.array(z.string().min(1, 'Indicador no puede estar vacío')),
-  documentos: z.array(z.string().min(1, 'Documento no puede estar vacío')),
+  entradas: z.array(z.object({ value: z.string() })),
+  salidas: z.array(z.object({ value: z.string() })),
+  controles: z.array(z.object({ value: z.string() })),
+  indicadores: z.array(z.object({ value: z.string() })),
+  documentos: z.array(z.object({ value: z.string() })),
   estado: z.enum(['activo', 'inactivo']),
 });
 
@@ -30,10 +30,10 @@ export const processRecordSchema = z.object({
   processId: z.string().min(1, 'El ID del proceso es requerido'),
   titulo: z.string().min(1, 'El título es requerido').max(200, 'Máximo 200 caracteres'),
   descripcion: z.string().min(1, 'La descripción es requerida').max(1000, 'Máximo 1000 caracteres'),
-  estado: z.enum(['pendiente', 'en-progreso', 'completado']).default('pendiente'),
+  estado: z.enum(['pendiente', 'en-progreso', 'completado']),
   responsable: z.string().min(1, 'El responsable es requerido').max(100, 'Máximo 100 caracteres'),
   fecha_vencimiento: z.date(),
-  prioridad: z.enum(['baja', 'media', 'alta']).default('media'),
+  prioridad: z.enum(['baja', 'media', 'alta']),
 });
 
 export const processRecordFormSchema = processRecordSchema;

@@ -40,7 +40,7 @@ export const personnelSchema = z.object({
   telefono_emergencia: z.string().max(20, 'Máximo 20 caracteres').optional(),
   fecha_contratacion: z.date().optional(),
   numero_legajo: z.string().max(20, 'Máximo 20 caracteres').optional(),
-  estado: z.enum(['Activo', 'Inactivo']),
+  estado: z.enum(['Activo', 'Inactivo', 'Licencia']),
   meta_mensual: z.number().min(0, 'Debe ser mayor o igual a 0'),
   comision_porcentaje: z.number().min(0, 'Debe ser mayor o igual a 0').max(100, 'Máximo 100%'),
   supervisor_id: z.string().optional(),
@@ -113,7 +113,7 @@ export const positionFiltersSchema = z.object({
 
 export const personnelFiltersSchema = z.object({
   search: z.string().optional(),
-  estado: z.enum(['Activo', 'Inactivo']).optional(),
+  estado: z.enum(['Activo', 'Inactivo', 'Licencia']).optional(),
   tipo_personal: z.enum(['administrativo', 'ventas', 'técnico', 'supervisor', 'gerencial']).optional(),
   supervisor_id: z.string().optional(),
 });

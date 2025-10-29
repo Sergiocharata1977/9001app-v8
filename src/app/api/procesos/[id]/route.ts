@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProcessService } from '@/services/procesos/ProcessService';
 import { processDefinitionSchema } from '@/lib/validations/procesos';
+import { ProcessDefinition } from '@/types/procesos';
 
 export async function GET(
   request: NextRequest,
@@ -36,7 +37,17 @@ export async function PUT(
     const body = await request.json();
     const validatedData = processDefinitionSchema.parse(body);
 
-    const process = await ProcessService.update(id, validatedData);
+    // Transform array fields from objects to strings
+    const transformedData: Partial<Omit<ProcessDefinition, 'id' | 'createdAt'>> = {
+      ...validatedData,
+      entradas: validatedData.entradas.map(e => typeof e === 'string' ? e : e.value),
+      salidas: validatedData.salidas.map(s => typeof s === 'string' ? s : s.value),
+      controles: validatedData.controles.map(c => typeof c === 'string' ? c : c.value),
+      indicadores: validatedData.indicadores.map(i => typeof i === 'string' ? i : i.value),
+      documentos: validatedData.documentos.map(d => typeof d === 'string' ? d : d.value),
+    };
+
+    const process = await ProcessService.update(id, transformedData);
 
     return NextResponse.json(process);
   } catch (error) {

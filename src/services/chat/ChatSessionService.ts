@@ -301,7 +301,7 @@ export class ChatSessionService {
           tipo: data.tipo,
           modulo: data.modulo,
           estado: data.estado,
-          mensajes: data.mensajes.map((msg: unknown) => ({
+          mensajes: data.mensajes.map((msg: any) => ({
             ...msg,
             timestamp: msg.timestamp?.toDate() || new Date()
           })),

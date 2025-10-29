@@ -18,18 +18,32 @@ import { QualityIndicatorService } from './QualityIndicatorService';
 
 const COLLECTION_NAME = 'measurements';
 
+// Helper function to safely convert Firestore Timestamp to ISO string
+const toISOString = (value: any): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === 'string') return value;
+  if (value.toDate && typeof value.toDate === 'function') {
+    return value.toDate().toISOString();
+  }
+  if (value instanceof Date) return value.toISOString();
+  return undefined;
+};
+
 export class MeasurementService {
   static async getAll(): Promise<Measurement[]> {
     try {
       const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        measurement_date: doc.data().measurement_date?.toDate()?.toISOString() || '',
-        validation_date: doc.data().validation_date?.toDate()?.toISOString(),
-      })) as Measurement[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          measurement_date: toISOString(data.measurement_date) || '',
+          validation_date: toISOString(data.validation_date),
+        };
+      }) as Measurement[];
     } catch (error) {
       console.error('Error getting measurements:', error);
       throw new Error('Error al obtener mediciones');
@@ -42,13 +56,14 @@ export class MeasurementService {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
+        const data = docSnap.data();
         return {
           id: docSnap.id,
-          ...docSnap.data(),
-          created_at: docSnap.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-          updated_at: docSnap.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-          measurement_date: docSnap.data().measurement_date?.toDate()?.toISOString() || '',
-          validation_date: docSnap.data().validation_date?.toDate()?.toISOString(),
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          measurement_date: toISOString(data.measurement_date) || '',
+          validation_date: toISOString(data.validation_date),
         } as Measurement;
       }
       return null;
@@ -66,14 +81,17 @@ export class MeasurementService {
         orderBy('measurement_date', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        measurement_date: doc.data().measurement_date?.toDate()?.toISOString() || '',
-        validation_date: doc.data().validation_date?.toDate()?.toISOString(),
-      })) as Measurement[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          measurement_date: toISOString(data.measurement_date) || '',
+          validation_date: toISOString(data.validation_date),
+        };
+      }) as Measurement[];
     } catch (error) {
       console.error('Error getting measurements by indicator:', error);
       throw new Error('Error al obtener mediciones por indicador');
@@ -88,14 +106,17 @@ export class MeasurementService {
         orderBy('measurement_date', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        measurement_date: doc.data().measurement_date?.toDate()?.toISOString() || '',
-        validation_date: doc.data().validation_date?.toDate()?.toISOString(),
-      })) as Measurement[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          measurement_date: toISOString(data.measurement_date) || '',
+          validation_date: toISOString(data.validation_date),
+        };
+      }) as Measurement[];
     } catch (error) {
       console.error('Error getting measurements by objective:', error);
       throw new Error('Error al obtener mediciones por objetivo');
@@ -110,14 +131,17 @@ export class MeasurementService {
         orderBy('measurement_date', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        measurement_date: doc.data().measurement_date?.toDate()?.toISOString() || '',
-        validation_date: doc.data().validation_date?.toDate()?.toISOString(),
-      })) as Measurement[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          measurement_date: toISOString(data.measurement_date) || '',
+          validation_date: toISOString(data.validation_date),
+        };
+      }) as Measurement[];
     } catch (error) {
       console.error('Error getting measurements by process:', error);
       throw new Error('Error al obtener mediciones por proceso');
@@ -251,14 +275,17 @@ export class MeasurementService {
         limit(limitCount)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        measurement_date: doc.data().measurement_date?.toDate()?.toISOString() || '',
-        validation_date: doc.data().validation_date?.toDate()?.toISOString(),
-      })) as Measurement[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          measurement_date: toISOString(data.measurement_date) || '',
+          validation_date: toISOString(data.validation_date),
+        };
+      }) as Measurement[];
     } catch (error) {
       console.error('Error getting recent measurements:', error);
       throw new Error('Error al obtener mediciones recientes');

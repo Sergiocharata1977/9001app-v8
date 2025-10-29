@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       order: searchParams.get('order') || 'desc',
     });
 
-    const result = await PositionService.getPaginated(filters, pagination);
+    const result = await PositionService.getAll();
 
     return NextResponse.json(result);
   } catch (error) {

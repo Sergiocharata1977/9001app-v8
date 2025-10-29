@@ -50,11 +50,11 @@ export function ProcessDefinitionForm({
       objetivo: initialData.objetivo,
       alcance: initialData.alcance,
       responsable: initialData.responsable,
-      entradas: initialData.entradas || [],
-      salidas: initialData.salidas || [],
-      controles: initialData.controles || [],
-      indicadores: initialData.indicadores || [],
-      documentos: initialData.documentos || [],
+      entradas: (initialData.entradas || []).map(e => ({ value: e })),
+      salidas: (initialData.salidas || []).map(s => ({ value: s })),
+      controles: (initialData.controles || []).map(c => ({ value: c })),
+      indicadores: (initialData.indicadores || []).map(i => ({ value: i })),
+      documentos: (initialData.documentos || []).map(d => ({ value: d })),
       estado: initialData.estado
     } : {
       codigo: '',
@@ -77,7 +77,7 @@ export function ProcessDefinitionForm({
     remove: removeEntrada
   } = useFieldArray({
     control,
-    name: 'entradas'
+    name: 'entradas' as const
   });
 
   const {
@@ -86,7 +86,7 @@ export function ProcessDefinitionForm({
     remove: removeSalida
   } = useFieldArray({
     control,
-    name: 'salidas'
+    name: 'salidas' as const
   });
 
   const {
@@ -95,7 +95,7 @@ export function ProcessDefinitionForm({
     remove: removeControl
   } = useFieldArray({
     control,
-    name: 'controles'
+    name: 'controles' as const
   });
 
   const {
@@ -104,7 +104,7 @@ export function ProcessDefinitionForm({
     remove: removeIndicador
   } = useFieldArray({
     control,
-    name: 'indicadores'
+    name: 'indicadores' as const
   });
 
   const {
@@ -113,7 +113,7 @@ export function ProcessDefinitionForm({
     remove: removeDocumento
   } = useFieldArray({
     control,
-    name: 'documentos'
+    name: 'documentos' as const
   });
 
   const handleFormSubmit = async (data: ProcessDefinitionFormData) => {
@@ -135,19 +135,19 @@ export function ProcessDefinitionForm({
   const addItem = (field: 'entradas' | 'salidas' | 'controles' | 'indicadores' | 'documentos') => {
     switch (field) {
       case 'entradas':
-        appendEntrada('');
+        appendEntrada({ value: '' });
         break;
       case 'salidas':
-        appendSalida('');
+        appendSalida({ value: '' });
         break;
       case 'controles':
-        appendControl('');
+        appendControl({ value: '' });
         break;
       case 'indicadores':
-        appendIndicador('');
+        appendIndicador({ value: '' });
         break;
       case 'documentos':
-        appendDocumento('');
+        appendDocumento({ value: '' });
         break;
     }
   };
@@ -194,7 +194,7 @@ export function ProcessDefinitionForm({
           {fields.map((field, index) => (
             <div key={field.id} className="flex items-center space-x-2">
               <Input
-                {...register(`${fieldName}.${index}` as any)}
+                {...register(`${fieldName}.${index}.value` as any)}
                 placeholder={placeholder}
                 className="flex-1"
               />

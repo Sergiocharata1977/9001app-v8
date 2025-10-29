@@ -17,17 +17,31 @@ import { QualityIndicator, QualityIndicatorFormData } from '@/types/quality';
 
 const COLLECTION_NAME = 'qualityIndicators';
 
+// Helper function to safely convert Firestore Timestamp to ISO string
+const toISOString = (value: any): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === 'string') return value;
+  if (value.toDate && typeof value.toDate === 'function') {
+    return value.toDate().toISOString();
+  }
+  if (value instanceof Date) return value.toISOString();
+  return undefined;
+};
+
 export class QualityIndicatorService {
   static async getAll(): Promise<QualityIndicator[]> {
     try {
       const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        last_measurement_date: doc.data().last_measurement_date?.toDate()?.toISOString(),
-      })) as QualityIndicator[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          last_measurement_date: toISOString(data.last_measurement_date),
+        };
+      }) as QualityIndicator[];
     } catch (error) {
       console.error('Error getting quality indicators:', error);
       throw new Error('Error al obtener indicadores de calidad');
@@ -40,12 +54,13 @@ export class QualityIndicatorService {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
+        const data = docSnap.data();
         return {
           id: docSnap.id,
-          ...docSnap.data(),
-          created_at: docSnap.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-          updated_at: docSnap.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-          last_measurement_date: docSnap.data().last_measurement_date?.toDate()?.toISOString(),
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          last_measurement_date: toISOString(data.last_measurement_date),
         } as QualityIndicator;
       }
       return null;
@@ -63,13 +78,16 @@ export class QualityIndicatorService {
         orderBy('created_at', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        last_measurement_date: doc.data().last_measurement_date?.toDate()?.toISOString(),
-      })) as QualityIndicator[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          last_measurement_date: toISOString(data.last_measurement_date),
+        };
+      }) as QualityIndicator[];
     } catch (error) {
       console.error('Error getting quality indicators by process:', error);
       throw new Error('Error al obtener indicadores de calidad por proceso');
@@ -84,13 +102,16 @@ export class QualityIndicatorService {
         orderBy('created_at', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        last_measurement_date: doc.data().last_measurement_date?.toDate()?.toISOString(),
-      })) as QualityIndicator[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          last_measurement_date: toISOString(data.last_measurement_date),
+        };
+      }) as QualityIndicator[];
     } catch (error) {
       console.error('Error getting quality indicators by objective:', error);
       throw new Error('Error al obtener indicadores de calidad por objetivo');

@@ -590,7 +590,7 @@ export function PersonnelListing({
                       <div>
                         <dt className="text-sm font-medium text-gray-500">Fecha de Ingreso</dt>
                         <dd className="text-base mt-1">
-                          {selectedPersonnel.fecha_ingreso ? new Date(selectedPersonnel.fecha_ingreso.seconds * 1000).toLocaleDateString() : 'N/A'}
+                          {selectedPersonnel.fecha_ingreso ? new Date(selectedPersonnel.fecha_ingreso instanceof Date ? selectedPersonnel.fecha_ingreso : selectedPersonnel.fecha_ingreso.seconds * 1000).toLocaleDateString() : 'N/A'}
                         </dd>
                       </div>
                     </dl>

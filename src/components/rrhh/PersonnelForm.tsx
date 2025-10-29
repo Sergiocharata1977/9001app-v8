@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Personnel } from '@/types/rrhh';
+import { PersonnelPositionSelector } from './PersonnelPositionSelector';
 
 interface PersonnelFormProps {
   initialData?: Personnel | null;
@@ -20,6 +21,7 @@ interface PersonnelFormProps {
 
 export function PersonnelForm({ initialData, onSubmit, onCancel, isLoading = false }: PersonnelFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [replaceAssignments, setReplaceAssignments] = useState(true);
 
   const {
     register,
@@ -29,7 +31,24 @@ export function PersonnelForm({ initialData, onSubmit, onCancel, isLoading = fal
     formState: { errors },
   } = useForm<PersonnelFormData>({
     resolver: zodResolver(personnelFormSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      nombres: initialData.nombres || '',
+      apellidos: initialData.apellidos || '',
+      email: initialData.email || '',
+      telefono: initialData.telefono || '',
+      direccion: initialData.direccion || '',
+      puesto: initialData.puesto || '',
+      departamento: initialData.departamento || '',
+      supervisor: initialData.supervisor_nombre || '',
+      estado: initialData.estado || 'Activo' as const,
+      fecha_ingreso: initialData.fecha_ingreso instanceof Date ? initialData.fecha_ingreso : new Date(),
+      salario: initialData.salario || '',
+      foto: initialData.foto || '',
+      certificaciones: initialData.certificaciones || [],
+      meta_mensual: initialData.meta_mensual || 0,
+      comision_porcentaje: initialData.comision_porcentaje || 0,
+      tipo_personal: initialData.tipo_personal || 'administrativo' as const,
+    } : {
       nombres: '',
       apellidos: '',
       email: '',
@@ -38,14 +57,21 @@ export function PersonnelForm({ initialData, onSubmit, onCancel, isLoading = fal
       puesto: '',
       departamento: '',
       supervisor: '',
-      estado: 'Activo',
+      estado: 'Activo' as const,
       fecha_ingreso: new Date(),
       salario: '',
       foto: '',
       certificaciones: [],
-      ultima_evaluacion: null,
+      meta_mensual: 0,
+      comision_porcentaje: 0,
+      tipo_personal: 'administrativo' as const,
     },
   });
+
+  const handlePositionChange = (positionId: string, shouldReplace: boolean) => {
+    setValue('puesto', positionId);
+    setReplaceAssignments(shouldReplace);
+  };
 
   const handleFormSubmit = async (data: PersonnelFormData) => {
     setIsSubmitting(true);
@@ -129,16 +155,13 @@ export function PersonnelForm({ initialData, onSubmit, onCancel, isLoading = fal
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Información Laboral</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="puesto">Puesto</Label>
-                <Input
-                  id="puesto"
-                  {...register('puesto')}
-                  placeholder="Ej. Analista de Datos"
-                  className={errors.puesto ? 'border-red-500' : ''}
-                />
-                {errors.puesto && <p className="text-red-500 text-sm mt-1">{errors.puesto.message}</p>}
-              </div>
+              <PersonnelPositionSelector
+                value={watch('puesto')}
+                onChange={handlePositionChange}
+                disabled={isLoading || isSubmitting}
+                isEditing={!!initialData}
+                currentPositionId={initialData?.puesto}
+              />
               <div>
                 <Label htmlFor="departamento">Departamento</Label>
                 <Input
@@ -222,7 +245,7 @@ export function PersonnelForm({ initialData, onSubmit, onCancel, isLoading = fal
               <Input
                 id="certificaciones"
                 {...register('certificaciones', {
-                  setValueAs: (value) => value ? value.split(',').map(cert => cert.trim()) : []
+                  setValueAs: (value) => value ? value.split(',').map((cert: string) => cert.trim()) : []
                 })}
                 placeholder="ISO 9001, Análisis de Datos, Six Sigma"
                 className={errors.certificaciones ? 'border-red-500' : ''}

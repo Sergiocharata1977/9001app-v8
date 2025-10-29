@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     // Parse filters
     const filters = personnelFiltersSchema.parse({
       search: searchParams.get('search') || undefined,
-      estado: (searchParams.get('estado') as 'Activo' | 'Inactivo') || undefined,
+      estado: (searchParams.get('estado') as 'Activo' | 'Inactivo' | 'Licencia') || undefined,
       tipo_personal: (searchParams.get('tipo_personal') as any) || undefined,
       supervisor_id: searchParams.get('supervisor_id') || undefined,
     });

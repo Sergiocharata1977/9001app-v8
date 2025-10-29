@@ -137,7 +137,17 @@ export default function ProcessDefinitionDetailPage() {
   const handleFormSubmit = async (data: ProcessDefinitionFormData) => {
     setIsLoading(true);
     try {
-      await ProcessService.update(processId, data);
+      // Transform array fields from objects to strings
+      const transformedData: Partial<Omit<ProcessDefinition, 'id' | 'createdAt'>> = {
+        ...data,
+        entradas: data.entradas.map(e => typeof e === 'string' ? e : e.value),
+        salidas: data.salidas.map(s => typeof s === 'string' ? s : s.value),
+        controles: data.controles.map(c => typeof c === 'string' ? c : c.value),
+        indicadores: data.indicadores.map(i => typeof i === 'string' ? i : i.value),
+        documentos: data.documentos.map(d => typeof d === 'string' ? d : d.value),
+      };
+
+      await ProcessService.update(processId, transformedData);
       const updatedProcess = await ProcessService.getById(processId);
       setProcess(updatedProcess);
       setEditing(false);

@@ -71,11 +71,11 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
 
   // Handlers
   const handleView = useCallback((dept: Department) => {
-    router.push(`/dashboard/rrhh/departamentos/${dept.id}`);
+    router.push(`/dashboard/rrhh/departments/${dept.id}`);
   }, [router]);
 
   const handleCardClick = useCallback((dept: Department) => {
-    router.push(`/dashboard/rrhh/departamentos/${dept.id}`);
+    router.push(`/dashboard/rrhh/departments/${dept.id}`);
   }, [router]);
 
   const handleEdit = useCallback((dept: Department) => {

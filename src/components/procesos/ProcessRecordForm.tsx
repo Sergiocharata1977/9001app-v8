@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProcessRecordFormData, processRecordFormSchema } from '@/lib/validations/procesos';
+import { ProcessRecordFormData, processRecordSchema } from '@/lib/validations/procesos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,7 +34,7 @@ export function ProcessRecordForm({
     setValue,
     watch
   } = useForm<ProcessRecordFormData>({
-    resolver: zodResolver(processRecordFormSchema),
+    resolver: zodResolver(processRecordSchema),
     defaultValues: initialData ? {
       processId: initialData.processId,
       titulo: initialData.titulo,
@@ -47,10 +47,10 @@ export function ProcessRecordForm({
       processId: processId,
       titulo: '',
       descripcion: '',
-      estado: 'pendiente',
+      estado: 'pendiente' as const,
       responsable: '',
       fecha_vencimiento: new Date(),
-      prioridad: 'media'
+      prioridad: 'media' as const
     }
   });
 

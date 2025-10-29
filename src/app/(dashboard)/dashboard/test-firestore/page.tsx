@@ -63,12 +63,12 @@ export default function TestFirestorePage() {
       addResult(`✅ Departamento creado: ${department.name}`);
       
       // Crear puesto de prueba
-      const position = await PositionService.create({
+      const positionId = await PositionService.create({
         nombre: 'Puesto de Prueba',
         descripcion_responsabilidades: 'Puesto creado para testing',
         departamento_id: department.id,
       });
-      addResult(`✅ Puesto creado: ${position.nombre}`);
+      addResult(`✅ Puesto creado: ${positionId}`);
       
       // Crear personal de prueba
       const personnel = await PersonnelService.create({

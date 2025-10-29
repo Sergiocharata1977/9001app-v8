@@ -9,6 +9,7 @@ import { ProcessRecordService } from '@/services/procesos/ProcessRecordService';
 import { ProcessRecord } from '@/types/procesos';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
 export default function ProcessRecordsPage() {
   const params = useParams();

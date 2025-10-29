@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DepartmentForm } from '@/components/rrhh/DepartmentForm';
 import { DepartmentFormData } from '@/types/rrhh';
@@ -9,7 +9,7 @@ import { Department } from '@/types/rrhh';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Trash2, Users, Briefcase, DollarSign, TrendingUp, FileText, Award, Clock, Building2 } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Users, Briefcase, DollarSign, TrendingUp, FileText, Award, Building2 } from 'lucide-react';
 
 export default function DepartmentDetailPage() {
   const params = useParams();
@@ -79,11 +79,7 @@ export default function DepartmentDetailPage() {
     }
   ];
 
-  useEffect(() => {
-    loadDepartment();
-  }, [departmentId]);
-
-  const loadDepartment = async () => {
+  const loadDepartment = useCallback(async () => {
     try {
       setLoading(true);
       const data = await DepartmentService.getById(departmentId);
@@ -93,7 +89,11 @@ export default function DepartmentDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [departmentId]);
+
+  useEffect(() => {
+    loadDepartment();
+  }, [loadDepartment]);
 
   const handleSave = async (formData: DepartmentFormData) => {
     try {
@@ -112,7 +112,7 @@ export default function DepartmentDetailPage() {
     if (confirm('¿Estás seguro de que quieres eliminar este departamento?')) {
       try {
         await DepartmentService.delete(departmentId);
-        router.push('/dashboard/rrhh/departamentos');
+        router.push('/dashboard/rrhh/departments');
       } catch (error) {
         console.error('Error deleting department:', error);
       }
@@ -121,64 +121,57 @@ export default function DepartmentDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-24 bg-gray-200 rounded"></div>
-              ))}
-            </div>
+      <div className="space-y-6 p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-24 bg-gray-200 rounded"></div>
+            ))}
           </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (editing && department) {
     return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => setEditing(false)}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver
-            </Button>
-            <h1 className="text-3xl font-bold text-gray-900">Editar Departamento</h1>
-          </div>
-          
-          <DepartmentForm
-            initialData={department}
-            onSubmit={handleSave}
-            isLoading={isLoading}
-            onCancel={() => setEditing(false)}
-          />
+      <div className="space-y-6 p-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => setEditing(false)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver
+          </Button>
+          <h1 className="text-3xl font-bold text-gray-900">Editar Departamento</h1>
         </div>
-      </DashboardLayout>
+        
+        <DepartmentForm
+          initialData={department}
+          onSubmit={handleSave}
+          isLoading={isLoading}
+          onCancel={() => setEditing(false)}
+        />
+      </div>
     );
   }
 
   if (!department) {
     return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <div className="text-center py-12">
-            <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Departamento no encontrado</h3>
-            <p className="text-gray-500 mb-4">El departamento que buscas no existe o fue eliminado</p>
-            <Button onClick={() => router.push('/dashboard/rrhh/departamentos')}>
-              Volver a Departamentos
-            </Button>
-          </div>
+      <div className="space-y-6 p-6">
+        <div className="text-center py-12">
+          <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Departamento no encontrado</h3>
+          <p className="text-gray-500 mb-4">El departamento que buscas no existe o fue eliminado</p>
+          <Button onClick={() => router.push('/dashboard/rrhh/departments')}>
+            Volver a Departamentos
+          </Button>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6 p-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -222,7 +215,7 @@ export default function DepartmentDetailPage() {
                       <span className="text-xs text-gray-500">vs mes anterior</span>
                     </div>
                   </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor} flex-shrink-0`}>
+                  <div className={`p-3 rounded-lg ${stat.bgColor} shrink-0`}>
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -411,6 +404,5 @@ export default function DepartmentDetailPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

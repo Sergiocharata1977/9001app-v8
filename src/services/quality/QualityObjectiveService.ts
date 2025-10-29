@@ -16,20 +16,37 @@ import { QualityObjective, QualityObjectiveFormData } from '@/types/quality';
 
 const COLLECTION_NAME = 'qualityObjectives';
 
+// Helper function to safely convert Firestore Timestamp to ISO string
+const toISOString = (value: unknown): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value !== null && 'toDate' in value) {
+    const obj = value as { toDate?: () => Date };
+    if (typeof obj.toDate === 'function') {
+      return obj.toDate().toISOString();
+    }
+  }
+  if (value instanceof Date) return value.toISOString();
+  return undefined;
+};
+
 export class QualityObjectiveService {
   static async getAll(): Promise<QualityObjective[]> {
     try {
       const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        start_date: doc.data().start_date?.toDate()?.toISOString() || '',
-        due_date: doc.data().due_date?.toDate()?.toISOString() || '',
-        completed_date: doc.data().completed_date?.toDate()?.toISOString(),
-        last_alert_sent: doc.data().last_alert_sent?.toDate()?.toISOString(),
-      })) as QualityObjective[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          start_date: toISOString(data.start_date) || '',
+          due_date: toISOString(data.due_date) || '',
+          completed_date: toISOString(data.completed_date),
+          last_alert_sent: toISOString(data.last_alert_sent),
+        };
+      }) as QualityObjective[];
     } catch (error) {
       console.error('Error getting quality objectives:', error);
       throw new Error('Error al obtener objetivos de calidad');
@@ -42,15 +59,16 @@ export class QualityObjectiveService {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
+        const data = docSnap.data();
         return {
           id: docSnap.id,
-          ...docSnap.data(),
-          created_at: docSnap.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-          updated_at: docSnap.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-          start_date: docSnap.data().start_date?.toDate()?.toISOString() || '',
-          due_date: docSnap.data().due_date?.toDate()?.toISOString() || '',
-          completed_date: docSnap.data().completed_date?.toDate()?.toISOString(),
-          last_alert_sent: docSnap.data().last_alert_sent?.toDate()?.toISOString(),
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          start_date: toISOString(data.start_date) || '',
+          due_date: toISOString(data.due_date) || '',
+          completed_date: toISOString(data.completed_date),
+          last_alert_sent: toISOString(data.last_alert_sent),
         } as QualityObjective;
       }
       return null;
@@ -68,16 +86,19 @@ export class QualityObjectiveService {
         orderBy('created_at', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        created_at: doc.data().created_at?.toDate()?.toISOString() || new Date().toISOString(),
-        updated_at: doc.data().updated_at?.toDate()?.toISOString() || new Date().toISOString(),
-        start_date: doc.data().start_date?.toDate()?.toISOString() || '',
-        due_date: doc.data().due_date?.toDate()?.toISOString() || '',
-        completed_date: doc.data().completed_date?.toDate()?.toISOString(),
-        last_alert_sent: doc.data().last_alert_sent?.toDate()?.toISOString(),
-      })) as QualityObjective[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created_at: toISOString(data.created_at) || new Date().toISOString(),
+          updated_at: toISOString(data.updated_at) || new Date().toISOString(),
+          start_date: toISOString(data.start_date) || '',
+          due_date: toISOString(data.due_date) || '',
+          completed_date: toISOString(data.completed_date),
+          last_alert_sent: toISOString(data.last_alert_sent),
+        };
+      }) as QualityObjective[];
     } catch (error) {
       console.error('Error getting quality objectives by process:', error);
       throw new Error('Error al obtener objetivos de calidad por proceso');
@@ -181,7 +202,7 @@ export class QualityObjectiveService {
       const progress = await this.calculateProgress(id);
       const status = progress >= 100 ? 'completado' as const : 'activo' as const;
 
-      const updateData: Partial<QualityObjectiveFormData> = {
+      const updateData: any = {
         progress_percentage: progress,
       };
 

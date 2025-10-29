@@ -146,7 +146,7 @@ export async function seedRRHHData() {
     for (const pos of positions) {
       const created = await PositionService.create(pos);
       createdPositions.push(created);
-      console.log(`✅ Puesto creado: ${created.nombre}`);
+      console.log(`✅ Puesto creado: ${(created as any).nombre}`);
     }
 
     // Seed Personnel

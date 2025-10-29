@@ -203,6 +203,20 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "personnel",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "puesto",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "apellidos",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

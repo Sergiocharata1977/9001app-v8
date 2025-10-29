@@ -18,6 +18,12 @@ export interface Position {
   requisitos_formacion?: string;
   departamento_id?: string;
   reporta_a_id?: string;
+  
+  // Asignaciones de contexto para IA Don Cándido
+  procesos_asignados?: string[];      // Array de ProcessDefinition IDs
+  objetivos_asignados?: string[];     // Array de QualityObjective IDs
+  indicadores_asignados?: string[];   // Array de QualityIndicator IDs
+  
   created_at: Date;
   updated_at: Date;
 }
@@ -120,6 +126,21 @@ export interface PositionFormData {
   reporta_a_id?: string;
 }
 
+// Tipo extendido con datos expandidos y conteo de personal
+export interface PositionWithAssignments extends Position {
+  procesos_details?: unknown[];  // ProcessDefinition[] - evitamos import circular
+  objetivos_details?: unknown[];  // QualityObjective[] - evitamos import circular
+  indicadores_details?: unknown[];  // QualityIndicator[] - evitamos import circular
+  personnel_count?: number;  // Cantidad de personas en este puesto
+}
+
+// Form data para asignaciones de contexto
+export interface PositionAssignmentsFormData {
+  procesos_asignados: string[];
+  objetivos_asignados: string[];
+  indicadores_asignados: string[];
+}
+
 export interface PersonnelFormData {
   nombres: string;
   apellidos: string;
@@ -132,7 +153,7 @@ export interface PersonnelFormData {
   telefono_emergencia?: string;
   fecha_contratacion?: Date;
   numero_legajo?: string;
-  estado: 'Activo' | 'Inactivo';
+  estado: 'Activo' | 'Inactivo' | 'Licencia';
   meta_mensual: number;
   comision_porcentaje: number;
   supervisor_id?: string;
@@ -205,7 +226,7 @@ export interface PositionFilters {
 
 export interface PersonnelFilters {
   search?: string;
-  estado?: 'Activo' | 'Inactivo';
+  estado?: 'Activo' | 'Inactivo' | 'Licencia';
   tipo_personal?:
     | 'administrativo'
     | 'ventas'

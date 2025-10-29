@@ -189,8 +189,8 @@ export class PersonnelService {
 
       // Remove undefined values
       Object.keys(updateData).forEach(key => {
-        if ((updateData as any)[key] === undefined) {
-          delete (updateData as unknown)[key];
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
         }
       });
 
@@ -386,6 +386,152 @@ export class PersonnelService {
     } catch (error) {
       console.error('Error removing assignment from all personnel:', error);
       throw new Error('Error al remover asignación de todo el personal');
+    }
+  }
+
+  /**
+   * Asignar puesto a personnel y copiar asignaciones
+   */
+  static async assignPosition(
+    personnelId: string,
+    positionId: string,
+    copyAssignments: boolean = true
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, personnelId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error('El personal no existe');
+      }
+
+      // Validar que position existe
+      const positionRef = doc(db, 'positions', positionId);
+      const positionSnap = await getDoc(positionRef);
+
+      if (!positionSnap.exists()) {
+        throw new Error('El puesto no existe');
+      }
+
+      const updateData: {
+        puesto: string;
+        updated_at: Timestamp;
+        procesos_asignados?: string[];
+        objetivos_asignados?: string[];
+        indicadores_asignados?: string[];
+      } = {
+        puesto: positionId,
+        updated_at: Timestamp.now(),
+      };
+
+      // Si se solicita copiar asignaciones, obtenerlas del position
+      if (copyAssignments) {
+        const positionData = positionSnap.data();
+        updateData.procesos_asignados = positionData?.procesos_asignados || [];
+        updateData.objetivos_asignados = positionData?.objetivos_asignados || [];
+        updateData.indicadores_asignados = positionData?.indicadores_asignados || [];
+      }
+
+      await updateDoc(docRef, updateData);
+    } catch (error) {
+      console.error('Error assigning position:', error);
+      throw error instanceof Error ? error : new Error('Error al asignar puesto');
+    }
+  }
+
+  /**
+   * Cambiar puesto de personnel
+   */
+  static async changePosition(
+    personnelId: string,
+    newPositionId: string,
+    replaceAssignments: boolean
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, personnelId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error('El personal no existe');
+      }
+
+      // Validar que newPosition existe
+      const positionRef = doc(db, 'positions', newPositionId);
+      const positionSnap = await getDoc(positionRef);
+
+      if (!positionSnap.exists()) {
+        throw new Error('El puesto no existe');
+      }
+
+      const updateData: {
+        puesto: string;
+        updated_at: Timestamp;
+        procesos_asignados?: string[];
+        objetivos_asignados?: string[];
+        indicadores_asignados?: string[];
+      } = {
+        puesto: newPositionId,
+        updated_at: Timestamp.now(),
+      };
+
+      // Si se solicita reemplazar asignaciones, obtenerlas del nuevo position
+      if (replaceAssignments) {
+        const positionData = positionSnap.data();
+        updateData.procesos_asignados = positionData?.procesos_asignados || [];
+        updateData.objetivos_asignados = positionData?.objetivos_asignados || [];
+        updateData.indicadores_asignados = positionData?.indicadores_asignados || [];
+      }
+
+      await updateDoc(docRef, updateData);
+    } catch (error) {
+      console.error('Error changing position:', error);
+      throw error instanceof Error ? error : new Error('Error al cambiar puesto');
+    }
+  }
+
+  /**
+   * Actualizar asignaciones manualmente
+   */
+  static async updateAssignments(
+    personnelId: string,
+    assignments: {
+      procesos_asignados?: string[];
+      objetivos_asignados?: string[];
+      indicadores_asignados?: string[];
+    }
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, personnelId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error('El personal no existe');
+      }
+
+      const updateData: {
+        updated_at: Timestamp;
+        procesos_asignados?: string[];
+        objetivos_asignados?: string[];
+        indicadores_asignados?: string[];
+      } = {
+        updated_at: Timestamp.now(),
+      };
+
+      // Actualizar solo los campos especificados
+      if (assignments.procesos_asignados !== undefined) {
+        updateData.procesos_asignados = assignments.procesos_asignados;
+      }
+      if (assignments.objetivos_asignados !== undefined) {
+        updateData.objetivos_asignados = assignments.objetivos_asignados;
+      }
+      if (assignments.indicadores_asignados !== undefined) {
+        updateData.indicadores_asignados = assignments.indicadores_asignados;
+      }
+
+      await updateDoc(docRef, updateData);
+    } catch (error) {
+      console.error('Error updating personnel assignments:', error);
+      throw error instanceof Error ? error : new Error('Error al actualizar asignaciones');
     }
   }
 }
