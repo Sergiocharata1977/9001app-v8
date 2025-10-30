@@ -239,3 +239,6 @@ async function seedData() {
 
 // Ejecutar el seed
 seedData();
+
+
+

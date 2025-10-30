@@ -215,7 +215,7 @@ Estoy aquí para ayudarte con:
                     : 'bg-white text-gray-800 rounded-bl-none shadow-sm border border-gray-200'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.contenido}</p>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.contenido}</div>
               </div>
               <span className="text-xs text-gray-400 mt-1 px-1">
                 {msg.timestamp.toLocaleTimeString('es-ES', { 
