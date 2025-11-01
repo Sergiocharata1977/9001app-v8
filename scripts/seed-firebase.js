@@ -1,14 +1,14 @@
 // Script para sembrar datos en Firebase
 // Ejecutar con: node scripts/seed-firebase.js
 
-const { initializeApp } = require('firebase/app');
-const {
+import { initializeApp } from 'firebase/app';
+import {
   getFirestore,
   collection,
   addDoc,
   doc,
   setDoc,
-} = require('firebase/firestore');
+} from 'firebase/firestore';
 
 // Configuración de Firebase
 const firebaseConfig = {

@@ -1,26 +1,25 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from '@/contexts/AuthContext';
+import {
+    BarChart3,
+    Brain,
+    CheckCircle,
+    FileCheck,
+    Globe,
+    Play,
+    Rocket,
+    Shield,
+    Sparkles,
+    Target,
+    TrendingUp,
+    Users,
+    Zap
+} from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  Brain,
-  Target,
-  TrendingUp,
-  FileCheck,
-  Users,
-  BarChart3,
-  CheckCircle,
-  Play,
-  Sparkles,
-  Globe,
-  Zap,
-  Shield,
-  Rocket,
-  Building2,
-} from "lucide-react"
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -99,13 +98,9 @@ export default function Home() {
               <Sparkles className="w-4 h-4 text-emerald-400" />
               <span className="text-sm text-emerald-300">Consultor IA de ISO 9001</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">La IA que organiza tu empresa</h1>
-            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-4xl mx-auto">
-              como lo haría una certificación <span className="text-emerald-400 font-semibold">ISO 9001</span>
-            </p>
-            <p className="text-lg text-slate-400 mb-10 max-w-3xl mx-auto">
-              Una inteligencia organizacional diseñada para ayudarte a ordenar, medir y mejorar tu empresa, basándose en
-              el estándar internacional de gestión de calidad.
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">La IA definitiva para empresas.</h1>
+            <p className="text-xl md:text-2xl text-slate-300 mb-10 max-w-4xl mx-auto">
+              Una inteligencia organizacional que aprende de tu empresa para ayudarte a ordenar tareas, medir desempeño y alcanzar estándares internacionales de calidad.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8 py-3 rounded-lg shadow-lg">

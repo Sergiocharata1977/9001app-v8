@@ -1,21 +1,7 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  Phone,
-  Mail,
-  MapPin,
-  User,
-  Building2,
-  Award,
-  Calendar,
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +9,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Personnel } from '@/types/rrhh';
+import {
+  Edit,
+  Eye,
+  Mail,
+  MapPin,
+  MoreHorizontal,
+  Phone,
+  Trash2,
+  User,
+} from 'lucide-react';
 
 interface PersonnelCardProps {
   personnel: Personnel;
@@ -32,7 +28,13 @@ interface PersonnelCardProps {
   onCardClick?: (personnel: Personnel) => void;
 }
 
-export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick }: PersonnelCardProps) {
+export function PersonnelCard({
+  personnel,
+  onEdit,
+  onDelete,
+  onView,
+  onCardClick,
+}: PersonnelCardProps) {
   const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
       case 'activo':
@@ -50,7 +52,9 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
     return `${nombres.charAt(0)}${apellidos.charAt(0)}`;
   };
 
-  const formatDate = (date: Date | { seconds: number; nanoseconds: number } | undefined) => {
+  const formatDate = (
+    date: Date | { seconds: number; nanoseconds: number } | undefined
+  ) => {
     if (!date) return 'N/A';
     if (typeof date === 'object' && 'seconds' in date) {
       return new Date(date.seconds * 1000).toLocaleDateString();
@@ -68,7 +72,7 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleCardClick();
@@ -81,7 +85,7 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
               <AvatarImage
-                src={personnel.foto || "/placeholder.svg"}
+                src={personnel.foto || '/placeholder.svg'}
                 alt={`${personnel.nombres} ${personnel.apellidos}`}
               />
               <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold">
@@ -92,11 +96,11 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
               <CardTitle className="text-lg">
                 {personnel.nombres} {personnel.apellidos}
               </CardTitle>
-              <CardDescription className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                 <Badge variant="outline" className="text-xs">
                   {personnel.id}
                 </Badge>
-              </CardDescription>
+              </div>
             </div>
           </div>
           <DropdownMenu>
@@ -104,7 +108,7 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
                 aria-label={`Opciones para ${personnel.nombres} ${personnel.apellidos}`}
               >
                 <MoreHorizontal className="w-4 h-4" />
@@ -119,7 +123,10 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete?.(personnel)} className="text-red-600">
+              <DropdownMenuItem
+                onClick={() => onDelete?.(personnel)}
+                className="text-red-600"
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Eliminar
               </DropdownMenuItem>
@@ -130,33 +137,45 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
       <CardContent>
         <div className="space-y-3">
           <div>
-            <p className="font-medium text-sm text-gray-900">{personnel.puesto || 'Sin puesto asignado'}</p>
-            <p className="text-sm text-gray-600">{personnel.departamento || 'Sin departamento'}</p>
+            <p className="font-medium text-sm text-gray-900">
+              {personnel.puesto || 'Sin puesto asignado'}
+            </p>
+            <p className="text-sm text-gray-600">
+              {personnel.departamento || 'Sin departamento'}
+            </p>
           </div>
 
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-600 truncate">{personnel.email}</span>
+            <span className="text-sm text-gray-600 truncate">
+              {personnel.email}
+            </span>
           </div>
 
           {personnel.telefono && (
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{personnel.telefono}</span>
+              <span className="text-sm text-gray-600">
+                {personnel.telefono}
+              </span>
             </div>
           )}
 
           {personnel.direccion && (
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600 truncate">{personnel.direccion}</span>
+              <span className="text-sm text-gray-600 truncate">
+                {personnel.direccion}
+              </span>
             </div>
           )}
 
           {personnel.supervisor_nombre && (
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Supervisor: {personnel.supervisor_nombre}</span>
+              <span className="text-sm text-gray-600">
+                Supervisor: {personnel.supervisor_nombre}
+              </span>
             </div>
           )}
 
@@ -166,7 +185,9 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
             </Badge>
             <div className="text-right">
               <p className="text-xs text-gray-500">Ingreso</p>
-              <p className="text-sm font-medium">{formatDate(personnel.fecha_ingreso)}</p>
+              <p className="text-sm font-medium">
+                {formatDate(personnel.fecha_ingreso)}
+              </p>
             </div>
           </div>
 
@@ -174,28 +195,31 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
             <div className="pt-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500">Salario</span>
-                <span className="text-sm font-medium text-gray-900">{personnel.salario}</span>
+                <span className="text-sm font-medium text-gray-900">
+                  {personnel.salario}
+                </span>
               </div>
             </div>
           )}
 
-          {personnel.certificaciones && personnel.certificaciones.length > 0 && (
-            <div className="pt-2">
-              <p className="text-xs text-gray-500 mb-1">Certificaciones:</p>
-              <div className="flex flex-wrap gap-1">
-                {personnel.certificaciones.slice(0, 2).map((cert, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {cert}
-                  </Badge>
-                ))}
-                {personnel.certificaciones.length > 2 && (
-                  <Badge variant="secondary" className="text-xs">
-                    +{personnel.certificaciones.length - 2}
-                  </Badge>
-                )}
+          {personnel.certificaciones &&
+            personnel.certificaciones.length > 0 && (
+              <div className="pt-2">
+                <p className="text-xs text-gray-500 mb-1">Certificaciones:</p>
+                <div className="flex flex-wrap gap-1">
+                  {personnel.certificaciones.slice(0, 2).map((cert, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {cert}
+                    </Badge>
+                  ))}
+                  {personnel.certificaciones.length > 2 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{personnel.certificaciones.length - 2}
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {personnel.ultima_evaluacion && (
             <div className="pt-2">
@@ -212,4 +236,3 @@ export function PersonnelCard({ personnel, onEdit, onDelete, onView, onCardClick
     </Card>
   );
 }
-

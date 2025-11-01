@@ -164,8 +164,8 @@ export default function ProcessDefinitionsPage() {
   // Filtrar definiciones
   const filteredDefinitions = processDefinitions.filter(definition => {
     const matchesSearch =
-      definition.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      definition.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (definition.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (definition.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesCategory =
       filterCategory === 'all' || definition.category === filterCategory;
     return matchesSearch && matchesCategory;

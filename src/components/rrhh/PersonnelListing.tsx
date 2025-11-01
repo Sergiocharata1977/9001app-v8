@@ -1,14 +1,3 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { Grid, List, Plus, Search, Filter, Users, Edit, Trash2, Eye, Target, Download, Phone, Mail, MapPin, User, Clock, Building2, UserCheck, Award } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +7,34 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
+import { PersonnelService } from '@/services/rrhh/PersonnelService';
+import { Personnel, PersonnelFormData } from '@/types/rrhh';
+import {
+  Building2,
+  Clock,
+  Download,
+  Edit,
+  Eye,
+  Filter,
+  Plus,
+  Search,
+  Trash2,
+  UserCheck,
+  Users,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PersonnelCard } from './PersonnelCard';
 import { PersonnelForm } from './PersonnelForm';
-import { Personnel, PersonnelFormData } from '@/types/rrhh';
-import { PersonnelService } from '@/services/rrhh/PersonnelService';
 
 interface PersonnelListingProps {
   onViewPersonnel?: (personnel: Personnel) => void;
@@ -42,9 +54,13 @@ export function PersonnelListing({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(null);
+  const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(
+    null
+  );
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [personnelToDelete, setPersonnelToDelete] = useState<Personnel | null>(null);
+  const [personnelToDelete, setPersonnelToDelete] = useState<Personnel | null>(
+    null
+  );
   const [showDetails, setShowDetails] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('all');
 
@@ -70,7 +86,7 @@ export function PersonnelListing({
   }, [fetchData]);
 
   const filteredPersonnel = useMemo(() => {
-    return personnel.filter((person) => {
+    return personnel.filter(person => {
       const matchesSearch =
         person.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
         person.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,7 +95,9 @@ export function PersonnelListing({
         person.departamento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         person.telefono?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = selectedStatus === 'all' || person.estado?.toLowerCase() === selectedStatus.toLowerCase();
+      const matchesStatus =
+        selectedStatus === 'all' ||
+        person.estado?.toLowerCase() === selectedStatus.toLowerCase();
 
       return matchesSearch && matchesStatus;
     });
@@ -91,34 +109,40 @@ export function PersonnelListing({
     onNewPersonnel?.();
   }, [onNewPersonnel]);
 
-  const handleFormSuccess = useCallback(async (data: PersonnelFormData) => {
-    try {
-      if (selectedPersonnel) {
-        await PersonnelService.update(selectedPersonnel.id, data);
-      } else {
-        await PersonnelService.create(data);
+  const handleFormSuccess = useCallback(
+    async (data: PersonnelFormData) => {
+      try {
+        if (selectedPersonnel) {
+          await PersonnelService.update(selectedPersonnel.id, data);
+        } else {
+          await PersonnelService.create(data);
+        }
+        setShowForm(false);
+        fetchData();
+      } catch (error) {
+        console.error('Error al guardar empleado:', error);
+        toast({
+          title: 'Error',
+          description: `No se pudo guardar el empleado: ${error instanceof Error ? error.message : String(error)}`,
+          variant: 'destructive',
+        });
       }
-      setShowForm(false);
-      fetchData();
-    } catch (error) {
-      console.error('Error al guardar empleado:', error);
-      toast({
-        title: 'Error',
-        description: `No se pudo guardar el empleado: ${error instanceof Error ? error.message : String(error)}`,
-        variant: 'destructive',
-      });
-    }
-  }, [selectedPersonnel, fetchData, toast]);
+    },
+    [selectedPersonnel, fetchData, toast]
+  );
 
   const handleFormCancel = useCallback(() => {
     setShowForm(false);
   }, []);
 
-  const handleEditPersonnel = useCallback((personnel: Personnel) => {
-    setSelectedPersonnel(personnel);
-    setShowForm(true);
-    onEditPersonnel?.(personnel);
-  }, [onEditPersonnel]);
+  const handleEditPersonnel = useCallback(
+    (personnel: Personnel) => {
+      setSelectedPersonnel(personnel);
+      setShowForm(true);
+      onEditPersonnel?.(personnel);
+    },
+    [onEditPersonnel]
+  );
 
   const handleDeleteClick = useCallback((personnel: Personnel) => {
     setPersonnelToDelete(personnel);
@@ -153,13 +177,19 @@ export function PersonnelListing({
     setPersonnelToDelete(null);
   }, []);
 
-  const handleViewDetails = useCallback((personnel: Personnel) => {
-    router.push(`/dashboard/rrhh/personnel/${personnel.id}`);
-  }, [router]);
+  const handleViewDetails = useCallback(
+    (personnel: Personnel) => {
+      router.push(`/dashboard/rrhh/personnel/${personnel.id}`);
+    },
+    [router]
+  );
 
-  const handleCardClick = useCallback((personnel: Personnel) => {
-    router.push(`/dashboard/rrhh/personnel/${personnel.id}`);
-  }, [router]);
+  const handleCardClick = useCallback(
+    (personnel: Personnel) => {
+      router.push(`/dashboard/rrhh/personnel/${personnel.id}`);
+    },
+    [router]
+  );
 
   const handleCloseDetails = useCallback(() => {
     setShowDetails(false);
@@ -224,8 +254,10 @@ export function PersonnelListing({
     const total = personnel.length;
     const activos = personnel.filter(p => p.estado === 'Activo').length;
     const licencia = personnel.filter(p => p.estado === 'Licencia').length;
-    const departamentos = new Set(personnel.map(p => p.departamento).filter(Boolean)).size;
-    
+    const departamentos = new Set(
+      personnel.map(p => p.departamento).filter(Boolean)
+    ).size;
+
     return { total, activos, licencia, departamentos };
   }, [personnel]);
 
@@ -252,15 +284,21 @@ export function PersonnelListing({
       return (
         <div className="text-center p-8">
           <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900">No hay empleados registrados</h3>
-          <p className="mt-2 text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900">
+            No hay empleados registrados
+          </h3>
+          <div className="mt-2 text-sm text-gray-600">
             Empieza creando un nuevo empleado o importa datos de prueba.
-          </p>
+          </div>
           <div className="mt-6 flex justify-center gap-4">
             <Button onClick={handleNewPersonnel}>
               <Plus className="mr-2 h-4 w-4" /> Crear Empleado
             </Button>
-            <Button variant="outline" onClick={handleSeedData} className="bg-green-600 hover:bg-green-700 text-white">
+            <Button
+              variant="outline"
+              onClick={handleSeedData}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Agregar Datos de Prueba
             </Button>
@@ -272,7 +310,7 @@ export function PersonnelListing({
     if (viewMode === 'grid') {
       return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredPersonnel.map((person) => (
+          {filteredPersonnel.map(person => (
             <PersonnelCard
               key={person.id}
               personnel={person}
@@ -293,23 +331,35 @@ export function PersonnelListing({
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="text-left p-4 font-medium text-gray-900">Empleado</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Puesto</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Departamento</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Estado</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Fecha de Ingreso</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Acciones</th>
+                  <th className="text-left p-4 font-medium text-gray-900">
+                    Empleado
+                  </th>
+                  <th className="text-left p-4 font-medium text-gray-900">
+                    Puesto
+                  </th>
+                  <th className="text-left p-4 font-medium text-gray-900">
+                    Departamento
+                  </th>
+                  <th className="text-left p-4 font-medium text-gray-900">
+                    Estado
+                  </th>
+                  <th className="text-left p-4 font-medium text-gray-900">
+                    Fecha de Ingreso
+                  </th>
+                  <th className="text-left p-4 font-medium text-gray-900">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredPersonnel.map((person) => (
+                {filteredPersonnel.map(person => (
                   <tr
                     key={person.id}
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => handleCardClick(person)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         handleCardClick(person);
@@ -321,7 +371,7 @@ export function PersonnelListing({
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8">
                           <AvatarImage
-                            src={person.foto || "/placeholder.svg"}
+                            src={person.foto || '/placeholder.svg'}
                             alt={`${person.nombres} ${person.apellidos}`}
                           />
                           <AvatarFallback className="bg-emerald-100 text-emerald-700 text-sm font-semibold">
@@ -332,22 +382,35 @@ export function PersonnelListing({
                           <p className="font-medium">
                             {person.nombres} {person.apellidos}
                           </p>
-                          <p className="text-sm text-gray-600">{person.email}</p>
+                          <p className="text-sm text-gray-600">
+                            {person.email}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-medium">{person.puesto || 'N/A'}</td>
-                    <td className="p-4 text-gray-600">{person.departamento || 'N/A'}</td>
+                    <td className="p-4 font-medium">
+                      {person.puesto || 'N/A'}
+                    </td>
+                    <td className="p-4 text-gray-600">
+                      {person.departamento || 'N/A'}
+                    </td>
                     <td className="p-4">
                       <Badge className={getStatusColor(person.estado)}>
                         {person.estado || 'N/A'}
                       </Badge>
                     </td>
                     <td className="p-4 text-gray-600">
-                      {person.fecha_contratacion ? new Date(person.fecha_contratacion).toLocaleDateString('es-ES') : 'N/A'}
+                      {person.fecha_contratacion
+                        ? new Date(
+                            person.fecha_contratacion
+                          ).toLocaleDateString('es-ES')
+                        : 'N/A'}
                     </td>
                     <td className="p-4">
-                      <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex justify-end space-x-2"
+                        onClick={e => e.stopPropagation()}
+                      >
                         <Button
                           size="sm"
                           variant="ghost"
@@ -383,22 +446,39 @@ export function PersonnelListing({
         </CardContent>
       </Card>
     );
-  }, [isLoading, filteredPersonnel, viewMode, handleNewPersonnel, handleSeedData, handleEditPersonnel, handleDeleteClick, handleViewDetails, handleCardClick]);
+  }, [
+    isLoading,
+    filteredPersonnel,
+    viewMode,
+    handleNewPersonnel,
+    handleSeedData,
+    handleEditPersonnel,
+    handleDeleteClick,
+    handleViewDetails,
+    handleCardClick,
+  ]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Personal</h1>
-          <p className="text-gray-600 mt-2">Administra el personal de la organización según ISO 9001</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestión de Personal
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Administra el personal de la organización según ISO 9001
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />
             Exportar
           </Button>
-          <Button onClick={handleNewPersonnel} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button
+            onClick={handleNewPersonnel}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nuevo Empleado
           </Button>
@@ -468,32 +548,44 @@ export function PersonnelListing({
           <Input
             placeholder="Buscar empleados por nombre, email, puesto, departamento..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant={selectedStatus === "all" ? "default" : "outline"}
+            variant={selectedStatus === 'all' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedStatus("all")}
-            className={selectedStatus === "all" ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+            onClick={() => setSelectedStatus('all')}
+            className={
+              selectedStatus === 'all'
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : ''
+            }
           >
             Todos
           </Button>
           <Button
-            variant={selectedStatus === "activo" ? "default" : "outline"}
+            variant={selectedStatus === 'activo' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedStatus("activo")}
-            className={selectedStatus === "activo" ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+            onClick={() => setSelectedStatus('activo')}
+            className={
+              selectedStatus === 'activo'
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : ''
+            }
           >
             Activos
           </Button>
           <Button
-            variant={selectedStatus === "licencia" ? "default" : "outline"}
+            variant={selectedStatus === 'licencia' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedStatus("licencia")}
-            className={selectedStatus === "licencia" ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+            onClick={() => setSelectedStatus('licencia')}
+            className={
+              selectedStatus === 'licencia'
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : ''
+            }
           >
             Licencia
           </Button>
@@ -502,7 +594,10 @@ export function PersonnelListing({
           <Filter className="w-4 h-4 mr-2" />
           Más Filtros
         </Button>
-        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'grid' | 'list')}>
+        <Tabs
+          value={viewMode}
+          onValueChange={value => setViewMode(value as 'grid' | 'list')}
+        >
           <TabsList>
             <TabsTrigger value="grid">Tarjetas</TabsTrigger>
             <TabsTrigger value="list">Tabla</TabsTrigger>
@@ -511,9 +606,7 @@ export function PersonnelListing({
       </div>
 
       {/* Content */}
-      <div className="min-h-96">
-        {renderContent}
-      </div>
+      <div className="min-h-96">{renderContent}</div>
 
       {/* Modal de formulario */}
       {showForm && (
@@ -538,59 +631,100 @@ export function PersonnelListing({
                   <div className="flex items-center gap-4">
                     <Avatar className="w-16 h-16">
                       <AvatarImage
-                        src={selectedPersonnel.foto || "/placeholder.svg"}
+                        src={selectedPersonnel.foto || '/placeholder.svg'}
                         alt={`${selectedPersonnel.nombres} ${selectedPersonnel.apellidos}`}
                       />
                       <AvatarFallback className="bg-emerald-100 text-emerald-700 font-semibold text-xl">
-                        {getInitials(selectedPersonnel.nombres, selectedPersonnel.apellidos)}
+                        {getInitials(
+                          selectedPersonnel.nombres,
+                          selectedPersonnel.apellidos
+                        )}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900">
-                        {selectedPersonnel.nombres} {selectedPersonnel.apellidos}
+                        {selectedPersonnel.nombres}{' '}
+                        {selectedPersonnel.apellidos}
                       </h2>
-                      <Badge className={getStatusColor(selectedPersonnel.estado)}>
+                      <Badge
+                        className={getStatusColor(selectedPersonnel.estado)}
+                      >
                         {selectedPersonnel.estado || 'N/A'}
                       </Badge>
                     </div>
                   </div>
-                  <Button variant="outline" onClick={handleCloseDetails}>Cerrar</Button>
+                  <Button variant="outline" onClick={handleCloseDetails}>
+                    Cerrar
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Información Personal</h3>
+                    <h3 className="text-lg font-medium mb-4">
+                      Información Personal
+                    </h3>
                     <dl className="space-y-3">
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Email</dt>
-                        <dd className="text-base mt-1">{selectedPersonnel.email}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Email
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedPersonnel.email}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Teléfono</dt>
-                        <dd className="text-base mt-1">{selectedPersonnel.telefono || 'N/A'}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Teléfono
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedPersonnel.telefono || 'N/A'}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Dirección</dt>
-                        <dd className="text-base mt-1">{selectedPersonnel.direccion || 'N/A'}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Dirección
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedPersonnel.direccion || 'N/A'}
+                        </dd>
                       </div>
                     </dl>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Información Laboral</h3>
+                    <h3 className="text-lg font-medium mb-4">
+                      Información Laboral
+                    </h3>
                     <dl className="space-y-3">
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Puesto</dt>
-                        <dd className="text-base mt-1">{selectedPersonnel.puesto || 'N/A'}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Departamento</dt>
-                        <dd className="text-base mt-1">{selectedPersonnel.departamento || 'N/A'}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Fecha de Ingreso</dt>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Puesto
+                        </dt>
                         <dd className="text-base mt-1">
-                          {selectedPersonnel.fecha_ingreso ? new Date(selectedPersonnel.fecha_ingreso instanceof Date ? selectedPersonnel.fecha_ingreso : selectedPersonnel.fecha_ingreso.seconds * 1000).toLocaleDateString() : 'N/A'}
+                          {selectedPersonnel.puesto || 'N/A'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Departamento
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedPersonnel.departamento || 'N/A'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Fecha de Ingreso
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedPersonnel.fecha_ingreso
+                            ? new Date(
+                                selectedPersonnel.fecha_ingreso instanceof Date
+                                  ? selectedPersonnel.fecha_ingreso
+                                  : selectedPersonnel.fecha_ingreso.seconds *
+                                    1000
+                              ).toLocaleDateString()
+                            : 'N/A'}
                         </dd>
                       </div>
                     </dl>
@@ -608,13 +742,22 @@ export function PersonnelListing({
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente al empleado{' '}
-              <span className="font-semibold">{personnelToDelete?.nombres} {personnelToDelete?.apellidos}</span> y todos sus datos asociados.
+              Esta acción no se puede deshacer. Esto eliminará permanentemente
+              al empleado{' '}
+              <span className="font-semibold">
+                {personnelToDelete?.nombres} {personnelToDelete?.apellidos}
+              </span>{' '}
+              y todos sus datos asociados.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDelete}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogCancel onClick={handleCancelDelete}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -1,18 +1,18 @@
 // API endpoint for Don Cándido chat
 
-import { NextRequest, NextResponse } from 'next/server';
-import { UserContextService } from '@/services/context/UserContextService';
 import { ClaudeService } from '@/lib/claude/client';
 import { PromptService } from '@/lib/claude/prompts';
 import { ValidationService } from '@/lib/claude/validators';
-import { ChatSessionService } from '@/services/chat/ChatSessionService';
-import { UsageTrackingService } from '@/services/tracking/UsageTrackingService';
-import { sanitizeInput, sanitizeOutput } from '@/lib/utils/sanitization';
+import { errorLogger, ErrorSeverity } from '@/lib/utils/ErrorLogger';
 import {
   checkRateLimit,
   createRateLimitResponse,
 } from '@/lib/utils/rate-limiter';
-import { errorLogger, ErrorSeverity } from '@/lib/utils/ErrorLogger';
+import { sanitizeInput, sanitizeOutput } from '@/lib/utils/sanitization';
+import { ChatSessionService } from '@/services/chat/ChatSessionService';
+import { UserContextService } from '@/services/context/UserContextService';
+import { UsageTrackingService } from '@/services/tracking/UsageTrackingService';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface ChatRequest {
   mensaje: string;
@@ -24,11 +24,23 @@ interface ChatRequest {
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
+  // Parse request body ONCE at the beginning
+  let body: ChatRequest;
   try {
-    // Parse request body
-    const body: ChatRequest = await request.json();
-    const { mensaje, userId, sessionId, modulo } = body;
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        error: 'Invalid request body',
+        message: 'Failed to parse JSON',
+      },
+      { status: 400 }
+    );
+  }
 
+  const { mensaje, userId, sessionId, modulo } = body;
+
+  try {
     // Validate required parameters
     if (!mensaje || !userId || !sessionId) {
       errorLogger.logError(
@@ -175,11 +187,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const tiempo_respuesta_ms = Date.now() - startTime;
 
+    // Use body variable (already parsed) instead of reading request.json() again
     errorLogger.logError(
       error as Error,
       {
-        userId: (await request.json()).userId,
-        sessionId: (await request.json()).sessionId,
+        userId: userId || 'unknown',
+        sessionId: sessionId || 'unknown',
         operation: 'chat',
         metadata: { tiempo_respuesta_ms },
       },

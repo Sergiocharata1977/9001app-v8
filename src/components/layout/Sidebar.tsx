@@ -3,7 +3,6 @@
 import { DonCandidoChat } from '@/components/ia/DonCandidoChat';
 import Logo from '@/components/ui/Logo';
 import {
-  Activity,
   AlertTriangle,
   Award,
   BarChart3,
@@ -25,8 +24,6 @@ import {
   Search,
   Settings,
   Shield,
-  Target,
-  TrendingUp,
   UserCheck,
   Users,
   Workflow,
@@ -46,7 +43,19 @@ interface MenuItem {
 
 const navigation: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Módulo Calidad', href: '/dashboard/calidad', icon: Award },
+  {
+    name: 'Calidad',
+    href: '/dashboard/quality',
+    icon: Award,
+    children: [
+      { name: 'Políticas', href: '/politicas', icon: FileText },
+      { name: 'Reuniones de Trabajo', href: '/reuniones-trabajo', icon: Users },
+      { name: 'Análisis FODA', href: '/analisis-foda', icon: BarChart3 },
+      { name: 'Organigramas', href: '/organigramas', icon: Workflow },
+      { name: 'Flujogramas', href: '/flujogramas', icon: FileSpreadsheet },
+      { name: 'Relación de Procesos', href: '/relacion-procesos', icon: Zap },
+    ],
+  },
   {
     name: 'Mejora',
     href: '/dashboard/mejoras',
@@ -106,25 +115,6 @@ const navigation: MenuItem[] = [
         name: 'Registros',
         href: '/dashboard/procesos/registros',
         icon: Kanban,
-      },
-    ],
-  },
-  {
-    name: 'Calidad',
-    href: '/dashboard/quality',
-    icon: Award,
-    children: [
-      { name: 'Dashboard', href: '/dashboard/quality', icon: BarChart3 },
-      { name: 'Objetivos', href: '/dashboard/quality/objetivos', icon: Target },
-      {
-        name: 'Indicadores',
-        href: '/dashboard/quality/indicadores',
-        icon: Activity,
-      },
-      {
-        name: 'Mediciones',
-        href: '/dashboard/quality/mediciones',
-        icon: TrendingUp,
       },
     ],
   },

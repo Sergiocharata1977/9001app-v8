@@ -1,7 +1,7 @@
 // Claude API Client
 
+import { ClaudeConfig, ClaudeMessage, ClaudeResponse } from '@/types/claude';
 import Anthropic from '@anthropic-ai/sdk';
-import { ClaudeMessage, ClaudeResponse, ClaudeConfig } from '@/types/claude';
 
 export class ClaudeService {
   private static client: Anthropic | null = null;
@@ -23,13 +23,13 @@ export class ClaudeService {
     }
 
     this.client = new Anthropic({
-      apiKey: apiKey
+      apiKey: apiKey,
     });
 
     this.config = {
       apiKey: apiKey,
       model: this.getModel(),
-      maxTokens: 2000
+      maxTokens: 2000,
     };
 
     console.log('[ClaudeService] Initialized with model:', this.config.model);
@@ -44,7 +44,9 @@ export class ClaudeService {
     }
 
     if (!process.env.NEXT_PUBLIC_CLAUDE_MODEL) {
-      throw new Error('NEXT_PUBLIC_CLAUDE_MODEL environment variable is required');
+      throw new Error(
+        'NEXT_PUBLIC_CLAUDE_MODEL environment variable is required'
+      );
     }
   }
 
@@ -52,7 +54,8 @@ export class ClaudeService {
    * Get Claude model from environment
    */
   static getModel(): string {
-    return process.env.NEXT_PUBLIC_CLAUDE_MODEL || 'claude-sonnet-4-20250514';
+    // Default to latest stable model if not set
+    return process.env.NEXT_PUBLIC_CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
   }
 
   /**
@@ -86,13 +89,17 @@ export class ClaudeService {
         system: systemPrompt,
         messages: messages.map(msg => ({
           role: msg.role,
-          content: msg.content
-        }))
+          content: msg.content,
+        })),
       });
 
       const tiempo_respuesta_ms = Date.now() - startTime;
 
-      console.log('[ClaudeService] Response received in', tiempo_respuesta_ms, 'ms');
+      console.log(
+        '[ClaudeService] Response received in',
+        tiempo_respuesta_ms,
+        'ms'
+      );
       console.log('[ClaudeService] Tokens used:', response.usage);
 
       // Extract text content from response
@@ -105,18 +112,18 @@ export class ClaudeService {
         content,
         usage: {
           input: response.usage.input_tokens,
-          output: response.usage.output_tokens
+          output: response.usage.output_tokens,
         },
-        tiempo_respuesta_ms
+        tiempo_respuesta_ms,
       };
     } catch (error) {
       const tiempo_respuesta_ms = Date.now() - startTime;
       console.error('[ClaudeService] Error calling Claude API:', error);
-      
+
       if (error instanceof Anthropic.APIError) {
         throw new Error(`Claude API Error: ${error.message}`);
       }
-      
+
       throw new Error('Failed to get response from Claude');
     }
   }
@@ -142,9 +149,16 @@ export class ClaudeService {
       return await this.enviarMensaje(systemPrompt, messages, maxTokens);
     } catch (error) {
       if (retryCount < MAX_RETRIES) {
-        console.log(`[ClaudeService] Retry attempt ${retryCount + 1}/${MAX_RETRIES}`);
+        console.log(
+          `[ClaudeService] Retry attempt ${retryCount + 1}/${MAX_RETRIES}`
+        );
         await this.delay(RETRY_DELAY_MS * (retryCount + 1));
-        return this.enviarMensajeWithRetry(systemPrompt, messages, maxTokens, retryCount + 1);
+        return this.enviarMensajeWithRetry(
+          systemPrompt,
+          messages,
+          maxTokens,
+          retryCount + 1
+        );
       }
       throw error;
     }

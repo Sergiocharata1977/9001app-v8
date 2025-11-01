@@ -24,22 +24,63 @@ import {
 } from 'lucide-react';
 
 interface UserContextData {
-  user: any;
-  personnel: any;
-  position: any;
-  department: any;
-  procesos: any[];
-  objetivos: any[];
-  indicadores: any[];
-  supervisor?: any;
-  processRecords?: any[];
+  user: {
+    displayName?: string;
+    email?: string;
+    role?: string;
+  };
+  personnel: {
+    nombre?: string;
+    apellido?: string;
+    legajo?: string;
+    email?: string;
+    telefono?: string;
+  };
+  position: {
+    nombre?: string;
+    descripcion?: string;
+  };
+  department: {
+    nombre?: string;
+    descripcion?: string;
+  };
+  procesos: Array<{
+    id: string;
+    nombre: string;
+    codigo?: string;
+    tipo?: string;
+  }>;
+  objetivos: Array<{
+    id: string;
+    descripcion: string;
+    meta?: string;
+    estado?: string;
+  }>;
+  indicadores: Array<{
+    id: string;
+    nombre: string;
+    formula?: string;
+    frecuencia?: string;
+  }>;
+  supervisor?: {
+    nombre: string;
+    apellido: string;
+  };
+  processRecords?: Array<{
+    id: string;
+    name: string;
+  }>;
 }
 
 export default function UserProfilePage() {
   const [context, setContext] = useState<UserContextData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [recentDocuments, setRecentDocuments] = useState<any[]>([]);
+  const [recentDocuments, setRecentDocuments] = useState<Array<{
+    id: string;
+    title: string;
+    code: string;
+  }>>([]);
 
   useEffect(() => {
     fetchUserContext();
@@ -307,7 +348,7 @@ export default function UserProfilePage() {
             <Badge variant="outline">{context.procesos.length}</Badge>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {context.procesos.map((proceso: any) => (
+            {context.procesos.map((proceso) => (
               <div
                 key={proceso.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -334,7 +375,7 @@ export default function UserProfilePage() {
             <Badge variant="outline">{context.objetivos.length}</Badge>
           </h3>
           <div className="space-y-3">
-            {context.objetivos.map((objetivo: any) => (
+            {context.objetivos.map((objetivo) => (
               <div
                 key={objetivo.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -375,7 +416,7 @@ export default function UserProfilePage() {
             <Badge variant="outline">{context.indicadores.length}</Badge>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {context.indicadores.map((indicador: any) => (
+            {context.indicadores.map((indicador) => (
               <div
                 key={indicador.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"

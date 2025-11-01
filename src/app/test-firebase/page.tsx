@@ -1,10 +1,19 @@
 'use client';
 
+import {
+  createTestUser,
+  testFirebaseConnection,
+  testLogin,
+} from '@/firebase/test-connection';
 import { useState } from 'react';
-import { testFirebaseConnection, createTestUser, testLogin } from '@/firebase/test-connection';
 
 export default function TestFirebasePage() {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{
+    success: boolean;
+    message?: string;
+    error?: string;
+    user?: { email: string | null; uid: string };
+  } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleTestConnection = async () => {
@@ -34,7 +43,7 @@ export default function TestFirebasePage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
           Prueba de Conexión Firebase
         </h1>
-        
+
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <button
             onClick={handleTestConnection}
@@ -43,7 +52,7 @@ export default function TestFirebasePage() {
           >
             {loading ? 'Probando...' : 'Probar Conexión'}
           </button>
-          
+
           <button
             onClick={handleCreateUser}
             disabled={loading}
@@ -51,7 +60,7 @@ export default function TestFirebasePage() {
           >
             {loading ? 'Creando...' : 'Crear Usuario'}
           </button>
-          
+
           <button
             onClick={handleTestLogin}
             disabled={loading}
@@ -62,14 +71,18 @@ export default function TestFirebasePage() {
         </div>
 
         {result && (
-          <div className={`p-6 rounded-lg ${
-            result.success 
-              ? 'bg-green-50 border border-green-200' 
-              : 'bg-red-50 border border-red-200'
-          }`}>
-            <h3 className={`text-lg font-semibold mb-2 ${
-              result.success ? 'text-green-800' : 'text-red-800'
-            }`}>
+          <div
+            className={`p-6 rounded-lg ${
+              result.success
+                ? 'bg-green-50 border border-green-200'
+                : 'bg-red-50 border border-red-200'
+            }`}
+          >
+            <h3
+              className={`text-lg font-semibold mb-2 ${
+                result.success ? 'text-green-800' : 'text-red-800'
+              }`}
+            >
               {result.success ? '✅ Éxito' : '❌ Error'}
             </h3>
             <p className={result.success ? 'text-green-700' : 'text-red-700'}>
@@ -92,17 +105,17 @@ export default function TestFirebasePage() {
           <ol className="list-decimal list-inside space-y-2 text-blue-700">
             <li>Primero haz clic en "Probar Conexión"</li>
             <li>Si funciona, haz clic en "Crear Usuario"</li>
-            <li>Finalmente, prueba el "Login"</li>
-            <li>Si todo funciona, ve a <a href="/login" className="text-blue-600 underline">/login</a> para probar el sistema</li>
+            <li>Finalmente, prueba el "Login&quot;</li>
+            <li>
+              Si todo funciona, ve a{' '}
+              <a href="/login" className="text-blue-600 underline">
+                /login
+              </a>{' '}
+              para probar el sistema
+            </li>
           </ol>
         </div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
