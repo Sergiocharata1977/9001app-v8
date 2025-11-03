@@ -14,9 +14,10 @@ import {
   X,
   Save,
 } from 'lucide-react';
-import { PositionWithAssignments, Personnel } from '@/types/rrhh';
+import { PositionWithAssignments, Personnel, Competence } from '@/types/rrhh';
 import { ProcessDefinition } from '@/types/procesos';
 import { AssignPersonnelDialog } from '@/components/positions/AssignPersonnelDialog';
+import { PositionCompetencesSection } from '@/components/rrhh/PositionCompetencesSection';
 
 export default function PositionDetailPage() {
   const params = useParams();
@@ -33,6 +34,7 @@ export default function PositionDetailPage() {
   const [editingProcesses, setEditingProcesses] = useState(false);
   const [selectedProcesses, setSelectedProcesses] = useState<string[]>([]);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [competences, setCompetences] = useState<Competence[]>([]);
 
   const loadData = useCallback(async () => {
     try {
@@ -54,6 +56,13 @@ export default function PositionDetailPage() {
       if (procRes.ok) {
         const procData = await procRes.json();
         setAllProcesses(procData);
+      }
+
+      // Cargar competencias del puesto
+      const compRes = await fetch(`/api/rrhh/puestos/${positionId}/competencias`);
+      if (compRes.ok) {
+        const compData = await compRes.json();
+        setCompetences(compData);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -435,6 +444,15 @@ export default function PositionDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Competencias del Puesto */}
+      <PositionCompetencesSection
+        positionId={positionId}
+        initialCompetences={competences}
+        initialFrecuencia={position.frecuenciaEvaluacion || 12}
+        initialNivel={position.nivel || 'operativo'}
+        onUpdate={loadData}
+      />
 
       {/* Diálogo para asignar personal */}
       <AssignPersonnelDialog

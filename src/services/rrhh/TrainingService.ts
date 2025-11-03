@@ -1,19 +1,24 @@
+import { db } from '@/lib/firebase';
 import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
+  PaginatedResponse,
+  PaginationParams,
+  Training,
+  TrainingFilters,
+} from '@/types/rrhh';
+import {
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
-  query,
-  where,
-  orderBy,
+  doc,
+  getDoc,
+  getDocs,
   limit,
-  Timestamp
+  orderBy,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
 } from 'firebase/firestore';
-import { db } from '@/firebase/config';
-import { Training, TrainingFilters, PaginationParams, PaginatedResponse } from '@/types/rrhh';
 
 const COLLECTION_NAME = 'trainings';
 
@@ -66,7 +71,11 @@ export class TrainingService {
 
       // Apply filters
       if (filters.search) {
-        q = query(q, where('tema', '>=', filters.search), where('tema', '<=', filters.search + '\uf8ff'));
+        q = query(
+          q,
+          where('tema', '>=', filters.search),
+          where('tema', '<=', filters.search + '\uf8ff')
+        );
       }
 
       if (filters.estado) {
@@ -78,8 +87,14 @@ export class TrainingService {
       }
 
       if (filters.fecha_inicio && filters.fecha_fin) {
-        q = query(q, where('fecha_inicio', '>=', Timestamp.fromDate(filters.fecha_inicio)));
-        q = query(q, where('fecha_fin', '<=', Timestamp.fromDate(filters.fecha_fin)));
+        q = query(
+          q,
+          where('fecha_inicio', '>=', Timestamp.fromDate(filters.fecha_inicio))
+        );
+        q = query(
+          q,
+          where('fecha_fin', '<=', Timestamp.fromDate(filters.fecha_fin))
+        );
       }
 
       // Apply sorting
@@ -146,7 +161,9 @@ export class TrainingService {
     }
   }
 
-  static async create(data: Omit<Training, 'id' | 'created_at' | 'updated_at'>): Promise<Training> {
+  static async create(
+    data: Omit<Training, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Training> {
     try {
       const now = Timestamp.now();
       const docData = {
@@ -171,13 +188,20 @@ export class TrainingService {
     }
   }
 
-  static async update(id: string, data: Partial<Omit<Training, 'id' | 'created_at'>>): Promise<Training> {
+  static async update(
+    id: string,
+    data: Partial<Omit<Training, 'id' | 'created_at'>>
+  ): Promise<Training> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
         ...data,
-        fecha_inicio: data.fecha_inicio ? Timestamp.fromDate(data.fecha_inicio) : undefined,
-        fecha_fin: data.fecha_fin ? Timestamp.fromDate(data.fecha_fin) : undefined,
+        fecha_inicio: data.fecha_inicio
+          ? Timestamp.fromDate(data.fecha_inicio)
+          : undefined,
+        fecha_fin: data.fecha_fin
+          ? Timestamp.fromDate(data.fecha_fin)
+          : undefined,
         updated_at: Timestamp.now(),
       };
 
@@ -212,7 +236,10 @@ export class TrainingService {
     }
   }
 
-  static async updateStatus(id: string, status: Training['estado']): Promise<Training> {
+  static async updateStatus(
+    id: string,
+    status: Training['estado']
+  ): Promise<Training> {
     try {
       return await this.update(id, { estado: status });
     } catch (error) {
@@ -221,7 +248,10 @@ export class TrainingService {
     }
   }
 
-  static async addParticipant(trainingId: string, participantId: string): Promise<Training> {
+  static async addParticipant(
+    trainingId: string,
+    participantId: string
+  ): Promise<Training> {
     try {
       const training = await this.getById(trainingId);
       if (!training) {
@@ -241,7 +271,10 @@ export class TrainingService {
     }
   }
 
-  static async removeParticipant(trainingId: string, participantId: string): Promise<Training> {
+  static async removeParticipant(
+    trainingId: string,
+    participantId: string
+  ): Promise<Training> {
     try {
       const training = await this.getById(trainingId);
       if (!training) {
@@ -249,9 +282,13 @@ export class TrainingService {
       }
 
       const participants = training.participantes || [];
-      const updatedParticipants = participants.filter(id => id !== participantId);
+      const updatedParticipants = participants.filter(
+        id => id !== participantId
+      );
 
-      return await this.update(trainingId, { participantes: updatedParticipants });
+      return await this.update(trainingId, {
+        participantes: updatedParticipants,
+      });
     } catch (error) {
       console.error('Error removing participant:', error);
       throw new Error('Error al remover participante');
@@ -260,7 +297,10 @@ export class TrainingService {
 
   static async getByParticipant(participantId: string): Promise<Training[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), where('participantes', 'array-contains', participantId));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('participantes', 'array-contains', participantId)
+      );
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -278,7 +318,10 @@ export class TrainingService {
 
   static async getActive(): Promise<Training[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), where('estado', 'in', ['planificada', 'en_curso']));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('estado', 'in', ['planificada', 'en_curso'])
+      );
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -292,5 +335,277 @@ export class TrainingService {
       console.error('Error getting active trainings:', error);
       throw new Error('Error al obtener capacitaciones activas');
     }
+  }
+
+  // ===== NUEVOS MÉTODOS PARA VINCULACIÓN CON COMPETENCIAS =====
+
+  /**
+   * Vincular competencias a una capacitación
+   */
+  static async linkCompetences(
+    trainingId: string,
+    competenceIds: string[]
+  ): Promise<void> {
+    try {
+      await this.update(trainingId, {
+        competenciasDesarrolladas: competenceIds,
+      });
+    } catch (error) {
+      console.error('Error linking competences to training:', error);
+      throw new Error('Error al vincular competencias a la capacitación');
+    }
+  }
+
+  /**
+   * Obtener capacitaciones que desarrollan una competencia específica
+   */
+  static async getByCompetence(competenceId: string): Promise<Training[]> {
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('competenciasDesarrolladas', 'array-contains', competenceId)
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        fecha_inicio: doc.data().fecha_inicio?.toDate() || new Date(),
+        fecha_fin: doc.data().fecha_fin?.toDate() || new Date(),
+        created_at: doc.data().created_at?.toDate() || new Date(),
+        updated_at: doc.data().updated_at?.toDate() || new Date(),
+      })) as Training[];
+    } catch (error) {
+      console.error('Error getting trainings by competence:', error);
+      throw new Error('Error al obtener capacitaciones por competencia');
+    }
+  }
+
+  /**
+   * Actualizar competencias de un empleado después de completar una capacitación
+   */
+  static async updateEmployeeCompetences(
+    personnelId: string,
+    trainingId: string
+  ): Promise<void> {
+    try {
+      // Obtener la capacitación
+      const training = await this.getById(trainingId);
+      if (!training) {
+        throw new Error('Capacitación no encontrada');
+      }
+
+      // Verificar que el empleado participó en la capacitación
+      if (!training.participantes?.includes(personnelId)) {
+        throw new Error('El empleado no participó en esta capacitación');
+      }
+
+      // Obtener competencias desarrolladas por la capacitación
+      const competenceIds = training.competenciasDesarrolladas || [];
+      if (competenceIds.length === 0) {
+        return; // No hay competencias para actualizar
+      }
+
+      // Obtener empleado actual
+      const personnelDoc = await getDoc(doc(db, 'personnel', personnelId));
+      if (!personnelDoc.exists()) {
+        throw new Error('Empleado no encontrado');
+      }
+      const personnel = personnelDoc.data();
+
+      // Actualizar competencias del empleado
+      const currentCompetences = personnel?.competenciasActuales || [];
+      const now = new Date();
+
+      // Para cada competencia desarrollada, actualizar el nivel si es mayor
+      for (const competenceId of competenceIds) {
+        const competenceDoc = await getDoc(
+          doc(db, 'competencias', competenceId)
+        );
+        if (!competenceDoc.exists()) continue;
+
+        const competence = competenceDoc.data();
+        const nivelDesarrollado = competence?.nivelRequerido || 3; // Nivel que desarrolla la capacitación
+
+        // Buscar si ya tiene esta competencia
+        const existingIndex = currentCompetences.findIndex(
+          (c: any) => c.competenciaId === competenceId
+        );
+
+        if (existingIndex >= 0) {
+          // Actualizar si el nuevo nivel es mayor
+          if (
+            nivelDesarrollado > currentCompetences[existingIndex].nivelAlcanzado
+          ) {
+            currentCompetences[existingIndex] = {
+              ...currentCompetences[existingIndex],
+              nivelAlcanzado: nivelDesarrollado,
+              fechaUltimaEvaluacion: now,
+            };
+          }
+        } else {
+          // Agregar nueva competencia
+          currentCompetences.push({
+            competenciaId: competenceId,
+            nivelAlcanzado: nivelDesarrollado,
+            fechaUltimaEvaluacion: now,
+          });
+        }
+      }
+
+      // Actualizar empleado
+      await updateDoc(doc(db, 'personnel', personnelId), {
+        competenciasActuales: currentCompetences,
+        capacitacionesRealizadas: [
+          ...(personnel?.capacitacionesRealizadas || []),
+          trainingId,
+        ],
+        updated_at: Timestamp.now(),
+      });
+    } catch (error) {
+      console.error('Error updating employee competences:', error);
+      throw error instanceof Error
+        ? error
+        : new Error('Error al actualizar competencias del empleado');
+    }
+  }
+
+  /**
+   * Crear evaluación posterior a una capacitación
+   */
+  static async createPostEvaluation(trainingId: string): Promise<string> {
+    try {
+      // Obtener la capacitación
+      const training = await this.getById(trainingId);
+      if (!training) {
+        throw new Error('Capacitación no encontrada');
+      }
+
+      // Verificar que requiere evaluación posterior
+      if (!training.evaluacionPosterior) {
+        throw new Error('Esta capacitación no requiere evaluación posterior');
+      }
+
+      // Verificar que ya tiene evaluación posterior
+      if (training.evaluacionPosteriorId) {
+        return training.evaluacionPosteriorId; // Ya existe
+      }
+
+      // Obtener participantes
+      const participants = training.participantes || [];
+      if (participants.length === 0) {
+        throw new Error('La capacitación no tiene participantes');
+      }
+
+      // Para cada participante, crear evaluación post-capacitación
+      const evaluationIds: string[] = [];
+
+      for (const participantId of participants) {
+        try {
+          // Obtener empleado
+          const personnelDoc = await getDoc(
+            doc(db, 'personnel', participantId)
+          );
+          if (!personnelDoc.exists()) continue;
+          const personnel = personnelDoc.data();
+
+          if (!personnel?.puestoId) continue;
+
+          // Crear evaluación desde plantilla del puesto
+          const evaluation = await this.createPostEvaluationForParticipant(
+            participantId,
+            trainingId,
+            training.competenciasDesarrolladas || []
+          );
+
+          evaluationIds.push(evaluation.id);
+        } catch (error) {
+          console.error(
+            `Error creando evaluación para participante ${participantId}:`,
+            error
+          );
+        }
+      }
+
+      // Actualizar capacitación con ID de evaluación posterior
+      await this.update(trainingId, {
+        evaluacionPosteriorId: evaluationIds[0], // Guardar primera evaluación como referencia
+      });
+
+      return evaluationIds[0];
+    } catch (error) {
+      console.error('Error creating post evaluation:', error);
+      throw error instanceof Error
+        ? error
+        : new Error('Error al crear evaluación posterior');
+    }
+  }
+
+  /**
+   * Crear evaluación post-capacitación para un participante específico
+   */
+  private static async createPostEvaluationForParticipant(
+    personnelId: string,
+    trainingId: string,
+    competenceIds: string[]
+  ): Promise<any> {
+    try {
+      // Obtener empleado
+      const personnelDoc = await getDoc(doc(db, 'personnel', personnelId));
+      if (!personnelDoc.exists()) {
+        throw new Error('Empleado no encontrado');
+      }
+      const personnel = personnelDoc.data();
+
+      if (!personnel?.puestoId) {
+        throw new Error('Empleado sin puesto asignado');
+      }
+
+      // Crear estructura de competencias para evaluación post
+      const competenceEvaluations = [];
+
+      for (const competenceId of competenceIds) {
+        const compDoc = await getDoc(doc(db, 'competencias', competenceId));
+        if (compDoc.exists()) {
+          const competence = compDoc.data();
+          competenceEvaluations.push({
+            competenciaId: competenceId,
+            nombreCompetencia: competence?.nombre || '',
+            nivelRequerido: competence?.nivelRequerido || 3,
+            nivelEvaluado: 0, // Por evaluar
+            observaciones: `Evaluación post-capacitación: ${trainingId}`,
+            brecha: competence?.nivelRequerido || 3,
+          });
+        }
+      }
+
+      // Crear evaluación
+      const evaluationData = {
+        personnel_id: personnelId,
+        puestoId: personnel.puestoId,
+        periodo: `Post-capacitación ${trainingId}`,
+        fecha_evaluacion: new Date(),
+        evaluador_id: '', // Se asignará después
+        competencias: competenceEvaluations,
+        resultado_global: 'Requiere Capacitación' as const,
+        fechaProximaEvaluacion: new Date(), // No aplica para evaluación post
+        comentarios_generales: `Evaluación posterior a capacitación ${trainingId}`,
+        plan_mejora: '',
+        estado: 'borrador' as const,
+      };
+
+      return await this.createEvaluation(evaluationData);
+    } catch (error) {
+      console.error('Error creating post evaluation for participant:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Método auxiliar para crear evaluación (debe importarse de EvaluationService)
+   */
+  private static async createEvaluation(data: any): Promise<unknown> {
+    // Importar dinámicamente para evitar dependencias circulares
+    const { EvaluationService } = await import('./EvaluationService');
+    return await EvaluationService.create(data);
   }
 }

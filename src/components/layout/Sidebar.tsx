@@ -98,6 +98,11 @@ const navigation: MenuItem[] = [
         icon: GraduationCap,
       },
       {
+        name: 'Competencias',
+        href: '/dashboard/rrhh/competencias',
+        icon: Award,
+      },
+      {
         name: 'Evaluaciones',
         href: '/dashboard/rrhh/evaluations',
         icon: FileText,

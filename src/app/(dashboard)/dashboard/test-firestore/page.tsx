@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { DepartmentService } from '@/services/rrhh/DepartmentService';
-import { PositionService } from '@/services/rrhh/PositionService';
-import { PersonnelService } from '@/services/rrhh/PersonnelService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DepartmentService } from '@/services/rrhh/DepartmentService';
+import { PersonnelService } from '@/services/rrhh/PersonnelService';
+import { PositionService } from '@/services/rrhh/PositionService';
+import { useState } from 'react';
 
 export default function TestFirestorePage() {
   const [loading, setLoading] = useState(false);
@@ -71,6 +71,9 @@ export default function TestFirestorePage() {
         nombre: 'Puesto de Prueba',
         descripcion_responsabilidades: 'Puesto creado para testing',
         departamento_id: department.id,
+        competenciasRequeridas: [],
+        frecuenciaEvaluacion: 12,
+        nivel: 'operativo' as const,
       });
       addResult(`✅ Puesto creado: ${positionId}`);
 
@@ -83,6 +86,10 @@ export default function TestFirestorePage() {
         meta_mensual: 0,
         comision_porcentaje: 0,
         tipo_personal: 'administrativo',
+        puestoId: positionId,
+        competenciasActuales: [],
+        capacitacionesRealizadas: [],
+        evaluaciones: [],
       });
       addResult(
         `✅ Personal creado: ${personnel.nombres} ${personnel.apellidos}`

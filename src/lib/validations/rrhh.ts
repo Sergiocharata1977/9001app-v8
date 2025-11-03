@@ -1,15 +1,57 @@
 import { z } from 'zod';
 
+// ===== NUEVAS VALIDACIONES PARA SISTEMA DE COMPETENCIAS =====
+
+export const competenceSchema = z.object({
+  nombre: z
+    .string()
+    .min(3, 'Mínimo 3 caracteres')
+    .max(100, 'Máximo 100 caracteres'),
+  categoria: z.enum(['tecnica', 'blanda', 'seguridad', 'iso_9001', 'otra']),
+  descripcion: z
+    .string()
+    .min(10, 'Mínimo 10 caracteres')
+    .max(500, 'Máximo 500 caracteres'),
+  nivelRequerido: z
+    .number()
+    .int()
+    .min(1, 'Mínimo nivel 1')
+    .max(5, 'Máximo nivel 5'),
+  fuente: z
+    .string()
+    .min(3, 'Mínimo 3 caracteres')
+    .max(100, 'Máximo 100 caracteres'),
+  referenciaNorma: z.string().max(200, 'Máximo 200 caracteres').optional(),
+  activo: z.boolean().default(true),
+});
+
+export const competenceFormSchema = competenceSchema;
+
+export const competenceFiltersSchema = z.object({
+  search: z.string().optional(),
+  categoria: z
+    .enum(['tecnica', 'blanda', 'seguridad', 'iso_9001', 'otra'])
+    .optional(),
+  activo: z.boolean().optional(),
+  organization_id: z.string(),
+});
+
 // Department schemas
 export const departmentSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
+  name: z
+    .string()
+    .min(1, 'El nombre es requerido')
+    .max(100, 'Máximo 100 caracteres'),
   description: z.string().max(500, 'Máximo 500 caracteres').optional(),
   responsible_user_id: z.string().optional(),
   is_active: z.boolean().default(true),
 });
 
 export const departmentFormSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
+  name: z
+    .string()
+    .min(1, 'El nombre es requerido')
+    .max(100, 'Máximo 100 caracteres'),
   description: z.string().max(500, 'Máximo 500 caracteres').optional(),
   responsible_user_id: z.string().optional(),
   is_active: z.boolean(),
@@ -17,20 +59,45 @@ export const departmentFormSchema = z.object({
 
 // Position schemas
 export const positionSchema = z.object({
-  nombre: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
-  descripcion_responsabilidades: z.string().max(1000, 'Máximo 1000 caracteres').optional(),
-  requisitos_experiencia: z.string().max(500, 'Máximo 500 caracteres').optional(),
+  nombre: z
+    .string()
+    .min(1, 'El nombre es requerido')
+    .max(100, 'Máximo 100 caracteres'),
+  descripcion_responsabilidades: z
+    .string()
+    .max(1000, 'Máximo 1000 caracteres')
+    .optional(),
+  requisitos_experiencia: z
+    .string()
+    .max(500, 'Máximo 500 caracteres')
+    .optional(),
   requisitos_formacion: z.string().max(500, 'Máximo 500 caracteres').optional(),
   departamento_id: z.string().optional(),
   reporta_a_id: z.string().optional(),
+
+  // ===== NUEVOS CAMPOS =====
+  competenciasRequeridas: z.array(z.string()).optional(),
+  frecuenciaEvaluacion: z
+    .number()
+    .int()
+    .min(1, 'Mínimo 1 mes')
+    .max(60, 'Máximo 60 meses')
+    .optional(),
+  nivel: z.enum(['operativo', 'tecnico', 'gerencial']).optional(),
 });
 
 export const positionFormSchema = positionSchema;
 
 // Personnel schemas
 export const personnelSchema = z.object({
-  nombres: z.string().min(1, 'Los nombres son requeridos').max(50, 'Máximo 50 caracteres'),
-  apellidos: z.string().min(1, 'Los apellidos son requeridos').max(50, 'Máximo 50 caracteres'),
+  nombres: z
+    .string()
+    .min(1, 'Los nombres son requeridos')
+    .max(50, 'Máximo 50 caracteres'),
+  apellidos: z
+    .string()
+    .min(1, 'Los apellidos son requeridos')
+    .max(50, 'Máximo 50 caracteres'),
   email: z.string().email('Email inválido'),
   telefono: z.string().max(20, 'Máximo 20 caracteres').optional(),
   documento_identidad: z.string().max(20, 'Máximo 20 caracteres').optional(),
@@ -42,11 +109,20 @@ export const personnelSchema = z.object({
   numero_legajo: z.string().max(20, 'Máximo 20 caracteres').optional(),
   estado: z.enum(['Activo', 'Inactivo', 'Licencia']),
   meta_mensual: z.number().min(0, 'Debe ser mayor o igual a 0'),
-  comision_porcentaje: z.number().min(0, 'Debe ser mayor o igual a 0').max(100, 'Máximo 100%'),
+  comision_porcentaje: z
+    .number()
+    .min(0, 'Debe ser mayor o igual a 0')
+    .max(100, 'Máximo 100%'),
   supervisor_id: z.string().optional(),
   especialidad_ventas: z.string().max(100, 'Máximo 100 caracteres').optional(),
   fecha_inicio_ventas: z.date().optional(),
-  tipo_personal: z.enum(['administrativo', 'ventas', 'técnico', 'supervisor', 'gerencial']),
+  tipo_personal: z.enum([
+    'administrativo',
+    'ventas',
+    'técnico',
+    'supervisor',
+    'gerencial',
+  ]),
   zona_venta: z.string().max(50, 'Máximo 50 caracteres').optional(),
   // Campos adicionales para UI
   foto: z.string().optional(),
@@ -62,7 +138,10 @@ export const personnelFormSchema = personnelSchema;
 
 // Training schemas
 export const trainingSchema = z.object({
-  tema: z.string().min(1, 'El tema es requerido').max(150, 'Máximo 150 caracteres'),
+  tema: z
+    .string()
+    .min(1, 'El tema es requerido')
+    .max(150, 'Máximo 150 caracteres'),
   descripcion: z.string().max(1000, 'Máximo 1000 caracteres').optional(),
   fecha_inicio: z.date(),
   fecha_fin: z.date(),
@@ -70,18 +149,27 @@ export const trainingSchema = z.object({
   modalidad: z.enum(['presencial', 'virtual', 'mixta']),
   proveedor: z.string().max(150, 'Máximo 150 caracteres').optional(),
   costo: z.number().min(0, 'Debe ser mayor o igual a 0').optional(),
-  estado: z.enum(['planificada', 'en_curso', 'completada', 'cancelada']).default('planificada'),
+  estado: z
+    .enum(['planificada', 'en_curso', 'completada', 'cancelada'])
+    .default('planificada'),
   certificado_url: z.string().url('URL inválida').optional().or(z.literal('')),
   participantes: z.array(z.string()).default([]),
+
+  // ===== NUEVOS CAMPOS =====
+  competenciasDesarrolladas: z.array(z.string()).default([]),
+  evaluacionPosterior: z.boolean().default(false),
 });
 
 export const trainingFormSchema = trainingSchema;
 
 // Performance Evaluation schemas
-export const competencySchema = z.object({
-  nombre: z.string().min(1, 'El nombre es requerido'),
-  puntaje: z.number().min(0, 'Mínimo 0').max(5, 'Máximo 5'),
-  comentario: z.string().optional(),
+export const competenceEvaluationSchema = z.object({
+  competenciaId: z.string().min(1, 'La competencia es requerida'),
+  nombreCompetencia: z.string().min(1, 'El nombre es requerido'),
+  nivelRequerido: z.number().int().min(1, 'Mínimo 1').max(5, 'Máximo 5'),
+  nivelEvaluado: z.number().int().min(1, 'Mínimo 1').max(5, 'Máximo 5'),
+  observaciones: z.string().max(500, 'Máximo 500 caracteres').optional(),
+  brecha: z.number().int(), // Calculado automáticamente
 });
 
 export const performanceEvaluationSchema = z.object({
@@ -89,9 +177,21 @@ export const performanceEvaluationSchema = z.object({
   periodo: z.string().min(1, 'El período es requerido'),
   fecha_evaluacion: z.date(),
   evaluador_id: z.string().min(1, 'El evaluador es requerido'),
-  competencias: z.array(competencySchema).min(1, 'Debe tener al menos una competencia'),
-  resultado_global: z.enum(['bajo', 'medio', 'alto', 'excelente']),
-  comentarios_generales: z.string().max(1000, 'Máximo 1000 caracteres').optional(),
+
+  // ===== MODIFICACIÓN: ESTRUCTURA MEJORADA =====
+  competencias: z
+    .array(competenceEvaluationSchema)
+    .min(1, 'Debe tener al menos una competencia'),
+
+  // ===== NUEVOS CAMPOS =====
+  puestoId: z.string().min(1, 'El puesto es requerido'),
+  resultado_global: z.enum(['Apto', 'No Apto', 'Requiere Capacitación']),
+  fechaProximaEvaluacion: z.date(),
+
+  comentarios_generales: z
+    .string()
+    .max(1000, 'Máximo 1000 caracteres')
+    .optional(),
   plan_mejora: z.string().max(1000, 'Máximo 1000 caracteres').optional(),
   estado: z.enum(['borrador', 'publicado', 'cerrado']).default('borrador'),
 });
@@ -114,13 +214,17 @@ export const positionFiltersSchema = z.object({
 export const personnelFiltersSchema = z.object({
   search: z.string().optional(),
   estado: z.enum(['Activo', 'Inactivo', 'Licencia']).optional(),
-  tipo_personal: z.enum(['administrativo', 'ventas', 'técnico', 'supervisor', 'gerencial']).optional(),
+  tipo_personal: z
+    .enum(['administrativo', 'ventas', 'técnico', 'supervisor', 'gerencial'])
+    .optional(),
   supervisor_id: z.string().optional(),
 });
 
 export const trainingFiltersSchema = z.object({
   search: z.string().optional(),
-  estado: z.enum(['planificada', 'en_curso', 'completada', 'cancelada']).optional(),
+  estado: z
+    .enum(['planificada', 'en_curso', 'completada', 'cancelada'])
+    .optional(),
   modalidad: z.enum(['presencial', 'virtual', 'mixta']).optional(),
   fecha_inicio: z.date().optional(),
   fecha_fin: z.date().optional(),
@@ -142,17 +246,25 @@ export const paginationSchema = z.object({
   order: z.enum(['asc', 'desc']).default('desc'),
 });
 
+// ===== NUEVOS TIPOS DE FORMULARIOS =====
+export type CompetenceFormData = z.infer<typeof competenceFormSchema>;
+export type CompetenceFilters = z.infer<typeof competenceFiltersSchema>;
+
 // Type exports
 export type DepartmentFormData = z.infer<typeof departmentFormSchema>;
 export type PositionFormData = z.infer<typeof positionFormSchema>;
 export type PersonnelFormData = z.infer<typeof personnelFormSchema>;
 export type TrainingFormData = z.infer<typeof trainingFormSchema>;
-export type PerformanceEvaluationFormData = z.infer<typeof performanceEvaluationFormSchema>;
+export type PerformanceEvaluationFormData = z.infer<
+  typeof performanceEvaluationFormSchema
+>;
 
 export type DepartmentFilters = z.infer<typeof departmentFiltersSchema>;
 export type PositionFilters = z.infer<typeof positionFiltersSchema>;
 export type PersonnelFilters = z.infer<typeof personnelFiltersSchema>;
 export type TrainingFilters = z.infer<typeof trainingFiltersSchema>;
-export type PerformanceEvaluationFilters = z.infer<typeof performanceEvaluationFiltersSchema>;
+export type PerformanceEvaluationFilters = z.infer<
+  typeof performanceEvaluationFiltersSchema
+>;
 
 export type PaginationParams = z.infer<typeof paginationSchema>;

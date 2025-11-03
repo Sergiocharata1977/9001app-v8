@@ -12,7 +12,7 @@ import {
   Timestamp,
   writeBatch,
 } from 'firebase/firestore';
-import { db } from '@/firebase/config';
+import { db } from '@/lib/firebase';
 import {
   Position,
   PositionWithAssignments,
@@ -439,6 +439,141 @@ export class PositionService {
 
     if (errors.length > 0) {
       throw new Error(errors.join(', '));
+    }
+  }
+
+  // ===== NUEVOS MÉTODOS PARA VINCULACIÓN DE COMPETENCIAS =====
+
+  /**
+   * Asignar una competencia a un puesto
+   */
+  static async addCompetence(
+    positionId: string,
+    competenceId: string
+  ): Promise<void> {
+    try {
+      const position = await this.getById(positionId);
+      if (!position) {
+        throw new Error('Puesto no encontrado');
+      }
+
+      // Verificar que la competencia existe
+      const competenceDoc = await getDoc(doc(db, 'competencias', competenceId));
+      if (!competenceDoc.exists()) {
+        throw new Error('Competencia no encontrada');
+      }
+
+      // Agregar competencia si no está ya asignada
+      const currentCompetences = position.competenciasRequeridas || [];
+      if (!currentCompetences.includes(competenceId)) {
+        await updateDoc(doc(db, COLLECTION_NAME, positionId), {
+          competenciasRequeridas: [...currentCompetences, competenceId],
+          updated_at: Timestamp.now(),
+        });
+      }
+    } catch (error) {
+      console.error('Error adding competence to position:', error);
+      throw error instanceof Error ? error : new Error('Error al asignar competencia');
+    }
+  }
+
+  /**
+   * Quitar una competencia de un puesto
+   */
+  static async removeCompetence(
+    positionId: string,
+    competenceId: string
+  ): Promise<void> {
+    try {
+      const position = await this.getById(positionId);
+      if (!position) {
+        throw new Error('Puesto no encontrado');
+      }
+
+      // Remover competencia
+      const currentCompetences = position.competenciasRequeridas || [];
+      const updatedCompetences = currentCompetences.filter(id => id !== competenceId);
+
+      await updateDoc(doc(db, COLLECTION_NAME, positionId), {
+        competenciasRequeridas: updatedCompetences,
+        updated_at: Timestamp.now(),
+      });
+    } catch (error) {
+      console.error('Error removing competence from position:', error);
+      throw error instanceof Error ? error : new Error('Error al quitar competencia');
+    }
+  }
+
+  /**
+   * Obtener competencias requeridas de un puesto
+   */
+  static async getCompetencesRequired(positionId: string): Promise<import('@/types/rrhh').Competence[]> {
+    try {
+      const position = await this.getById(positionId);
+      if (!position || !position.competenciasRequeridas) {
+        return [];
+      }
+
+      // Obtener detalles de cada competencia
+      const competences = await Promise.all(
+        position.competenciasRequeridas.map(async (competenceId) => {
+          const docRef = doc(db, 'competencias', competenceId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            return {
+              id: docSnap.id,
+              ...docSnap.data(),
+            } as import('@/types/rrhh').Competence;
+          }
+          return null;
+        })
+      );
+
+      return competences.filter((c): c is import('@/types/rrhh').Competence => c !== null);
+    } catch (error) {
+      console.error('Error getting competences for position:', error);
+      throw new Error('Error al obtener competencias del puesto');
+    }
+  }
+
+  /**
+   * Actualizar frecuencia de evaluación de un puesto
+   */
+  static async updateFrecuenciaEvaluacion(
+    positionId: string,
+    meses: number
+  ): Promise<void> {
+    try {
+      if (meses < 1 || meses > 60) {
+        throw new Error('La frecuencia debe estar entre 1 y 60 meses');
+      }
+
+      await updateDoc(doc(db, COLLECTION_NAME, positionId), {
+        frecuenciaEvaluacion: meses,
+        updated_at: Timestamp.now(),
+      });
+    } catch (error) {
+      console.error('Error updating evaluation frequency:', error);
+      throw error instanceof Error ? error : new Error('Error al actualizar frecuencia');
+    }
+  }
+
+  /**
+   * Validar que las competencias existen antes de asignar
+   */
+  static async validateCompetences(competenceIds: string[]): Promise<boolean> {
+    try {
+      for (const competenceId of competenceIds) {
+        const docRef = doc(db, 'competencias', competenceId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+          return false;
+        }
+      }
+      return true;
+    } catch (error) {
+      console.error('Error validating competences:', error);
+      return false;
     }
   }
 }

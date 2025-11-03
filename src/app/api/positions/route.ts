@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
       requisitos_formacion: body.requisitos_formacion,
       departamento_id: body.departamento_id,
       reporta_a_id: body.reporta_a_id,
+      competenciasRequeridas: body.competenciasRequeridas || [],
+      frecuenciaEvaluacion: body.frecuenciaEvaluacion || 12,
+      nivel: body.nivel || 'operativo',
     };
 
     const id = await PositionService.create(data);

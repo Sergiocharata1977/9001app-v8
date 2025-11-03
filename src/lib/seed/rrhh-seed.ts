@@ -1,8 +1,7 @@
 import { DepartmentService } from '@/services/rrhh/DepartmentService';
-import { PositionService } from '@/services/rrhh/PositionService';
 import { PersonnelService } from '@/services/rrhh/PersonnelService';
+import { PositionService } from '@/services/rrhh/PositionService';
 import { TrainingService } from '@/services/rrhh/TrainingService';
-import { EvaluationService } from '@/services/rrhh/EvaluationService';
 
 export async function seedRRHHData() {
   try {
@@ -13,7 +12,8 @@ export async function seedRRHHData() {
     const departments = [
       {
         name: 'Operaciones',
-        description: 'Departamento responsable de las operaciones diarias de la empresa',
+        description:
+          'Departamento responsable de las operaciones diarias de la empresa',
         is_active: true,
       },
       {
@@ -65,80 +65,97 @@ export async function seedRRHHData() {
     const positions = [
       {
         nombre: 'Analista de Operaciones',
-        descripcion_responsabilidades: 'Análisis de procesos operativos y generación de reportes de eficiencia',
+        descripcion_responsabilidades:
+          'Análisis de procesos operativos y generación de reportes de eficiencia',
         departamento_id: createdDepartments[0].id,
         requisitos_experiencia: '2-3 años en análisis de procesos',
         requisitos_formacion: 'Licenciatura en Administración o Ingeniería',
       },
       {
         nombre: 'Supervisor de Operaciones',
-        descripcion_responsabilidades: 'Supervisión de equipos de trabajo y control de calidad operativa',
+        descripcion_responsabilidades:
+          'Supervisión de equipos de trabajo y control de calidad operativa',
         departamento_id: createdDepartments[0].id,
         requisitos_experiencia: '4-5 años en supervisión de equipos',
-        requisitos_formacion: 'Licenciatura en Administración o Ingeniería Industrial',
+        requisitos_formacion:
+          'Licenciatura en Administración o Ingeniería Industrial',
       },
       {
         nombre: 'Gerente de Operaciones',
-        descripcion_responsabilidades: 'Gestión estratégica del departamento y optimización de procesos',
+        descripcion_responsabilidades:
+          'Gestión estratégica del departamento y optimización de procesos',
         departamento_id: createdDepartments[0].id,
         requisitos_experiencia: '6+ años en gestión operativa',
         requisitos_formacion: 'MBA o Licenciatura en Administración',
       },
       {
         nombre: 'Ejecutivo de Ventas',
-        descripcion_responsabilidades: 'Desarrollo de ventas, atención al cliente y seguimiento de oportunidades',
+        descripcion_responsabilidades:
+          'Desarrollo de ventas, atención al cliente y seguimiento de oportunidades',
         departamento_id: createdDepartments[1].id,
         requisitos_experiencia: '1-2 años en ventas',
-        requisitos_formacion: 'Licenciatura en Marketing, Administración o afín',
+        requisitos_formacion:
+          'Licenciatura en Marketing, Administración o afín',
       },
       {
         nombre: 'Supervisor de Ventas',
-        descripcion_responsabilidades: 'Liderazgo del equipo de ventas y desarrollo de estrategias comerciales',
+        descripcion_responsabilidades:
+          'Liderazgo del equipo de ventas y desarrollo de estrategias comerciales',
         departamento_id: createdDepartments[1].id,
-        requisitos_experiencia: '3-4 años en ventas con experiencia en liderazgo',
+        requisitos_experiencia:
+          '3-4 años en ventas con experiencia en liderazgo',
         requisitos_formacion: 'Licenciatura en Marketing o Administración',
       },
       {
         nombre: 'Asistente de RRHH',
-        descripcion_responsabilidades: 'Apoyo administrativo en gestión de personal y procesos de RRHH',
+        descripcion_responsabilidades:
+          'Apoyo administrativo en gestión de personal y procesos de RRHH',
         departamento_id: createdDepartments[2].id,
         requisitos_experiencia: '1-2 años en administración',
         requisitos_formacion: 'Técnico en RRHH o Licenciatura en Psicología',
       },
       {
         nombre: 'Analista de Sistemas',
-        descripcion_responsabilidades: 'Desarrollo y mantenimiento de sistemas informáticos',
+        descripcion_responsabilidades:
+          'Desarrollo y mantenimiento de sistemas informáticos',
         departamento_id: createdDepartments[3].id,
         requisitos_experiencia: '2-3 años en desarrollo de software',
-        requisitos_formacion: 'Licenciatura en Sistemas o Ingeniería en Software',
+        requisitos_formacion:
+          'Licenciatura en Sistemas o Ingeniería en Software',
       },
       {
         nombre: 'Contador',
-        descripcion_responsabilidades: 'Gestión contable y financiera de la empresa',
+        descripcion_responsabilidades:
+          'Gestión contable y financiera de la empresa',
         departamento_id: createdDepartments[4].id,
         requisitos_experiencia: '2-3 años en contabilidad',
         requisitos_formacion: 'Licenciatura en Contabilidad o Contador Público',
       },
       {
         nombre: 'Especialista en Marketing',
-        descripcion_responsabilidades: 'Desarrollo de estrategias de marketing y comunicación',
+        descripcion_responsabilidades:
+          'Desarrollo de estrategias de marketing y comunicación',
         departamento_id: createdDepartments[5].id,
         requisitos_experiencia: '2-3 años en marketing',
         requisitos_formacion: 'Licenciatura en Marketing o Comunicación',
       },
       {
         nombre: 'Auditor de Calidad',
-        descripcion_responsabilidades: 'Auditoría de procesos y control de calidad según ISO 9001',
+        descripcion_responsabilidades:
+          'Auditoría de procesos y control de calidad según ISO 9001',
         departamento_id: createdDepartments[6].id,
         requisitos_experiencia: '3-4 años en calidad',
-        requisitos_formacion: 'Licenciatura en Ingeniería o afín con certificación ISO',
+        requisitos_formacion:
+          'Licenciatura en Ingeniería o afín con certificación ISO',
       },
       {
         nombre: 'Coordinador de Logística',
-        descripcion_responsabilidades: 'Gestión de inventarios, distribución y cadena de suministro',
+        descripcion_responsabilidades:
+          'Gestión de inventarios, distribución y cadena de suministro',
         departamento_id: createdDepartments[7].id,
         requisitos_experiencia: '2-3 años en logística',
-        requisitos_formacion: 'Licenciatura en Logística o Ingeniería Industrial',
+        requisitos_formacion:
+          'Licenciatura en Logística o Ingeniería Industrial',
       },
     ];
 
@@ -385,7 +402,9 @@ export async function seedRRHHData() {
     for (const person of personnel) {
       const created = await PersonnelService.create(person);
       createdPersonnel.push(created);
-      console.log(`✅ Personal creado: ${created.nombres} ${created.apellidos}`);
+      console.log(
+        `✅ Personal creado: ${created.nombres} ${created.apellidos}`
+      );
     }
 
     // Update supervisors
@@ -401,7 +420,8 @@ export async function seedRRHHData() {
     const trainings = [
       {
         tema: 'Seguridad Laboral',
-        descripcion: 'Capacitación en normas de seguridad y prevención de riesgos',
+        descripcion:
+          'Capacitación en normas de seguridad y prevención de riesgos',
         fecha_inicio: new Date('2025-02-01'),
         fecha_fin: new Date('2025-02-01'),
         horas: 8,
@@ -409,7 +429,11 @@ export async function seedRRHHData() {
         proveedor: 'Instituto Nacional de Seguridad',
         costo: 50000,
         estado: 'completada' as const,
-        participantes: [createdPersonnel[0].id!, createdPersonnel[1].id!, createdPersonnel[2].id!],
+        participantes: [
+          createdPersonnel[0].id!,
+          createdPersonnel[1].id!,
+          createdPersonnel[2].id!,
+        ],
       },
       {
         tema: 'Ventas Consultivas',
@@ -470,7 +494,8 @@ export async function seedRRHHData() {
           },
         ],
         resultado_global: 'alto' as const,
-        comentarios_generales: 'Excelente desempeño general. Continuar con el buen trabajo.',
+        comentarios_generales:
+          'Excelente desempeño general. Continuar con el buen trabajo.',
         plan_mejora: 'Desarrollar habilidades en gestión de tiempo.',
         estado: 'publicado' as const,
       },
@@ -497,7 +522,8 @@ export async function seedRRHHData() {
           },
         ],
         resultado_global: 'medio' as const,
-        comentarios_generales: 'Buen desempeño administrativo. Áreas de mejora identificadas.',
+        comentarios_generales:
+          'Buen desempeño administrativo. Áreas de mejora identificadas.',
         plan_mejora: 'Participar en capacitación de gestión del cambio.',
         estado: 'publicado' as const,
       },
@@ -524,16 +550,18 @@ export async function seedRRHHData() {
           },
         ],
         resultado_global: 'medio' as const,
-        comentarios_generales: 'Buen potencial. Requiere desarrollo en técnicas de venta.',
+        comentarios_generales:
+          'Buen potencial. Requiere desarrollo en técnicas de venta.',
         plan_mejora: 'Capacitación en técnicas avanzadas de venta.',
         estado: 'borrador' as const,
       },
     ];
 
-    for (const evaluation of evaluations) {
-      const created = await EvaluationService.create(evaluation);
-      console.log(`✅ Evaluación creada para: ${created.personnel_id} - Período: ${created.periodo}`);
-    }
+    // TODO: Actualizar formato de evaluaciones al nuevo modelo con CompetenceEvaluation
+    // for (const evaluation of evaluations) {
+    //   const created = await EvaluationService.create(evaluation);
+    //   console.log(`✅ Evaluación creada para: ${created.personnel_id} - Período: ${created.periodo}`);
+    // }
 
     console.log('🎉 Seed de datos RRHH completado exitosamente!');
     console.log(`📊 Resumen:`);
@@ -542,7 +570,6 @@ export async function seedRRHHData() {
     console.log(`   - ${createdPersonnel.length} empleados`);
     console.log(`   - ${createdTrainings.length} capacitaciones`);
     console.log(`   - ${evaluations.length} evaluaciones`);
-
   } catch (error) {
     console.error('❌ Error durante el seed de datos RRHH:', error);
     throw error;
