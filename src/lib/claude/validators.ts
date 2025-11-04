@@ -2,53 +2,153 @@
 
 export interface ValidationResult {
   valida: boolean;
-  respuesta?: string;  // Rejection message if not valid
+  respuesta?: string; // Rejection message if not valid
 }
 
 // Keywords related to ISO 9001 and quality management
 const TOPICOS_PERMITIDOS = [
-  'iso 9001', 'iso', '9001', 'procesos', 'proceso', 'calidad',
-  'auditorias', 'auditoría', 'auditoria', 'auditar',
-  'no conformidades', 'no conformidad', 'nc', 'conformidad',
-  'acciones correctivas', 'acción correctiva', 'correctiva',
-  'acciones preventivas', 'acción preventiva', 'preventiva',
-  'mejora continua', 'mejora', 'mejorar',
-  'documentación', 'documento', 'documentos', 'documentar',
-  'indicadores', 'indicador', 'kpi', 'métrica', 'medición',
-  'objetivos', 'objetivo', 'meta', 'metas',
-  'riesgos', 'riesgo', 'gestión de riesgos',
-  'satisfacción cliente', 'cliente', 'clientes',
-  'revisión dirección', 'revisión', 'dirección',
-  'cláusula', 'clausula', 'requisito', 'requisitos',
-  'normas', 'norma', 'certificación', 'certificado',
-  'sistema de gestión', 'sgc', 'gestión',
-  'política de calidad', 'política',
-  'manual de calidad', 'manual',
-  'procedimiento', 'procedimientos',
-  'registro', 'registros',
-  'hallazgo', 'hallazgos',
-  'eficacia', 'eficiencia', 'efectividad',
-  'trazabilidad', 'rastreabilidad',
-  'competencia', 'capacitación', 'formación',
-  'infraestructura', 'ambiente de trabajo',
-  'planificación', 'planificar',
-  'contexto de la organización', 'contexto',
-  'partes interesadas', 'stakeholders',
-  'alcance', 'exclusiones'
+  // ISO 9001 y calidad
+  'iso 9001',
+  'iso',
+  '9001',
+  'procesos',
+  'proceso',
+  'calidad',
+  'auditorias',
+  'auditoría',
+  'auditoria',
+  'auditar',
+  'no conformidades',
+  'no conformidad',
+  'nc',
+  'conformidad',
+  'acciones correctivas',
+  'acción correctiva',
+  'correctiva',
+  'acciones preventivas',
+  'acción preventiva',
+  'preventiva',
+  'mejora continua',
+  'mejora',
+  'mejorar',
+  'documentación',
+  'documento',
+  'documentos',
+  'documentar',
+  'indicadores',
+  'indicador',
+  'kpi',
+  'métrica',
+  'medición',
+  'objetivos',
+  'objetivo',
+  'meta',
+  'metas',
+  'riesgos',
+  'riesgo',
+  'gestión de riesgos',
+  'satisfacción cliente',
+  'cliente',
+  'clientes',
+  'revisión dirección',
+  'revisión',
+  'dirección',
+  'cláusula',
+  'clausula',
+  'requisito',
+  'requisitos',
+  'normas',
+  'norma',
+  'certificación',
+  'certificado',
+  'sistema de gestión',
+  'sgc',
+  'gestión',
+  'política de calidad',
+  'política',
+  'manual de calidad',
+  'manual',
+  'procedimiento',
+  'procedimientos',
+  'registro',
+  'registros',
+  'hallazgo',
+  'hallazgos',
+  'eficacia',
+  'eficiencia',
+  'efectividad',
+  'trazabilidad',
+  'rastreabilidad',
+  'competencia',
+  'capacitación',
+  'formación',
+  'infraestructura',
+  'ambiente de trabajo',
+  'planificación',
+  'planificar',
+  'contexto de la organización',
+  'contexto',
+  'partes interesadas',
+  'stakeholders',
+  'alcance',
+  'exclusiones',
+  // Contexto del usuario (NUEVO)
+  'mi puesto',
+  'puesto',
+  'mi proceso',
+  'mis procesos',
+  'asignado',
+  'asignados',
+  'mi objetivo',
+  'mis objetivos',
+  'mi indicador',
+  'mis indicadores',
+  'mi departamento',
+  'departamento',
+  'mi supervisor',
+  'supervisor',
+  'mi rol',
+  'rol',
+  'responsabilidad',
+  'responsabilidades',
+  'tareas',
+  'tarea',
+  'pendiente',
+  'pendientes',
+  'qué tengo',
+  'cuál es mi',
+  'cuáles son mis',
 ];
 
 // Topics that are explicitly not allowed
 const TOPICOS_PROHIBIDOS = [
-  'política electoral', 'elecciones', 'partido político',
-  'deportes', 'fútbol', 'basketball', 'tenis',
-  'entretenimiento', 'películas', 'series', 'música',
-  'noticias', 'actualidad',
-  'religión', 'iglesia', 'fe',
-  'economía personal', 'inversiones personales',
-  'salud personal', 'medicina personal',
-  'recetas de cocina', 'cocinar',
-  'viajes turísticos', 'turismo',
-  'moda', 'ropa', 'estilo'
+  'política electoral',
+  'elecciones',
+  'partido político',
+  'deportes',
+  'fútbol',
+  'basketball',
+  'tenis',
+  'entretenimiento',
+  'películas',
+  'series',
+  'música',
+  'noticias',
+  'actualidad',
+  'religión',
+  'iglesia',
+  'fe',
+  'economía personal',
+  'inversiones personales',
+  'salud personal',
+  'medicina personal',
+  'recetas de cocina',
+  'cocinar',
+  'viajes turísticos',
+  'turismo',
+  'moda',
+  'ropa',
+  'estilo',
 ];
 
 export class ValidationService {
@@ -64,7 +164,7 @@ export class ValidationService {
     if (this.contieneTopicosProhibidos(consultaLower)) {
       return {
         valida: false,
-        respuesta: this.generarMensajeRechazo('prohibido')
+        respuesta: this.generarMensajeRechazo('prohibido'),
       };
     }
 
@@ -72,7 +172,7 @@ export class ValidationService {
     if (!this.contieneTopicosPermitidos(consultaLower)) {
       return {
         valida: false,
-        respuesta: this.generarMensajeRechazo('no_relacionado')
+        respuesta: this.generarMensajeRechazo('no_relacionado'),
       };
     }
 
@@ -111,7 +211,8 @@ export class ValidationService {
       case 'no_relacionado':
         return `👷‍♂️ Tu consulta parece no estar relacionada con ISO 9001 o gestión de calidad.
 
-Solo puedo ayudarte con temas como:
+Puedo ayudarte con:
+• Tu puesto, procesos y objetivos asignados
 • Normas y cláusulas ISO 9001
 • Procesos de calidad
 • Auditorías y hallazgos
@@ -119,7 +220,7 @@ Solo puedo ayudarte con temas como:
 • Objetivos e indicadores de calidad
 • Mejora continua
 
-¿En qué tema de calidad puedo asesorarte?`;
+¿En qué puedo asesorarte?`;
 
       default:
         return `👷‍♂️ Solo puedo ayudarte con temas relacionados con ISO 9001 y gestión de calidad.`;
@@ -136,7 +237,7 @@ Solo puedo ayudarte con temas como:
       '¿Cómo preparo una auditoría interna?',
       '¿Qué acciones correctivas debo tomar?',
       '¿Cómo mejoro mis indicadores de calidad?',
-      '¿Qué documentos necesito para mi proceso?'
+      '¿Qué documentos necesito para mi proceso?',
     ];
   }
 }

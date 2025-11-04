@@ -1,9 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -13,15 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Plus, X, Save, Edit } from 'lucide-react';
 import type { Competence, PositionLevel } from '@/types/rrhh';
+import { Plus, Save, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   positionId: string;
@@ -38,8 +38,11 @@ export function PositionCompetencesSection({
   initialNivel = 'operativo',
   onUpdate,
 }: Props) {
-  const [competences, setCompetences] = useState<Competence[]>(initialCompetences);
-  const [availableCompetences, setAvailableCompetences] = useState<Competence[]>([]);
+  const [competences, setCompetences] =
+    useState<Competence[]>(initialCompetences);
+  const [availableCompetences, setAvailableCompetences] = useState<
+    Competence[]
+  >([]);
   const [frecuencia, setFrecuencia] = useState(initialFrecuencia);
   const [nivel, setNivel] = useState<PositionLevel>(initialNivel);
   const [loading, setLoading] = useState(false);
@@ -53,16 +56,25 @@ export function PositionCompetencesSection({
   const loadAvailableCompetences = async () => {
     try {
       const response = await fetch('/api/rrhh/competencias');
+      if (!response.ok) {
+        console.error('Error al cargar competencias disponibles');
+        setAvailableCompetences([]);
+        return;
+      }
       const data = await response.json();
-      setAvailableCompetences(data);
+      // Asegurarse de que data es un array
+      setAvailableCompetences(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error al cargar competencias disponibles:', error);
+      setAvailableCompetences([]);
     }
   };
 
   const loadPositionCompetences = async () => {
     try {
-      const response = await fetch(`/api/rrhh/puestos/${positionId}/competencias`);
+      const response = await fetch(
+        `/api/rrhh/puestos/${positionId}/competencias`
+      );
       const data = await response.json();
       setCompetences(data);
     } catch (error) {
@@ -75,11 +87,14 @@ export function PositionCompetencesSection({
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/rrhh/puestos/${positionId}/competencias`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ competenceId: selectedCompetenceId }),
-      });
+      const response = await fetch(
+        `/api/rrhh/puestos/${positionId}/competencias`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ competenceId: selectedCompetenceId }),
+        }
+      );
 
       if (response.ok) {
         await loadPositionCompetences();
@@ -99,7 +114,9 @@ export function PositionCompetencesSection({
   };
 
   const handleRemoveCompetence = async (competenceId: string) => {
-    if (!confirm('¿Está seguro de que desea quitar esta competencia del puesto?')) {
+    if (
+      !confirm('¿Está seguro de que desea quitar esta competencia del puesto?')
+    ) {
       return;
     }
 
@@ -127,11 +144,14 @@ export function PositionCompetencesSection({
   const handleUpdateFrecuencia = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/rrhh/puestos/${positionId}/frecuencia-evaluacion`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ meses: frecuencia }),
-      });
+      const response = await fetch(
+        `/api/rrhh/puestos/${positionId}/frecuencia-evaluacion`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ meses: frecuencia }),
+        }
+      );
 
       if (response.ok) {
         onUpdate?.();
@@ -148,34 +168,52 @@ export function PositionCompetencesSection({
 
   const getCategoryColor = (categoria: string) => {
     switch (categoria) {
-      case 'tecnica': return 'bg-blue-500';
-      case 'blanda': return 'bg-green-500';
-      case 'seguridad': return 'bg-red-500';
-      case 'iso_9001': return 'bg-purple-500';
-      case 'otra': return 'bg-gray-500';
-      default: return 'bg-gray-500';
+      case 'tecnica':
+        return 'bg-blue-500';
+      case 'blanda':
+        return 'bg-green-500';
+      case 'seguridad':
+        return 'bg-red-500';
+      case 'iso_9001':
+        return 'bg-purple-500';
+      case 'otra':
+        return 'bg-gray-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getCategoryLabel = (categoria: string) => {
     switch (categoria) {
-      case 'tecnica': return 'Técnica';
-      case 'blanda': return 'Blanda';
-      case 'seguridad': return 'Seguridad';
-      case 'iso_9001': return 'ISO 9001';
-      case 'otra': return 'Otra';
-      default: return categoria;
+      case 'tecnica':
+        return 'Técnica';
+      case 'blanda':
+        return 'Blanda';
+      case 'seguridad':
+        return 'Seguridad';
+      case 'iso_9001':
+        return 'ISO 9001';
+      case 'otra':
+        return 'Otra';
+      default:
+        return categoria;
     }
   };
 
   const getLevelLabel = (level: number) => {
     switch (level) {
-      case 1: return 'Básico';
-      case 2: return 'Intermedio';
-      case 3: return 'Avanzado';
-      case 4: return 'Experto';
-      case 5: return 'Maestro';
-      default: return level.toString();
+      case 1:
+        return 'Básico';
+      case 2:
+        return 'Intermedio';
+      case 3:
+        return 'Avanzado';
+      case 4:
+        return 'Experto';
+      case 5:
+        return 'Maestro';
+      default:
+        return level.toString();
     }
   };
 
@@ -194,7 +232,10 @@ export function PositionCompetencesSection({
         <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
           <div className="space-y-2">
             <Label htmlFor="nivel">Nivel del Puesto</Label>
-            <Select value={nivel} onValueChange={(value: PositionLevel) => setNivel(value)}>
+            <Select
+              value={nivel}
+              onValueChange={(value: PositionLevel) => setNivel(value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -215,7 +256,7 @@ export function PositionCompetencesSection({
                 min="1"
                 max="60"
                 value={frecuencia}
-                onChange={(e) => setFrecuencia(parseInt(e.target.value) || 12)}
+                onChange={e => setFrecuencia(parseInt(e.target.value) || 12)}
               />
               <Button onClick={handleUpdateFrecuencia} disabled={loading}>
                 <Save className="h-4 w-4" />
@@ -242,12 +283,15 @@ export function PositionCompetencesSection({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Seleccionar Competencia</Label>
-                    <Select value={selectedCompetenceId} onValueChange={setSelectedCompetenceId}>
+                    <Select
+                      value={selectedCompetenceId}
+                      onValueChange={setSelectedCompetenceId}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Elegir competencia..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {unassignedCompetences.map((comp) => (
+                        {unassignedCompetences.map(comp => (
                           <SelectItem key={comp.id} value={comp.id}>
                             {comp.nombre} (Nivel 3)
                           </SelectItem>
@@ -256,10 +300,16 @@ export function PositionCompetencesSection({
                     </Select>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAddDialog(false)}
+                    >
                       Cancelar
                     </Button>
-                    <Button onClick={handleAddCompetence} disabled={loading || !selectedCompetenceId}>
+                    <Button
+                      onClick={handleAddCompetence}
+                      disabled={loading || !selectedCompetenceId}
+                    >
                       Agregar
                     </Button>
                   </div>
@@ -274,7 +324,7 @@ export function PositionCompetencesSection({
             </div>
           ) : (
             <div className="grid gap-3">
-              {competences.map((competence) => (
+              {competences.map(competence => (
                 <div
                   key={competence.id}
                   className="flex items-center justify-between p-3 border rounded-lg"

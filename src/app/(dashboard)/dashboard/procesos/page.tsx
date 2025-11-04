@@ -1,38 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ProcessDefinitionFormDialog } from '@/components/processRecords/ProcessDefinitionFormDialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Plus,
-  Search,
-  Filter,
-  Calendar,
-  Users,
-  BarChart3,
-  Trash2,
-  FileText,
-} from 'lucide-react';
+import { ProcessDefinition } from '@/types/processRecords';
+import { Edit, FileText, Plus, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-
-// Tipos para las definiciones de procesos
-interface ProcessDefinition {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  responsible: string;
-  department: string;
-  version: string;
-  status: 'activo' | 'inactivo';
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-}
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function ProcessDefinitionsPage() {
   const router = useRouter();
@@ -42,15 +20,18 @@ export default function ProcessDefinitionsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  const [showFormDialog, setShowFormDialog] = useState(false);
+  const [editingDefinition, setEditingDefinition] =
+    useState<ProcessDefinition | null>(null);
   const [filterCategory, setFilterCategory] = useState<
     | 'all'
     | 'calidad'
     | 'auditoria'
     | 'mejora'
-    | 'documentos'
-    | 'no-conformidades'
-    | 'riesgos'
     | 'rrhh'
+    | 'produccion'
+    | 'ventas'
+    | 'logistica'
     | 'compras'
   >('all');
 
@@ -140,10 +121,10 @@ export default function ProcessDefinitionsPage() {
   // Cargar definiciones desde la API
   const fetchDefinitions = async () => {
     try {
-      const response = await fetch('/api/processes/definitions');
+      const response = await fetch('/api/process-definitions');
       if (response.ok) {
-        const result = await response.json();
-        setProcessDefinitions(result.data || []);
+        const definitions = await response.json();
+        setProcessDefinitions(definitions || []);
       }
     } catch (error) {
       console.error('Error al cargar definiciones:', error);
@@ -164,57 +145,80 @@ export default function ProcessDefinitionsPage() {
   // Filtrar definiciones
   const filteredDefinitions = processDefinitions.filter(definition => {
     const matchesSearch =
-      (definition.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (definition.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      (definition.nombre?.toLowerCase() || '').includes(
+        searchTerm.toLowerCase()
+      ) ||
+      (definition.descripcion?.toLowerCase() || '').includes(
+        searchTerm.toLowerCase()
+      ) ||
+      (definition.codigo?.toLowerCase() || '').includes(
+        searchTerm.toLowerCase()
+      );
     const matchesCategory =
-      filterCategory === 'all' || definition.category === filterCategory;
+      filterCategory === 'all' || definition.categoria === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
+  const getCategoryColor = (categoria: string) => {
+    switch (categoria) {
       case 'calidad':
         return 'bg-blue-100 text-blue-800';
       case 'auditoria':
         return 'bg-green-100 text-green-800';
       case 'mejora':
-        return 'bg-purple-100 text-purple-800';
-      case 'documentos':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'no-conformidades':
-        return 'bg-red-100 text-red-800';
-      case 'riesgos':
         return 'bg-orange-100 text-orange-800';
       case 'rrhh':
-        return 'bg-pink-100 text-pink-800';
-      case 'compras':
+        return 'bg-purple-100 text-purple-800';
+      case 'produccion':
+        return 'bg-red-100 text-red-800';
+      case 'ventas':
         return 'bg-indigo-100 text-indigo-800';
+      case 'logistica':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'compras':
+        return 'bg-pink-100 text-pink-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getCategoryText = (category: string) => {
-    switch (category) {
+  const getCategoryText = (categoria: string) => {
+    switch (categoria) {
       case 'calidad':
         return 'Calidad';
       case 'auditoria':
         return 'Auditoría';
       case 'mejora':
         return 'Mejora';
-      case 'documentos':
-        return 'Documentos';
-      case 'no-conformidades':
-        return 'No Conformidades';
-      case 'riesgos':
-        return 'Riesgos';
       case 'rrhh':
         return 'RRHH';
+      case 'produccion':
+        return 'Producción';
+      case 'ventas':
+        return 'Ventas';
+      case 'logistica':
+        return 'Logística';
       case 'compras':
         return 'Compras';
       default:
         return 'General';
     }
+  };
+
+  const handleEditDefinition = (definition: ProcessDefinition) => {
+    setEditingDefinition(definition);
+    setShowFormDialog(true);
+  };
+
+  const handleFormSuccess = () => {
+    fetchDefinitions();
+    setEditingDefinition(null);
+    setShowFormDialog(false);
+  };
+
+  const handleFormClose = () => {
+    setShowFormDialog(false);
+    setEditingDefinition(null);
   };
 
   if (loading) {
@@ -272,7 +276,10 @@ export default function ProcessDefinitionsPage() {
                 Ver Registros
               </Button>
             </Link>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700"
+              onClick={() => setShowFormDialog(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Nueva Definición
             </Button>
@@ -297,17 +304,19 @@ export default function ProcessDefinitionsPage() {
               <div className="flex gap-2">
                 <select
                   value={filterCategory}
-                  onChange={e => setFilterCategory(e.target.value as any)}
+                  onChange={e =>
+                    setFilterCategory(e.target.value as typeof filterCategory)
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="all">Todas las categorías</option>
                   <option value="calidad">Calidad</option>
                   <option value="auditoria">Auditoría</option>
                   <option value="mejora">Mejora</option>
-                  <option value="documentos">Documentos</option>
-                  <option value="no-conformidades">No Conformidades</option>
-                  <option value="riesgos">Riesgos</option>
                   <option value="rrhh">RRHH</option>
+                  <option value="produccion">Producción</option>
+                  <option value="ventas">Ventas</option>
+                  <option value="logistica">Logística</option>
                   <option value="compras">Compras</option>
                 </select>
               </div>
@@ -375,55 +384,68 @@ export default function ProcessDefinitionsPage() {
                 {filteredDefinitions.map(definition => (
                   <Card
                     key={definition.id}
-                    className="border-0 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group"
-                    onClick={() =>
-                      router.push(`/dashboard/procesos/${definition.id}`)
-                    }
+                    className="border-0 shadow-md hover:shadow-lg transition-all duration-200"
                   >
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
-                          {definition.name}
-                        </CardTitle>
-                        <Badge
-                          className={getCategoryColor(definition.category)}
+                        <div className="flex-1">
+                          <CardTitle
+                            className="text-lg font-semibold text-gray-900 hover:text-emerald-600 transition-colors cursor-pointer"
+                            onClick={() =>
+                              router.push(
+                                `/dashboard/procesos/definiciones/${definition.id}`
+                              )
+                            }
+                          >
+                            {definition.nombre}
+                          </CardTitle>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {definition.descripcion}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditDefinition(definition)}
+                          className="ml-2"
                         >
-                          {getCategoryText(definition.category)}
-                        </Badge>
+                          <Edit className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {definition.description}
-                      </p>
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="space-y-3">
                         <div className="flex items-center text-sm text-gray-500">
-                          <Users className="h-4 w-4 mr-2" />
-                          {definition.responsible}
+                          <span className="font-medium">Código:</span>
+                          <span className="ml-2">{definition.codigo}</span>
                         </div>
 
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          {new Date(definition.createdAt).toLocaleDateString()}
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>Versión: {definition.version}</span>
+                        <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+                          <Badge
+                            className={getCategoryColor(definition.categoria)}
+                          >
+                            {getCategoryText(definition.categoria)}
+                          </Badge>
                           <Badge
                             className={
-                              definition.status === 'activo'
+                              definition.activo
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-gray-100 text-gray-800'
                             }
                           >
-                            {definition.status === 'activo'
-                              ? 'Activo'
-                              : 'Inactivo'}
+                            {definition.activo ? 'Activo' : 'Inactivo'}
                           </Badge>
                         </div>
 
-                        <div className="text-center text-sm text-emerald-600 font-medium group-hover:text-emerald-700 transition-colors">
-                          Click para ver detalles →
+                        <div
+                          className="text-center text-sm text-emerald-600 font-medium hover:text-emerald-700 transition-colors cursor-pointer"
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/procesos/definiciones/${definition.id}`
+                            )
+                          }
+                        >
+                          Ver detalles completos →
                         </div>
                       </div>
                     </CardContent>
@@ -447,9 +469,6 @@ export default function ProcessDefinitionsPage() {
                           Categoría
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Responsable
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Estado
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -462,53 +481,62 @@ export default function ProcessDefinitionsPage() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredDefinitions.map(definition => (
-                        <tr
-                          key={definition.id}
-                          className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() =>
-                            router.push(`/dashboard/procesos/${definition.id}`)
-                          }
-                        >
+                        <tr key={definition.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {definition.name}
+                              <div
+                                className="text-sm font-medium text-gray-900 cursor-pointer hover:text-emerald-600"
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/procesos/definiciones/${definition.id}`
+                                  )
+                                }
+                              >
+                                {definition.nombre}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {definition.description}
+                                {definition.descripcion}
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <Badge
-                              className={getCategoryColor(definition.category)}
+                              className={getCategoryColor(definition.categoria)}
                             >
-                              {getCategoryText(definition.category)}
+                              {getCategoryText(definition.categoria)}
                             </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {definition.responsible}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <Badge
                               className={
-                                definition.status === 'activo'
+                                definition.activo
                                   ? 'bg-green-100 text-green-800'
                                   : 'bg-gray-100 text-gray-800'
                               }
                             >
-                              {definition.status === 'activo'
-                                ? 'Activo'
-                                : 'Inactivo'}
+                              {definition.activo ? 'Activo' : 'Inactivo'}
                             </Badge>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(
-                              definition.createdAt
-                            ).toLocaleDateString()}
+                            {definition.created_at
+                              ? definition.created_at instanceof Date
+                                ? definition.created_at.toLocaleDateString()
+                                : new Date(
+                                    (definition.created_at as { seconds: number; nanoseconds: number }).seconds *
+                                      1000
+                                  ).toLocaleDateString()
+                              : 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-emerald-600">
-                            Click para ver →
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditDefinition(definition)}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
+                            </Button>
                           </td>
                         </tr>
                       ))}
@@ -520,6 +548,14 @@ export default function ProcessDefinitionsPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Dialog para crear/editar definición */}
+      <ProcessDefinitionFormDialog
+        open={showFormDialog}
+        onClose={handleFormClose}
+        onSuccess={handleFormSuccess}
+        editData={editingDefinition}
+      />
     </div>
   );
 }

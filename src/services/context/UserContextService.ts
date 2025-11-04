@@ -1,18 +1,18 @@
 // Service for aggregating complete user context for IA
 
-import { UserContext, UserContextLight } from '@/types/context';
 import { User } from '@/types/auth';
-import { Personnel, Position, Department } from '@/types/rrhh';
+import { UserContext, UserContextLight } from '@/types/context';
 import { ProcessDefinition, ProcessRecord } from '@/types/procesos';
-import { QualityObjective, QualityIndicator } from '@/types/quality';
+import { QualityIndicator, QualityObjective } from '@/types/quality';
+import { Department, Personnel, Position } from '@/types/rrhh';
 import { UserService } from '../auth/UserService';
+import { ProcessRecordService } from '../procesos/ProcessRecordService';
+import { ProcessService } from '../procesos/ProcessService';
+import { QualityIndicatorService } from '../quality/QualityIndicatorService';
+import { QualityObjectiveService } from '../quality/QualityObjectiveService';
+import { DepartmentService } from '../rrhh/DepartmentService';
 import { PersonnelService } from '../rrhh/PersonnelService';
 import { PositionService } from '../rrhh/PositionService';
-import { DepartmentService } from '../rrhh/DepartmentService';
-import { ProcessService } from '../procesos/ProcessService';
-import { ProcessRecordService } from '../procesos/ProcessRecordService';
-import { QualityObjectiveService } from '../quality/QualityObjectiveService';
-import { QualityIndicatorService } from '../quality/QualityIndicatorService';
 
 // Cache for user contexts (5 minute TTL)
 interface CacheEntry {
@@ -39,7 +39,10 @@ export class UserContextService {
         return cached.context;
       }
 
-      console.log('[UserContextService] Fetching fresh context for user:', userId);
+      console.log(
+        '[UserContextService] Fetching fresh context for user:',
+        userId
+      );
       const startTime = Date.now();
 
       // Fetch user
@@ -59,13 +62,13 @@ export class UserContextService {
           objetivos: [],
           indicadores: [],
           supervisor: undefined,
-          processRecords: []
+          processRecords: [],
         };
 
         // Update cache
         contextCache.set(userId, {
           context,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
 
         return context;
@@ -83,12 +86,12 @@ export class UserContextService {
           objetivos: [],
           indicadores: [],
           supervisor: undefined,
-          processRecords: []
+          processRecords: [],
         };
 
         contextCache.set(userId, {
           context,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
 
         return context;
@@ -102,15 +105,23 @@ export class UserContextService {
         objetivos,
         indicadores,
         supervisor,
-        processRecords
+        processRecords,
       ] = await Promise.all([
-        personnel.puesto ? this.fetchPosition(personnel.puesto) : Promise.resolve(null),
-        personnel.departamento ? this.fetchDepartment(personnel.departamento) : Promise.resolve(null),
+        personnel.puesto
+          ? this.fetchPosition(personnel.puesto)
+          : Promise.resolve(null),
+        personnel.departamento
+          ? this.fetchDepartment(personnel.departamento)
+          : Promise.resolve(null),
         this.fetchProcesses(personnel.procesos_asignados || []),
         this.fetchObjectives(personnel.objetivos_asignados || []),
         this.fetchIndicators(personnel.indicadores_asignados || []),
-        personnel.supervisor_id ? this.fetchPersonnel(personnel.supervisor_id) : Promise.resolve(undefined),
-        this.fetchProcessRecords(personnel.procesos_asignados || [])
+        personnel.supervisor_id
+          ? this.fetchPersonnel(personnel.supervisor_id).then(
+              p => p || undefined
+            )
+          : Promise.resolve(undefined),
+        this.fetchProcessRecords(personnel.procesos_asignados || []),
       ]);
 
       const context: UserContext = {
@@ -122,20 +133,22 @@ export class UserContextService {
         objetivos,
         indicadores,
         supervisor,
-        processRecords
+        processRecords,
       };
 
       // Update cache
       contextCache.set(userId, {
         context,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       const duration = Date.now() - startTime;
       console.log(`[UserContextService] Context fetched in ${duration}ms`);
 
       if (duration > 2000) {
-        console.warn('[UserContextService] Context fetch took longer than 2 seconds');
+        console.warn(
+          '[UserContextService] Context fetch took longer than 2 seconds'
+        );
       }
 
       return context;
@@ -163,7 +176,7 @@ export class UserContextService {
           user,
           personnel: null,
           position: null,
-          department: null
+          department: null,
         };
       }
 
@@ -173,20 +186,24 @@ export class UserContextService {
           user,
           personnel: null,
           position: null,
-          department: null
+          department: null,
         };
       }
 
       const [position, department] = await Promise.all([
-        personnel.puesto ? this.fetchPosition(personnel.puesto) : Promise.resolve(null),
-        personnel.departamento ? this.fetchDepartment(personnel.departamento) : Promise.resolve(null)
+        personnel.puesto
+          ? this.fetchPosition(personnel.puesto)
+          : Promise.resolve(null),
+        personnel.departamento
+          ? this.fetchDepartment(personnel.departamento)
+          : Promise.resolve(null),
       ]);
 
       return {
         user,
         personnel,
         position,
-        department
+        department,
       };
     } catch (error) {
       console.error('[UserContextService] Error getting light context:', error);
@@ -231,15 +248,25 @@ export class UserContextService {
     return user;
   }
 
-  private static async fetchPersonnel(personnelId: string): Promise<Personnel> {
-    const personnel = await PersonnelService.getById(personnelId);
-    if (!personnel) {
-      throw new Error(`Personnel not found: ${personnelId}`);
+  private static async fetchPersonnel(
+    personnelId: string
+  ): Promise<Personnel | null> {
+    try {
+      const personnel = await PersonnelService.getById(personnelId);
+      if (!personnel) {
+        console.warn(`Personnel not found: ${personnelId}`);
+        return null;
+      }
+      return personnel;
+    } catch (error) {
+      console.error(`Error fetching personnel ${personnelId}:`, error);
+      return null;
     }
-    return personnel;
   }
 
-  private static async fetchPosition(positionId: string): Promise<Position | null> {
+  private static async fetchPosition(
+    positionId: string
+  ): Promise<Position | null> {
     try {
       return await PositionService.getById(positionId);
     } catch (error) {
@@ -248,16 +275,22 @@ export class UserContextService {
     }
   }
 
-  private static async fetchDepartment(departmentId: string): Promise<Department | null> {
+  private static async fetchDepartment(
+    departmentId: string
+  ): Promise<Department | null> {
     try {
       return await DepartmentService.getById(departmentId);
     } catch (error) {
-      console.warn(`[UserContextService] Department not found: ${departmentId}`);
+      console.warn(
+        `[UserContextService] Department not found: ${departmentId}`
+      );
       return null;
     }
   }
 
-  private static async fetchProcesses(processIds: string[]): Promise<ProcessDefinition[]> {
+  private static async fetchProcesses(
+    processIds: string[]
+  ): Promise<ProcessDefinition[]> {
     if (!processIds || processIds.length === 0) {
       return [];
     }
@@ -273,7 +306,9 @@ export class UserContextService {
     }
   }
 
-  private static async fetchObjectives(objectiveIds: string[]): Promise<QualityObjective[]> {
+  private static async fetchObjectives(
+    objectiveIds: string[]
+  ): Promise<QualityObjective[]> {
     if (!objectiveIds || objectiveIds.length === 0) {
       return [];
     }
@@ -289,7 +324,9 @@ export class UserContextService {
     }
   }
 
-  private static async fetchIndicators(indicatorIds: string[]): Promise<QualityIndicator[]> {
+  private static async fetchIndicators(
+    indicatorIds: string[]
+  ): Promise<QualityIndicator[]> {
     if (!indicatorIds || indicatorIds.length === 0) {
       return [];
     }
@@ -305,7 +342,9 @@ export class UserContextService {
     }
   }
 
-  private static async fetchProcessRecords(processIds: string[]): Promise<ProcessRecord[]> {
+  private static async fetchProcessRecords(
+    processIds: string[]
+  ): Promise<ProcessRecord[]> {
     if (!processIds || processIds.length === 0) {
       return [];
     }
@@ -313,13 +352,18 @@ export class UserContextService {
     try {
       // Fetch records for all assigned processes
       const recordsArrays = await Promise.all(
-        processIds.map(processId => ProcessRecordService.getByProcessId(processId))
+        processIds.map(processId =>
+          ProcessRecordService.getByProcessId(processId)
+        )
       );
-      
+
       // Flatten arrays and return
       return recordsArrays.flat();
     } catch (error) {
-      console.warn('[UserContextService] Error fetching process records:', error);
+      console.warn(
+        '[UserContextService] Error fetching process records:',
+        error
+      );
       return [];
     }
   }

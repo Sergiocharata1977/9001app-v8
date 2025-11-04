@@ -1,52 +1,58 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ProcessRecordTaskFormDialog } from '@/components/processRecords/ProcessRecordTaskFormDialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ArrowLeft,
-  Plus,
-  MoreHorizontal,
-  Calendar,
-  User,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-} from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertCircle, ArrowLeft, Plus, Trash2, User } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-// Tipos para el tablero Kanban
-interface KanbanCard {
+// Tipos
+interface ProcessRecordStage {
   id: string;
-  title: string;
-  description?: string;
-  assignedTo?: string;
-  dueDate?: string;
-  priority: 'low' | 'medium' | 'high';
-  tags: string[];
-  status: 'pending' | 'in-progress' | 'completed';
-  createdAt: string;
-  updatedAt: string;
+  nombre: string;
+  descripcion?: string;
+  color: string;
+  orden: number;
+  es_etapa_final: boolean;
 }
 
-interface KanbanList {
+interface ProcessRecordTask {
   id: string;
-  title: string;
-  cards: KanbanCard[];
-  color: string;
+  stage_id: string;
+  titulo: string;
+  descripcion: string;
+  prioridad: 'baja' | 'media' | 'alta' | 'urgente';
+  asignado_a_nombre?: string;
+  fecha_vencimiento?: string;
+  etiquetas: string[];
+  orden: number;
 }
 
 interface ProcessRecord {
   id: string;
-  name: string;
-  description: string;
-  processDefinitionName: string;
+  nombre: string;
+  descripcion: string;
+  process_definition_nombre?: string;
   status: 'activo' | 'pausado' | 'completado';
-  createdAt: string;
-  lists: KanbanList[];
+  created_at: string;
 }
+
+const DEFAULT_STAGES = [
+  { nombre: 'Pendiente', color: '#e5e7eb', orden: 0, es_etapa_final: false },
+  { nombre: 'En Progreso', color: '#dbeafe', orden: 1, es_etapa_final: false },
+  { nombre: 'Completado', color: '#d1fae5', orden: 2, es_etapa_final: true },
+];
 
 export default function ProcessRecordKanbanPage() {
   const params = useParams();
@@ -55,194 +61,157 @@ export default function ProcessRecordKanbanPage() {
   const [processRecord, setProcessRecord] = useState<ProcessRecord | null>(
     null
   );
+  const [stages, setStages] = useState<ProcessRecordStage[]>([]);
+  const [tasksByStage, setTasksByStage] = useState<
+    Map<string, ProcessRecordTask[]>
+  >(new Map());
   const [loading, setLoading] = useState(true);
-  const [draggedCard, setDraggedCard] = useState<string | null>(null);
+  const [showStageDialog, setShowStageDialog] = useState(false);
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
+  const [selectedStage, setSelectedStage] = useState<{
+    id: string;
+    nombre: string;
+  } | null>(null);
+  const [stageForm, setStageForm] = useState({ nombre: '', color: '#e5e7eb' });
 
-  // Datos de prueba
   useEffect(() => {
-    const mockData: ProcessRecord = {
-      id: recordId,
-      name: 'Implementación ISO 9001 Q3',
-      description:
-        'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
-      processDefinitionName: 'Gestión de Calidad',
-      status: 'activo',
-      createdAt: '2024-01-15',
-      lists: [
-        {
-          id: 'list-1',
-          title: 'Pendiente',
-          color: 'bg-gray-100',
-          cards: [
-            {
-              id: 'card-1',
-              title: 'Revisar documentación ISO 9001',
-              description:
-                'Revisar toda la documentación existente del sistema de gestión',
-              assignedTo: 'Juan Pérez',
-              dueDate: '2024-02-15',
-              priority: 'high',
-              tags: ['documentación', 'revisión'],
-              status: 'pending',
-              createdAt: '2024-01-15',
-              updatedAt: '2024-01-20',
-            },
-            {
-              id: 'card-2',
-              title: 'Capacitación del equipo',
-              description: 'Organizar capacitación sobre nuevos procedimientos',
-              assignedTo: 'María García',
-              dueDate: '2024-02-20',
-              priority: 'medium',
-              tags: ['capacitación', 'equipo'],
-              status: 'pending',
-              createdAt: '2024-01-16',
-              updatedAt: '2024-01-18',
-            },
-          ],
-        },
-        {
-          id: 'list-2',
-          title: 'En Progreso',
-          color: 'bg-blue-100',
-          cards: [
-            {
-              id: 'card-3',
-              title: 'Implementar procedimientos',
-              description: 'Implementar nuevos procedimientos de calidad',
-              assignedTo: 'Carlos López',
-              dueDate: '2024-02-10',
-              priority: 'high',
-              tags: ['implementación', 'procedimientos'],
-              status: 'in-progress',
-              createdAt: '2024-01-10',
-              updatedAt: '2024-01-22',
-            },
-            {
-              id: 'card-4',
-              title: 'Auditoría interna',
-              description: 'Realizar auditoría interna del sistema',
-              assignedTo: 'Ana Martínez',
-              dueDate: '2024-02-25',
-              priority: 'medium',
-              tags: ['auditoría', 'interna'],
-              status: 'in-progress',
-              createdAt: '2024-01-12',
-              updatedAt: '2024-01-21',
-            },
-            {
-              id: 'card-5',
-              title: 'Actualizar manual de calidad',
-              description:
-                'Actualizar el manual de calidad con nuevos procesos',
-              assignedTo: 'Pedro Rodríguez',
-              dueDate: '2024-02-28',
-              priority: 'low',
-              tags: ['manual', 'actualización'],
-              status: 'in-progress',
-              createdAt: '2024-01-14',
-              updatedAt: '2024-01-19',
-            },
-          ],
-        },
-        {
-          id: 'list-3',
-          title: 'Completado',
-          color: 'bg-green-100',
-          cards: [
-            {
-              id: 'card-6',
-              title: 'Análisis de riesgos',
-              description: 'Completar análisis de riesgos del proceso',
-              assignedTo: 'Laura Sánchez',
-              dueDate: '2024-01-30',
-              priority: 'high',
-              tags: ['análisis', 'riesgos'],
-              status: 'completed',
-              createdAt: '2024-01-05',
-              updatedAt: '2024-01-30',
-            },
-            {
-              id: 'card-7',
-              title: 'Reunión de kick-off',
-              description: 'Realizar reunión de inicio del proyecto',
-              assignedTo: 'Roberto Díaz',
-              dueDate: '2024-01-15',
-              priority: 'medium',
-              tags: ['reunión', 'kick-off'],
-              status: 'completed',
-              createdAt: '2024-01-10',
-              updatedAt: '2024-01-15',
-            },
-          ],
-        },
-      ],
-    };
-
-    setTimeout(() => {
-      setProcessRecord(mockData);
-      setLoading(false);
-    }, 1000);
+    loadData();
   }, [recordId]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Cargar registro
+      const recordRes = await fetch(`/api/process-records/${recordId}`);
+      if (recordRes.ok) {
+        const recordData = await recordRes.json();
+        setProcessRecord(recordData);
+      }
+
+      // Cargar etapas
+      const stagesRes = await fetch(`/api/process-records/${recordId}/stages`);
+      if (stagesRes.ok) {
+        const stagesData = await stagesRes.json();
+        if (stagesData.length === 0) {
+          // Crear etapas por defecto
+          await createDefaultStages();
+        } else {
+          setStages(stagesData);
+          // Cargar tareas para cada etapa
+          await loadTasks(stagesData);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createDefaultStages = async () => {
+    try {
+      const createdStages: ProcessRecordStage[] = [];
+
+      for (const stage of DEFAULT_STAGES) {
+        const res = await fetch(`/api/process-records/${recordId}/stages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(stage),
+        });
+
+        if (res.ok) {
+          const created = await res.json();
+          createdStages.push(created);
+        }
+      }
+
+      setStages(createdStages);
+      setTasksByStage(new Map());
+    } catch (error) {
+      console.error('Error creating default stages:', error);
+    }
+  };
+
+  const loadTasks = async (stagesList: ProcessRecordStage[]) => {
+    const tasksMap = new Map<string, ProcessRecordTask[]>();
+
+    for (const stage of stagesList) {
+      try {
+        const res = await fetch(
+          `/api/process-records/${recordId}/tasks?stage_id=${stage.id}`
+        );
+        if (res.ok) {
+          const tasks = await res.json();
+          tasksMap.set(stage.id, tasks);
+        }
+      } catch (error) {
+        console.error(`Error loading tasks for stage ${stage.id}:`, error);
+      }
+    }
+
+    setTasksByStage(tasksMap);
+  };
+
+  const handleCreateStage = async () => {
+    try {
+      const res = await fetch(`/api/process-records/${recordId}/stages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...stageForm,
+          orden: stages.length,
+          es_etapa_final: false,
+        }),
+      });
+
+      if (res.ok) {
+        await loadData();
+        setShowStageDialog(false);
+        setStageForm({ nombre: '', color: '#e5e7eb' });
+      }
+    } catch (error) {
+      console.error('Error creating stage:', error);
+    }
+  };
+
+  const handleDeleteStage = async (stageId: string) => {
+    if (
+      !confirm(
+        '¿Estás seguro de eliminar esta etapa? Se eliminarán todas las tareas asociadas.'
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `/api/process-records/${recordId}/stages/${stageId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (res.ok) {
+        await loadData();
+      }
+    } catch (error) {
+      console.error('Error deleting stage:', error);
+    }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
+      case 'urgente':
         return 'bg-red-100 text-red-800';
-      case 'medium':
+      case 'alta':
+        return 'bg-orange-100 text-orange-800';
+      case 'media':
         return 'bg-yellow-100 text-yellow-800';
-      case 'low':
+      case 'baja':
         return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'Alta';
-      case 'medium':
-        return 'Media';
-      case 'low':
-        return 'Baja';
-      default:
-        return 'Sin prioridad';
-    }
-  };
-
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return <AlertCircle className="h-3 w-3" />;
-      case 'medium':
-        return <Clock className="h-3 w-3" />;
-      case 'low':
-        return <CheckCircle className="h-3 w-3" />;
-      default:
-        return null;
-    }
-  };
-
-  const handleDragStart = (e: React.DragEvent, cardId: string) => {
-    setDraggedCard(cardId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, targetListId: string) => {
-    e.preventDefault();
-
-    if (!draggedCard || !processRecord) return;
-
-    // Aquí implementarías la lógica de mover la tarjeta entre listas
-    console.log(`Moviendo tarjeta ${draggedCard} a lista ${targetListId}`);
-
-    setDraggedCard(null);
   };
 
   if (loading) {
@@ -253,7 +222,6 @@ export default function ProcessRecordKanbanPage() {
             <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
             <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
           </div>
-
           <div className="flex gap-6">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex-1">
@@ -277,36 +245,20 @@ export default function ProcessRecordKanbanPage() {
   if (!processRecord) {
     return (
       <div className="p-6">
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
+        <Card className="border-0 shadow-md">
+          <CardContent className="p-12 text-center">
+            <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Registro no encontrado
+            </h3>
             <Link href="/dashboard/procesos/registros">
-              <Button variant="outline" size="sm">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 mt-4">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Volver al listado
               </Button>
             </Link>
-          </div>
-
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-12 text-center">
-              <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <AlertCircle className="h-12 w-12 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Registro de proceso no encontrado
-              </h3>
-              <p className="text-gray-500 mb-6">
-                El registro de proceso que buscas no existe o ha sido eliminado.
-              </p>
-              <Link href="/dashboard/procesos/registros">
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Volver al listado
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -320,159 +272,211 @@ export default function ProcessRecordKanbanPage() {
             <Link href="/dashboard/procesos/registros">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Volver al listado
+                Volver
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                {processRecord.name}
+              <h1 className="text-3xl font-bold text-gray-900">
+                {processRecord.nombre}
               </h1>
-              <p className="text-gray-600 mt-1">{processRecord.description}</p>
-              <div className="flex items-center gap-4 mt-2">
-                <Badge className="bg-blue-100 text-blue-800">
-                  {processRecord.processDefinitionName}
-                </Badge>
+              <p className="text-gray-600 mt-1">{processRecord.descripcion}</p>
+              <div className="flex items-center gap-2 mt-2">
+                {processRecord.process_definition_nombre && (
+                  <Badge className="bg-blue-100 text-blue-800">
+                    {processRecord.process_definition_nombre}
+                  </Badge>
+                )}
                 <Badge className="bg-green-100 text-green-800">
-                  {processRecord.status === 'activo'
-                    ? 'Activo'
-                    : processRecord.status === 'pausado'
-                      ? 'Pausado'
-                      : 'Completado'}
+                  {processRecord.status}
                 </Badge>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <MoreHorizontal className="h-4 w-4 mr-2" />
-              Configurar
-            </Button>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva Tarjeta
-            </Button>
-          </div>
+          <Button
+            onClick={() => setShowStageDialog(true)}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Etapa
+          </Button>
         </div>
 
         {/* Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {processRecord.lists.map(list => (
-            <Card key={list.id} className="border-0 shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      {list.title}
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {list.cards.length}
-                    </p>
+          {stages.map(stage => {
+            const tasks = tasksByStage.get(stage.id) || [];
+            return (
+              <Card key={stage.id} className="border-0 shadow-md">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">
+                        {stage.nombre}
+                      </p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {tasks.length}
+                      </p>
+                    </div>
+                    <div
+                      className="w-12 h-12 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: stage.color }}
+                    >
+                      <span className="text-lg font-semibold text-gray-700">
+                        {tasks.length}
+                      </span>
+                    </div>
                   </div>
-                  <div
-                    className={`w-12 h-12 rounded-lg ${list.color} flex items-center justify-center`}
-                  >
-                    <span className="text-lg font-semibold text-gray-700">
-                      {list.cards.length}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Tablero Kanban */}
         <div className="flex gap-6 overflow-x-auto pb-4">
-          {processRecord.lists.map(list => (
-            <div key={list.id} className="shrink-0 w-80">
-              <Card className="border-0 shadow-md">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-gray-900">
-                      {list.title}
-                    </CardTitle>
-                    <Badge className="bg-gray-100 text-gray-600">
-                      {list.cards.length}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent
-                  className="space-y-3 min-h-96"
-                  onDragOver={handleDragOver}
-                  onDrop={e => handleDrop(e, list.id)}
-                >
-                  {list.cards.map(card => (
-                    <Card
-                      key={card.id}
-                      className="border-0 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
-                      draggable
-                      onDragStart={e => handleDragStart(e, card.id)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between">
-                            <h4 className="font-medium text-gray-900 group-hover:text-emerald-600 transition-colors">
-                              {card.title}
-                            </h4>
-                            <Badge className={getPriorityColor(card.priority)}>
-                              <div className="flex items-center gap-1">
-                                {getPriorityIcon(card.priority)}
-                                {getPriorityText(card.priority)}
-                              </div>
-                            </Badge>
-                          </div>
-
-                          {card.description && (
-                            <p className="text-sm text-gray-600">
-                              {card.description}
-                            </p>
-                          )}
-
-                          <div className="flex flex-wrap gap-1">
-                            {card.tags.map((tag, index) => (
+          {stages.map(stage => {
+            const tasks = tasksByStage.get(stage.id) || [];
+            return (
+              <div key={stage.id} className="shrink-0 w-80">
+                <Card className="border-0 shadow-md">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg font-semibold text-gray-900">
+                        {stage.nombre}
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-gray-100 text-gray-600">
+                          {tasks.length}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteStage(stage.id)}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Trash2 className="h-3 w-3 text-red-600" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3 min-h-96">
+                    {tasks.map(task => (
+                      <Card
+                        key={task.id}
+                        className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                      >
+                        <CardContent className="p-4">
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between">
+                              <h4 className="font-medium text-gray-900">
+                                {task.titulo}
+                              </h4>
                               <Badge
-                                key={index}
-                                variant="outline"
-                                className="text-xs"
+                                className={getPriorityColor(task.prioridad)}
                               >
-                                {tag}
+                                {task.prioridad}
                               </Badge>
-                            ))}
-                          </div>
-
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            {card.assignedTo && (
-                              <div className="flex items-center gap-1">
+                            </div>
+                            {task.descripcion && (
+                              <p className="text-sm text-gray-600">
+                                {task.descripcion}
+                              </p>
+                            )}
+                            {task.asignado_a_nombre && (
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
                                 <User className="h-3 w-3" />
-                                {card.assignedTo}
-                              </div>
-                            )}
-                            {card.dueDate && (
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {new Date(card.dueDate).toLocaleDateString()}
+                                {task.asignado_a_nombre}
                               </div>
                             )}
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
 
-                  <Button
-                    variant="outline"
-                    className="w-full border-dashed border-2 border-gray-300 hover:border-emerald-400 hover:bg-emerald-50"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar tarjeta
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+                    <Button
+                      variant="outline"
+                      className="w-full border-dashed border-2"
+                      onClick={() => {
+                        setSelectedStage({
+                          id: stage.id,
+                          nombre: stage.nombre,
+                        });
+                        setShowTaskDialog(true);
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar tarjeta
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })}
         </div>
       </div>
+
+      {/* Dialog para crear etapa */}
+      <Dialog open={showStageDialog} onOpenChange={setShowStageDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nueva Etapa</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="nombre">Nombre de la Etapa</Label>
+              <Input
+                id="nombre"
+                value={stageForm.nombre}
+                onChange={e =>
+                  setStageForm({ ...stageForm, nombre: e.target.value })
+                }
+                placeholder="Ej. Revisión"
+              />
+            </div>
+            <div>
+              <Label htmlFor="color">Color</Label>
+              <Input
+                id="color"
+                type="color"
+                value={stageForm.color}
+                onChange={e =>
+                  setStageForm({ ...stageForm, color: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowStageDialog(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleCreateStage}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                Crear Etapa
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para crear tarea */}
+      {selectedStage && (
+        <ProcessRecordTaskFormDialog
+          open={showTaskDialog}
+          onClose={() => {
+            setShowTaskDialog(false);
+            setSelectedStage(null);
+          }}
+          onSuccess={loadData}
+          recordId={recordId}
+          stageId={selectedStage.id}
+          stageName={selectedStage.nombre}
+        />
+      )}
     </div>
   );
 }

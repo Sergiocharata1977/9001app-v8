@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Personnel } from '@/types/rrhh';
 import {
+  Briefcase,
+  CheckCircle2,
   Edit,
   Eye,
   Mail,
@@ -136,13 +138,27 @@ export function PersonnelCard({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <div>
-            <p className="font-medium text-sm text-gray-900">
-              {personnel.puesto || 'Sin puesto asignado'}
-            </p>
-            <p className="text-sm text-gray-600">
-              {personnel.departamento || 'Sin departamento'}
-            </p>
+          {/* Puesto Asignado - Destacado */}
+          <div className="bg-gradient-to-r from-emerald-50 to-blue-50 p-3 rounded-lg border border-emerald-200">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-2 flex-1">
+                <Briefcase className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-emerald-700 font-medium mb-1">
+                    Puesto
+                  </p>
+                  <p className="font-semibold text-sm text-gray-900 break-words">
+                    {personnel.puesto || 'Sin puesto asignado'}
+                  </p>
+                </div>
+              </div>
+              {personnel.puesto && (
+                <Badge className="bg-emerald-600 text-white hover:bg-emerald-700 flex-shrink-0">
+                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                  Asignado
+                </Badge>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

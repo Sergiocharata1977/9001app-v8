@@ -1,34 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ProcessRecordFormDialog } from '@/components/processRecords/ProcessRecordFormDialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Plus,
-  Search,
-  Filter,
-  Calendar,
-  Users,
-  BarChart3,
-  Trash2,
-} from 'lucide-react';
+import { BarChart3, Plus, Search, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 // Tipos para los registros de procesos
 interface ProcessRecord {
   id: string;
-  name: string;
-  description: string;
-  processDefinitionId: string;
-  processDefinitionName: string;
+  nombre: string;
+  descripcion: string;
+  process_definition_id: string;
+  process_definition_nombre?: string;
   status: 'activo' | 'pausado' | 'completado';
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  kanbanStats: {
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  kanbanStats?: {
     totalCards: number;
     pendingCards: number;
     inProgressCards: number;
@@ -38,12 +31,15 @@ interface ProcessRecord {
 
 export default function ProcessRecordsPage() {
   const [processRecords, setProcessRecords] = useState<ProcessRecord[]>([]);
+  const [processDefinitions, setProcessDefinitions] = useState<{ id: string; nombre: string; etapas_default: string[]; }[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
   const [filterStatus, setFilterStatus] = useState<
     'all' | 'activo' | 'pausado' | 'completado'
   >('all');
+  const [showFormDialog, setShowFormDialog] = useState(false);
+  const [currentUser] = useState({ id: 'user-1', nombre: 'Usuario Actual' });
 
   // Funciones para manejar datos de prueba
   const handleSeedData = async () => {
@@ -128,74 +124,115 @@ export default function ProcessRecordsPage() {
     }
   };
 
-  // Datos de prueba
+  // Load real data
   useEffect(() => {
-    const mockData: ProcessRecord[] = [
-      {
-        id: '1',
-        name: 'Implementación ISO 9001 Q3',
-        description:
-          'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
-        processDefinitionId: 'proc-1',
-        processDefinitionName: 'Gestión de Calidad',
-        status: 'activo',
-        createdAt: '2024-01-15',
-        updatedAt: '2024-01-20',
-        createdBy: 'admin@empresa.com',
-        kanbanStats: {
-          totalCards: 12,
-          pendingCards: 3,
-          inProgressCards: 5,
-          completedCards: 4,
-        },
-      },
-      {
-        id: '2',
-        name: 'Auditoría Interna 2024',
-        description: 'Proceso de auditoría interna del sistema de gestión',
-        processDefinitionId: 'proc-2',
-        processDefinitionName: 'Auditorías',
-        status: 'pausado',
-        createdAt: '2024-01-10',
-        updatedAt: '2024-01-18',
-        createdBy: 'auditor@empresa.com',
-        kanbanStats: {
-          totalCards: 8,
-          pendingCards: 2,
-          inProgressCards: 3,
-          completedCards: 3,
-        },
-      },
-      {
-        id: '3',
-        name: 'Mejora Continua',
-        description: 'Proceso de mejora continua del sistema',
-        processDefinitionId: 'proc-3',
-        processDefinitionName: 'Mejora Continua',
-        status: 'completado',
-        createdAt: '2024-01-05',
-        updatedAt: '2024-01-25',
-        createdBy: 'mejora@empresa.com',
-        kanbanStats: {
-          totalCards: 15,
-          pendingCards: 0,
-          inProgressCards: 0,
-          completedCards: 15,
-        },
-      },
-    ];
-
-    setTimeout(() => {
-      setProcessRecords(mockData);
-      setLoading(false);
-    }, 1000);
+    loadData();
   }, []);
 
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [recordsRes, defsRes] = await Promise.all([
+        fetch('/api/process-records'),
+        fetch('/api/process-definitions'),
+      ]);
+
+      if (recordsRes.ok) {
+        const recordsData = await recordsRes.json();
+        setProcessRecords(recordsData);
+      }
+
+      if (defsRes.ok) {
+        const defsData = await defsRes.json();
+        setProcessDefinitions(defsData);
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSeedDefinitions = async () => {
+    try {
+      const response = await fetch('/api/process-definitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'seed' }),
+      });
+
+      if (response.ok) {
+        alert('Definiciones de procesos creadas');
+        loadData();
+      }
+    } catch (error) {
+      console.error('Error seeding definitions:', error);
+    }
+  };
+
+  // Mock data for demo
+  const mockData: ProcessRecord[] = [
+    {
+      id: '1',
+      nombre: 'Implementación ISO 9001 Q3',
+      descripcion:
+        'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
+      process_definition_id: 'proc-1',
+      process_definition_nombre: 'Gestión de Calidad',
+      status: 'activo',
+      created_at: '2024-01-15',
+      updated_at: '2024-01-20',
+      created_by: 'admin@empresa.com',
+      kanbanStats: {
+        totalCards: 12,
+        pendingCards: 3,
+        inProgressCards: 5,
+        completedCards: 4,
+      },
+    },
+    {
+      id: '2',
+      nombre: 'Auditoría Interna 2024',
+      descripcion: 'Proceso de auditoría interna del sistema de gestión',
+      process_definition_id: 'proc-2',
+      process_definition_nombre: 'Auditorías',
+      status: 'pausado',
+      created_at: '2024-01-10',
+      updated_at: '2024-01-18',
+      created_by: 'auditor@empresa.com',
+      kanbanStats: {
+        totalCards: 8,
+        pendingCards: 2,
+        inProgressCards: 3,
+        completedCards: 3,
+      },
+    },
+    {
+      id: '3',
+      nombre: 'Mejora Continua',
+      descripcion: 'Proceso de mejora continua del sistema',
+      process_definition_id: 'proc-3',
+      process_definition_nombre: 'Mejora Continua',
+      status: 'completado',
+      created_at: '2024-01-05',
+      updated_at: '2024-01-25',
+      created_by: 'mejora@empresa.com',
+      kanbanStats: {
+        totalCards: 15,
+        pendingCards: 0,
+        inProgressCards: 0,
+        completedCards: 15,
+      },
+    },
+  ];
+
   // Filtrar registros
-  const filteredRecords = processRecords.filter(record => {
+  const filteredRecords = processRecords.filter((record: ProcessRecord) => {
     const matchesSearch =
-      record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (record.nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.descripcion || '')
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
     const matchesStatus =
       filterStatus === 'all' || record.status === filterStatus;
     return matchesSearch && matchesStatus;
@@ -272,7 +309,10 @@ export default function ProcessRecordsPage() {
               Gestiona los registros de procesos con tableros Kanban
             </p>
           </div>
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-700"
+            onClick={() => setShowFormDialog(true)}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Registro
           </Button>
@@ -296,7 +336,7 @@ export default function ProcessRecordsPage() {
               <div className="flex gap-2">
                 <select
                   value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value as any)}
+                  onChange={e => setFilterStatus(e.target.value as 'all' | 'activo' | 'pausado' | 'completado')}
                   className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="all">Todos los estados</option>
@@ -339,12 +379,12 @@ export default function ProcessRecordsPage() {
                       Crear Primer Registro
                     </Button>
                     <Button
-                      onClick={handleSeedData}
+                      onClick={handleSeedDefinitions}
                       variant="outline"
                       className="bg-green-600 hover:bg-green-700 text-white"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Agregar Datos de Prueba
+                      Crear Definiciones
                     </Button>
                     <Button
                       onClick={handleCheckData}
@@ -375,57 +415,65 @@ export default function ProcessRecordsPage() {
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
-                          {record.name}
+                          {record.nombre}
                         </CardTitle>
                         <Badge className={getStatusColor(record.status)}>
                           {getStatusText(record.status)}
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
-                        {record.description}
+                        {record.descripcion}
                       </p>
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="space-y-3">
                         <div className="flex items-center text-sm text-gray-500">
                           <Users className="h-4 w-4 mr-2" />
-                          {record.processDefinitionName}
+                          {record.process_definition_nombre || 'Sin definición'}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <div className="text-lg font-semibold text-gray-900">
-                              {record.kanbanStats.pendingCards}
+                        {record.kanbanStats && (
+                          <>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div className="bg-gray-50 rounded-lg p-2">
+                                <div className="text-lg font-semibold text-gray-900">
+                                  {record.kanbanStats.pendingCards}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Pendientes
+                                </div>
+                              </div>
+                              <div className="bg-blue-50 rounded-lg p-2">
+                                <div className="text-lg font-semibold text-blue-600">
+                                  {record.kanbanStats.inProgressCards}
+                                </div>
+                                <div className="text-xs text-blue-500">
+                                  En Progreso
+                                </div>
+                              </div>
+                              <div className="bg-green-50 rounded-lg p-2">
+                                <div className="text-lg font-semibold text-green-600">
+                                  {record.kanbanStats.completedCards}
+                                </div>
+                                <div className="text-xs text-green-500">
+                                  Completadas
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-xs text-gray-500">
-                              Pendientes
-                            </div>
-                          </div>
-                          <div className="bg-blue-50 rounded-lg p-2">
-                            <div className="text-lg font-semibold text-blue-600">
-                              {record.kanbanStats.inProgressCards}
-                            </div>
-                            <div className="text-xs text-blue-500">
-                              En Progreso
-                            </div>
-                          </div>
-                          <div className="bg-green-50 rounded-lg p-2">
-                            <div className="text-lg font-semibold text-green-600">
-                              {record.kanbanStats.completedCards}
-                            </div>
-                            <div className="text-xs text-green-500">
-                              Completadas
-                            </div>
-                          </div>
-                        </div>
 
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>
-                            Creado:{' '}
-                            {new Date(record.createdAt).toLocaleDateString()}
-                          </span>
-                          <span>Total: {record.kanbanStats.totalCards}</span>
-                        </div>
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              <span>
+                                Creado:{' '}
+                                {new Date(
+                                  record.created_at
+                                ).toLocaleDateString()}
+                              </span>
+                              <span>
+                                Total: {record.kanbanStats.totalCards}
+                              </span>
+                            </div>
+                          </>
+                        )}
 
                         <Link
                           href={`/dashboard/procesos/registros/${record.id}`}
@@ -475,15 +523,16 @@ export default function ProcessRecordsPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {record.name}
+                                {record.nombre}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {record.description}
+                                {record.descripcion}
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {record.processDefinitionName}
+                            {record.process_definition_nombre ||
+                              'Sin definición'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <Badge className={getStatusColor(record.status)}>
@@ -491,23 +540,29 @@ export default function ProcessRecordsPage() {
                             </Badge>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                <div
-                                  className="bg-emerald-600 h-2 rounded-full"
-                                  style={{
-                                    width: `${(record.kanbanStats.completedCards / record.kanbanStats.totalCards) * 100}%`,
-                                  }}
-                                ></div>
+                            {record.kanbanStats ? (
+                              <div className="flex items-center">
+                                <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                  <div
+                                    className="bg-emerald-600 h-2 rounded-full"
+                                    style={{
+                                      width: `${(record.kanbanStats.completedCards / record.kanbanStats.totalCards) * 100}%`,
+                                    }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm text-gray-600">
+                                  {record.kanbanStats.completedCards}/
+                                  {record.kanbanStats.totalCards}
+                                </span>
                               </div>
-                              <span className="text-sm text-gray-600">
-                                {record.kanbanStats.completedCards}/
-                                {record.kanbanStats.totalCards}
+                            ) : (
+                              <span className="text-sm text-gray-500">
+                                Sin datos
                               </span>
-                            </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(record.createdAt).toLocaleDateString()}
+                            {new Date(record.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <Link
@@ -531,6 +586,15 @@ export default function ProcessRecordsPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Form Dialog */}
+      <ProcessRecordFormDialog
+        open={showFormDialog}
+        onClose={() => setShowFormDialog(false)}
+        onSuccess={loadData}
+        processDefinitions={processDefinitions}
+        currentUser={currentUser}
+      />
     </div>
   );
 }

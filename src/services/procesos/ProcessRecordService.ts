@@ -1,40 +1,48 @@
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp
-} from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { ProcessRecord } from '@/types/procesos';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 
 const COLLECTION_NAME = 'processRecords';
 
 export class ProcessRecordService {
   static async getByProcessId(processId: string): Promise<ProcessRecord[]> {
     try {
+      // Simple query without orderBy to avoid index requirement
       const q = query(
         collection(db, COLLECTION_NAME),
-        where('processId', '==', processId),
-        orderBy('createdAt', 'desc')
+        where('processId', '==', processId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+
+      // Sort in memory instead
+      const records = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate() || new Date(),
         updatedAt: doc.data().updatedAt?.toDate() || new Date(),
         fecha_vencimiento: doc.data().fecha_vencimiento?.toDate() || new Date(),
       })) as ProcessRecord[];
+
+      // Sort by createdAt descending in memory
+      return records.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      );
     } catch (error) {
       console.error('Error getting process records:', error);
-      throw new Error('Error al obtener registros de proceso');
+      // Don't throw, just return empty array to avoid breaking the context loading
+      return [];
     }
   }
 
@@ -49,7 +57,8 @@ export class ProcessRecordService {
           ...docSnap.data(),
           createdAt: docSnap.data().createdAt?.toDate() || new Date(),
           updatedAt: docSnap.data().updatedAt?.toDate() || new Date(),
-          fecha_vencimiento: docSnap.data().fecha_vencimiento?.toDate() || new Date(),
+          fecha_vencimiento:
+            docSnap.data().fecha_vencimiento?.toDate() || new Date(),
         } as ProcessRecord;
       }
       return null;
@@ -95,10 +104,11 @@ export class ProcessRecordService {
       // Filtrar por búsqueda en memoria (título, descripción, responsable)
       if (search) {
         const searchLower = search.toLowerCase();
-        records = records.filter(record =>
-          record.titulo.toLowerCase().includes(searchLower) ||
-          record.descripcion.toLowerCase().includes(searchLower) ||
-          record.responsable.toLowerCase().includes(searchLower)
+        records = records.filter(
+          record =>
+            record.titulo.toLowerCase().includes(searchLower) ||
+            record.descripcion.toLowerCase().includes(searchLower) ||
+            record.responsable.toLowerCase().includes(searchLower)
         );
       }
 
@@ -109,7 +119,9 @@ export class ProcessRecordService {
     }
   }
 
-  static async create(data: Omit<ProcessRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<ProcessRecord> {
+  static async create(
+    data: Omit<ProcessRecord, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ProcessRecord> {
     try {
       const now = Timestamp.now();
       const docData = {
@@ -133,7 +145,10 @@ export class ProcessRecordService {
     }
   }
 
-  static async update(id: string, data: Partial<Omit<ProcessRecord, 'id' | 'createdAt'>>): Promise<ProcessRecord> {
+  static async update(
+    id: string,
+    data: Partial<Omit<ProcessRecord, 'id' | 'createdAt'>>
+  ): Promise<ProcessRecord> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData: any = {
@@ -143,14 +158,18 @@ export class ProcessRecordService {
 
       // Convertir fecha_vencimiento si está presente
       if (data.fecha_vencimiento) {
-        updateData.fecha_vencimiento = Timestamp.fromDate(data.fecha_vencimiento);
+        updateData.fecha_vencimiento = Timestamp.fromDate(
+          data.fecha_vencimiento
+        );
       }
 
       await updateDoc(docRef, updateData);
 
       const updated = await this.getById(id);
       if (!updated) {
-        throw new Error('Registro de proceso no encontrado después de actualizar');
+        throw new Error(
+          'Registro de proceso no encontrado después de actualizar'
+        );
       }
 
       return updated;
@@ -170,7 +189,10 @@ export class ProcessRecordService {
     }
   }
 
-  static async moveToState(id: string, newEstado: 'pendiente' | 'en-progreso' | 'completado'): Promise<ProcessRecord> {
+  static async moveToState(
+    id: string,
+    newEstado: 'pendiente' | 'en-progreso' | 'completado'
+  ): Promise<ProcessRecord> {
     try {
       return await this.update(id, { estado: newEstado });
     } catch (error) {

@@ -1,561 +1,447 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { ProcessDefinitionForm } from '@/components/procesos/ProcessDefinition';
-import { ProcessQualityObjectives } from '@/components/procesos/ProcessQualityObjectives';
-import { ProcessQualityMetrics } from '@/components/procesos/ProcessQualityMetrics';
-import { ProcessDefinitionFormData } from '@/lib/validations/procesos';
-import { ProcessService } from '@/services/procesos/ProcessService';
-import { ProcessDefinition } from '@/types/procesos';
-import {
-  QualityObjective,
-  QualityIndicator,
-  Measurement,
-} from '@/types/quality';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ProcessDefinitionFormDialog } from '@/components/processRecords/ProcessDefinitionFormDialog';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProcessDefinition } from '@/types/processRecords';
 import {
   ArrowLeft,
+  CheckCircle2,
   Edit,
-  Trash2,
+  ExternalLink,
   FileText,
-  Tag,
-  File,
-  User,
-  Clock,
-  CheckCircle,
+  ListOrdered,
+  Maximize2,
   Target,
+  Users,
+  XCircle,
 } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function ProcessDefinitionDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const processId = params.id as string;
+  const definitionId = params.id as string;
 
-  const [process, setProcess] = useState<ProcessDefinition | null>(null);
+  const [definition, setDefinition] = useState<
+    | (ProcessDefinition & {
+        documento?: {
+          id: string;
+          title?: string;
+          nombre?: string;
+          code?: string;
+          codigo?: string;
+        };
+        puesto?: {
+          id: string;
+          title: string;
+          department?: string;
+        };
+      })
+    | null
+  >(null);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Quality data state
-  const [qualityObjectives, setQualityObjectives] = useState<
-    QualityObjective[]
-  >([]);
-  const [qualityIndicators, setQualityIndicators] = useState<
-    QualityIndicator[]
-  >([]);
-  const [qualityMeasurements, setQualityMeasurements] = useState<Measurement[]>(
-    []
-  );
-
-  // Mock stats - in a real app, these would come from the backend
-  const stats = [
-    {
-      title: 'Registros Activos',
-      value: '5',
-      change: '+2',
-      changeType: 'positive' as const,
-      icon: FileText,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-    },
-    {
-      title: 'Versión Actual',
-      value: '2.1',
-      change: '',
-      changeType: 'neutral' as const,
-      icon: Tag,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-    },
-    {
-      title: 'Documentos',
-      value: '12',
-      change: '+3',
-      changeType: 'positive' as const,
-      icon: File,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-    },
-    {
-      title: 'Responsable',
-      value: 'Juan Pérez',
-      change: '',
-      changeType: 'neutral' as const,
-      icon: User,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
-    },
-    {
-      title: 'Última Actualización',
-      value: '15 días',
-      change: '',
-      changeType: 'positive' as const,
-      icon: Clock,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100',
-    },
-    {
-      title: 'Estado',
-      value: 'Activo',
-      change: '',
-      changeType: 'positive' as const,
-      icon: CheckCircle,
-      color: 'text-teal-600',
-      bgColor: 'bg-teal-100',
-    },
-  ];
+  const loadDefinition = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/process-definitions/${definitionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setDefinition(data);
+      }
+    } catch (error) {
+      console.error('Error loading definition:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [definitionId]);
 
   useEffect(() => {
-    const fetchProcess = async () => {
-      try {
-        const data = await ProcessService.getById(processId);
-        setProcess(data);
-      } catch (error) {
-        console.error('Error al cargar proceso:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadDefinition();
+  }, [loadDefinition]);
 
-    const fetchQualityData = async () => {
-      try {
-        // Fetch quality objectives for this process
-        const objectives = await fetch(
-          `/api/quality/processes/${processId}/objectives`
-        ).then(res => res.json());
-        setQualityObjectives(objectives);
-
-        // Get all indicators for these objectives
-        const objectiveIds = objectives.map((obj: QualityObjective) => obj.id);
-        const allIndicators: QualityIndicator[] = [];
-        for (const objId of objectiveIds) {
-          const indicators = await fetch(
-            `/api/quality/objectives/${objId}/indicators`
-          ).then(res => res.json());
-          allIndicators.push(...indicators);
-        }
-        setQualityIndicators(allIndicators);
-
-        // Get recent measurements for these indicators
-        const indicatorIds = allIndicators.map(ind => ind.id);
-        const allMeasurements: Measurement[] = [];
-        for (const indId of indicatorIds) {
-          const measurements = await fetch(
-            `/api/quality/indicators/${indId}/measurements`
-          ).then(res => res.json());
-          allMeasurements.push(...measurements.slice(0, 5)); // Last 5 measurements per indicator
-        }
-        setQualityMeasurements(allMeasurements);
-      } catch (error) {
-        console.error('Error al cargar datos de calidad:', error);
-      }
-    };
-
-    if (processId) {
-      fetchProcess();
-      fetchQualityData();
-    }
-  }, [processId]);
-
-  const handleFormSubmit = async (data: ProcessDefinitionFormData) => {
-    setIsLoading(true);
-    try {
-      // Transform array fields from objects to strings
-      const transformedData: Partial<
-        Omit<ProcessDefinition, 'id' | 'createdAt'>
-      > = {
-        ...data,
-        entradas: data.entradas.map(e => (typeof e === 'string' ? e : e.value)),
-        salidas: data.salidas.map(s => (typeof s === 'string' ? s : s.value)),
-        controles: data.controles.map(c =>
-          typeof c === 'string' ? c : c.value
-        ),
-        indicadores: data.indicadores.map(i =>
-          typeof i === 'string' ? i : i.value
-        ),
-        documentos: data.documentos.map(d =>
-          typeof d === 'string' ? d : d.value
-        ),
-      };
-
-      await ProcessService.update(processId, transformedData);
-      const updatedProcess = await ProcessService.getById(processId);
-      setProcess(updatedProcess);
-      setEditing(false);
-    } catch (error) {
-      console.error('Error al actualizar proceso:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFormCancel = () => {
-    setEditing(false);
-  };
-
-  const handleDelete = async () => {
-    if (
-      !confirm(
-        '¿Estás seguro de que quieres eliminar esta definición de proceso?'
-      )
-    )
-      return;
-
-    try {
-      await ProcessService.delete(processId);
-      router.push('/dashboard/procesos');
-    } catch (error) {
-      console.error('Error al eliminar proceso:', error);
-    }
+  const handleEditSuccess = () => {
+    loadDefinition();
   };
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="space-y-6 p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
   }
 
-  if (!process) {
+  if (!definition) {
     return (
-      <div className="p-6">
+      <div className="space-y-6 p-6">
         <div className="text-center py-12">
-          <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
-            Proceso no encontrado
+          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Definición no encontrada
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            El proceso que buscas no existe o ha sido eliminado.
+          <p className="text-gray-500 mb-4">
+            La definición de proceso que buscas no existe
           </p>
-          <Button
-            onClick={() => router.push('/dashboard/procesos')}
-            className="mt-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al listado
+          <Button onClick={() => router.push('/dashboard/procesos')}>
+            Volver a Procesos
           </Button>
         </div>
       </div>
     );
   }
 
-  if (editing) {
-    return (
-      <div className="p-6">
-        <div className="space-y-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
-              <button
-                onClick={() => setEditing(false)}
-                className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
-              >
-                ← Volver al detalle
-              </button>
-            </div>
-            <ProcessDefinitionForm
-              initialData={process}
-              onSubmit={handleFormSubmit}
-              onCancel={handleFormCancel}
-              isLoading={isLoading}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const getCategoryColor = (categoria: string) => {
+    const colors: Record<string, string> = {
+      calidad: 'bg-blue-100 text-blue-800',
+      auditoria: 'bg-purple-100 text-purple-800',
+      mejora: 'bg-green-100 text-green-800',
+      rrhh: 'bg-yellow-100 text-yellow-800',
+      produccion: 'bg-orange-100 text-orange-800',
+      ventas: 'bg-pink-100 text-pink-800',
+      logistica: 'bg-indigo-100 text-indigo-800',
+      compras: 'bg-teal-100 text-teal-800',
+    };
+    return colors[categoria] || 'bg-gray-100 text-gray-800';
+  };
 
   return (
-    <div className="p-6">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver
-            </Button>
-            <div>
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold text-gray-900">
-                {process.nombre}
+                {definition.nombre}
               </h1>
-              <p className="text-gray-600 mt-1">Código: {process.codigo}</p>
+              <Badge className={getCategoryColor(definition.categoria)}>
+                {definition.categoria}
+              </Badge>
+              {definition.activo ? (
+                <Badge className="bg-green-100 text-green-800">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Activo
+                </Badge>
+              ) : (
+                <Badge className="bg-gray-100 text-gray-800">
+                  <XCircle className="h-3 w-3 mr-1" />
+                  Inactivo
+                </Badge>
+              )}
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Badge
-              className={
-                process.estado === 'activo'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
-              }
-            >
-              {process.estado === 'activo' ? 'Activo' : 'Inactivo'}
-            </Badge>
-            <Button variant="outline" onClick={() => setEditing(true)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Editar
-            </Button>
-            <Button variant="outline" onClick={handleDelete}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Eliminar
-            </Button>
+            <p className="text-gray-600 mt-1">Código: {definition.codigo}</p>
           </div>
         </div>
+        <Button
+          onClick={() => setEditDialogOpen(true)}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          <Edit className="h-4 w-4 mr-2" />
+          Editar
+        </Button>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-          {stats.map((stat, index) => (
-            <Card
-              key={index}
-              className="border-0 shadow-md hover:shadow-lg transition-shadow"
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 mb-1">
-                      {stat.title}
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900 mb-1">
-                      {stat.value}
-                    </p>
-                    {stat.change && (
-                      <div className="flex items-center gap-1">
-                        <span
-                          className={`text-sm font-medium ${
-                            stat.changeType === 'positive'
-                              ? 'text-green-600'
-                              : 'text-gray-500'
-                          }`}
-                        >
-                          {stat.change}
+      {/* Layout 70/30 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 70% - Contenido Principal */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Información General */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Información General
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-sm font-medium text-gray-600">
+                    Código
+                  </div>
+                  <div className="text-gray-900 mt-1">{definition.codigo}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-600">
+                    Nombre
+                  </div>
+                  <div className="text-gray-900 mt-1">{definition.nombre}</div>
+                </div>
+                {definition.puesto && (
+                  <div>
+                    <div className="text-sm font-medium text-gray-600">
+                      Puesto Responsable
+                    </div>
+                    <div className="text-gray-900 mt-1">
+                      {definition.puesto.title}
+                      {definition.puesto.department && (
+                        <span className="text-gray-500 text-sm ml-2">
+                          ({definition.puesto.department})
                         </span>
-                        <span className="text-xs text-gray-500">
-                          vs mes anterior
-                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <div className="text-sm font-medium text-gray-600">
+                    Descripción
+                  </div>
+                  <div className="text-gray-900 mt-1">
+                    {definition.descripcion}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Objetivo */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                Objetivo del Proceso
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-gray-900 whitespace-pre-wrap">
+                {definition.objetivo}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Alcance */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Maximize2 className="h-5 w-5" />
+                Alcance
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-gray-900 whitespace-pre-wrap">
+                {definition.alcance}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Funciones Involucradas */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Funciones Involucradas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {definition.funciones_involucradas &&
+                definition.funciones_involucradas.length > 0 ? (
+                  definition.funciones_involucradas.map((func, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="text-sm py-1 px-3"
+                    >
+                      {func}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    No hay funciones asignadas
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Etapas por Defecto */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ListOrdered className="h-5 w-5" />
+                Etapas por Defecto
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>
+                {definition.etapas_default &&
+                definition.etapas_default.length > 0 ? (
+                  <ol className="list-decimal list-inside space-y-2">
+                    {definition.etapas_default.map((etapa, index) => (
+                      <li key={index} className="text-gray-900">
+                        {etapa}
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    No hay etapas definidas
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 30% - Relaciones */}
+        <div className="space-y-6">
+          {/* Puesto Responsable - ARRIBA DE TODO */}
+          <Card className="border-l-4 border-l-emerald-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4 text-emerald-600" />
+                Puesto Responsable
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {definition.puesto ? (
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      {definition.puesto.title}
+                    </div>
+                    {definition.puesto.department && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        📍 {definition.puesto.department}
                       </div>
                     )}
                   </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor} shrink-0`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/rrhh/positions/${definition.puesto_responsable_id}`
+                      )
+                    }
+                  >
+                    <ExternalLink className="h-3 w-3 mr-2" />
+                    Ver Detalles del Puesto
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-500">Sin Asignar</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Documento de Origen */}
+          <Card className="border-l-4 border-l-blue-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-blue-600" />
+                Documento de Origen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {definition.documento ? (
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      {definition.documento.title ||
+                        definition.documento.nombre}
+                    </div>
+                    {(definition.documento.code ||
+                      definition.documento.codigo) && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        📄{' '}
+                        {definition.documento.code ||
+                          definition.documento.codigo}
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() =>
+                      router.push(
+                        `/documentos/${definition.documento_origen_id}`
+                      )
+                    }
+                  >
+                    <ExternalLink className="h-3 w-3 mr-2" />
+                    Ver Documento
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-500">Sin Asignar</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Registros Activos */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Registros Activos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-4">
+                <p className="text-3xl font-bold text-emerald-600">0</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  registros en proceso
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Información Adicional */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Información</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <div className="text-gray-600">Creado</div>
+                  <div className="text-gray-900">
+                    {definition.created_at instanceof Date
+                      ? definition.created_at.toLocaleDateString('es-ES')
+                      : new Date(
+                          definition.created_at.seconds * 1000
+                        ).toLocaleDateString('es-ES')}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div>
+                  <div className="text-gray-600">Última actualización</div>
+                  <div className="text-gray-900">
+                    {definition.updated_at instanceof Date
+                      ? definition.updated_at.toLocaleDateString('es-ES')
+                      : new Date(
+                          definition.updated_at.seconds * 1000
+                        ).toLocaleDateString('es-ES')}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Resumen</TabsTrigger>
-            <TabsTrigger value="quality">Calidad</TabsTrigger>
-            <TabsTrigger value="details">Detalles</TabsTrigger>
-            <TabsTrigger value="related">Relacionados</TabsTrigger>
-            <TabsTrigger value="history">Historial</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview">
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Información General
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Objetivo</h4>
-                    <p className="text-gray-600">{process.objetivo}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Alcance</h4>
-                    <p className="text-gray-600">{process.alcance}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      Responsable
-                    </h4>
-                    <p className="text-gray-600">{process.responsable}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Estado</h4>
-                    <Badge
-                      className={
-                        process.estado === 'activo'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }
-                    >
-                      {process.estado === 'activo' ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="quality">
-            <div className="space-y-6">
-              {/* Quality Metrics */}
-              <ProcessQualityMetrics
-                objectives={qualityObjectives}
-                indicators={qualityIndicators}
-                measurements={qualityMeasurements}
-              />
-
-              {/* Quality Objectives Section */}
-              <ProcessQualityObjectives
-                processId={processId}
-                onNavigateToQuality={() => router.push('/dashboard/quality')}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="details">
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Detalles del Proceso
-                </h3>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nombre
-                    </label>
-                    <p className="text-gray-900">{process.nombre}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Código
-                    </label>
-                    <p className="text-gray-900">{process.codigo}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Objetivo
-                    </label>
-                    <p className="text-gray-900">{process.objetivo}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Alcance
-                    </label>
-                    <p className="text-gray-900">{process.alcance}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Responsable
-                    </label>
-                    <p className="text-gray-900">{process.responsable}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="related">
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Entidades Relacionadas
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      Registros de Proceso
-                    </h4>
-                    <p className="text-gray-600">
-                      Registros asociados a esta definición de proceso
-                    </p>
-                    <Button
-                      className="mt-2"
-                      onClick={() =>
-                        router.push(
-                          `/dashboard/procesos/${processId}/registros`
-                        )
-                      }
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Ver Registros
-                    </Button>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      Objetivos de Calidad
-                    </h4>
-                    <p className="text-gray-600">
-                      Objetivos SMART vinculados a este proceso
-                    </p>
-                    <Button
-                      className="mt-2"
-                      onClick={() =>
-                        router.push(
-                          `/dashboard/quality/objetivos?process_definition_id=${processId}`
-                        )
-                      }
-                    >
-                      <Target className="mr-2 h-4 w-4" />
-                      Ver Objetivos
-                    </Button>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      Documentos
-                    </h4>
-                    <p className="text-gray-600">
-                      Documentos asociados al proceso
-                    </p>
-                    {/* Aquí iría la lista de documentos */}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="history">
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Historial de Cambios
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Proceso creado
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(process.createdAt).toLocaleDateString(
-                          'es-ES'
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Última actualización
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(process.updatedAt).toLocaleDateString(
-                          'es-ES'
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
       </div>
+
+      {/* Edit Dialog */}
+      <ProcessDefinitionFormDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        onSuccess={handleEditSuccess}
+        editData={definition}
+      />
     </div>
   );
 }

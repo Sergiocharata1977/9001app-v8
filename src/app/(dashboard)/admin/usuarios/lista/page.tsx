@@ -1,10 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { UserService } from '@/services/auth/UserService';
-import { PersonnelService } from '@/services/rrhh/PersonnelService';
-import { User } from '@/types/auth';
-import { Personnel } from '@/types/rrhh';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -23,18 +18,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Search,
-  UserCog,
-  CheckCircle,
-  XCircle,
-  Eye,
-  UserPlus,
-  Edit,
-  Trash2,
-} from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { UserService } from '@/services/auth/UserService';
+import { PersonnelService } from '@/services/rrhh/PersonnelService';
+import { User } from '@/types/auth';
+import { Personnel } from '@/types/rrhh';
+import {
+  ArrowLeft,
+  CheckCircle,
+  Edit,
+  Eye,
+  Search,
+  Trash2,
+  UserCog,
+  UserPlus,
+  XCircle,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function ListaUsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -152,13 +153,23 @@ export default function ListaUsuariosPage() {
               </p>
             </div>
           </div>
-          <Button
-            onClick={() => router.push('/admin/usuarios/crear')}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Crear Usuario
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => router.push('/dashboard')}
+              variant="outline"
+              className="shadow-sm hover:shadow-slate-500/20"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver
+            </Button>
+            <Button
+              onClick={() => router.push('/admin/usuarios/crear')}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Crear Usuario
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}

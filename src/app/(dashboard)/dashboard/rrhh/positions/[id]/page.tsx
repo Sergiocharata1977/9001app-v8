@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  ArrowLeft,
-  Edit,
-  Trash2,
-  User,
-  Briefcase,
-  X,
-  Save,
-} from 'lucide-react';
-import { PositionWithAssignments, Personnel, Competence } from '@/types/rrhh';
-import { ProcessDefinition } from '@/types/procesos';
 import { AssignPersonnelDialog } from '@/components/positions/AssignPersonnelDialog';
 import { PositionCompetencesSection } from '@/components/rrhh/PositionCompetencesSection';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProcessDefinition } from '@/types/processRecords';
+import { Competence, Personnel, PositionWithAssignments } from '@/types/rrhh';
+import {
+  ArrowLeft,
+  Briefcase,
+  Edit,
+  Save,
+  Trash2,
+  User,
+  X,
+} from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function PositionDetailPage() {
   const params = useParams();
@@ -52,14 +52,16 @@ export default function PositionDetailPage() {
       setPersonnel(persData);
 
       // Cargar todos los procesos disponibles
-      const procRes = await fetch('/api/processes/definitions');
+      const procRes = await fetch('/api/process-definitions');
       if (procRes.ok) {
         const procData = await procRes.json();
         setAllProcesses(procData);
       }
 
       // Cargar competencias del puesto
-      const compRes = await fetch(`/api/rrhh/puestos/${positionId}/competencias`);
+      const compRes = await fetch(
+        `/api/rrhh/puestos/${positionId}/competencias`
+      );
       if (compRes.ok) {
         const compData = await compRes.json();
         setCompetences(compData);
@@ -284,38 +286,40 @@ export default function PositionDetailPage() {
               Información del Puesto
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-500">
-                Departamento
-              </label>
-              <p className="text-gray-900">
-                {position.departamento_id || 'No especificado'}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-500">
-                Reporta a
-              </label>
-              <p className="text-gray-900">
-                {position.reporta_a_id || 'No especificado'}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-500">
-                Requisitos de Experiencia
-              </label>
-              <p className="text-gray-700 text-sm">
-                {position.requisitos_experiencia || 'No especificado'}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-500">
-                Requisitos de Formación
-              </label>
-              <p className="text-gray-700 text-sm">
-                {position.requisitos_formacion || 'No especificado'}
-              </p>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="text-sm font-medium text-gray-500">
+                  Departamento
+                </div>
+                <div className="text-gray-900">
+                  {position.departamento_id || 'No especificado'}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500">
+                  Reporta a
+                </div>
+                <div className="text-gray-900">
+                  {position.reporta_a_id || 'No especificado'}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500">
+                  Requisitos de Experiencia
+                </div>
+                <div className="text-gray-700 text-sm">
+                  {position.requisitos_experiencia || 'No especificado'}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500">
+                  Requisitos de Formación
+                </div>
+                <div className="text-gray-700 text-sm">
+                  {position.requisitos_formacion || 'No especificado'}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -50,6 +50,7 @@ export function PersonnelListing({
   const router = useRouter();
   const { toast } = useToast();
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
+  const [positions, setPositions] = useState<Map<string, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,8 +68,30 @@ export function PersonnelListing({
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await PersonnelService.getAll();
-      setPersonnel(data);
+      // Load personnel and positions
+      const [personnelData, positionsResponse] = await Promise.all([
+        PersonnelService.getAll(),
+        fetch('/api/positions').then(res => res.json()),
+      ]);
+
+      // Create a map of position IDs to names
+      const posMap = new Map<string, string>();
+      if (Array.isArray(positionsResponse)) {
+        positionsResponse.forEach((pos: { id: string; nombre: string }) => {
+          posMap.set(pos.id, pos.nombre);
+        });
+      }
+      setPositions(posMap);
+
+      // Enrich personnel with position names
+      const enrichedPersonnel = personnelData.map(person => ({
+        ...person,
+        puesto: person.puesto
+          ? posMap.get(person.puesto) || person.puesto
+          : undefined,
+      }));
+
+      setPersonnel(enrichedPersonnel);
     } catch (error) {
       console.error('Error fetching personnel:', error);
       toast({

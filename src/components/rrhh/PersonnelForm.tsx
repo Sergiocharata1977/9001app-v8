@@ -10,7 +10,6 @@ import { Personnel } from '@/types/rrhh';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { PersonnelPositionSelector } from './PersonnelPositionSelector';
 
 interface PersonnelFormProps {
   initialData?: Personnel | null;
@@ -26,13 +25,10 @@ export function PersonnelForm({
   isLoading = false,
 }: PersonnelFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [replaceAssignments, setReplaceAssignments] = useState(true);
 
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<PersonnelFormData>({
     resolver: zodResolver(personnelFormSchema),
@@ -78,11 +74,6 @@ export function PersonnelForm({
           tipo_personal: 'administrativo' as const,
         },
   });
-
-  const handlePositionChange = (positionId: string, shouldReplace: boolean) => {
-    setValue('puesto', positionId);
-    setReplaceAssignments(shouldReplace);
-  };
 
   const handleFormSubmit = async (data: PersonnelFormData) => {
     setIsSubmitting(true);
@@ -191,30 +182,6 @@ export function PersonnelForm({
             <h3 className="text-lg font-medium text-gray-900">
               Información Laboral
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <PersonnelPositionSelector
-                value={watch('puesto')}
-                onChange={handlePositionChange}
-                disabled={isLoading || isSubmitting}
-                isEditing={!!initialData}
-                currentPositionId={initialData?.puesto}
-              />
-              <div>
-                <Label htmlFor="departamento">Departamento</Label>
-                <Input
-                  id="departamento"
-                  {...register('departamento')}
-                  placeholder="Ej. Compras y Gestión"
-                  className={errors.departamento ? 'border-red-500' : ''}
-                />
-                {errors.departamento && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.departamento.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="supervisor">Supervisor</Label>
