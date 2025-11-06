@@ -1,8 +1,8 @@
 import { db } from '@/firebase/config';
 import { TraceabilityService } from '@/services/shared/TraceabilityService';
 import type {
-  Politica,
   CreatePoliticaData,
+  Politica,
   UpdatePoliticaData,
 } from '@/types/politicas';
 import {
@@ -61,10 +61,11 @@ export class PoliticaService {
       // Filtrar por búsqueda si se proporciona
       if (filters?.search) {
         const searchTerm = filters.search.toLowerCase();
-        politicas = politicas.filter(politica =>
-          politica.titulo.toLowerCase().includes(searchTerm) ||
-          politica.descripcion.toLowerCase().includes(searchTerm) ||
-          politica.codigo.toLowerCase().includes(searchTerm)
+        politicas = politicas.filter(
+          politica =>
+            politica.titulo.toLowerCase().includes(searchTerm) ||
+            politica.descripcion.toLowerCase().includes(searchTerm) ||
+            politica.codigo.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -106,7 +107,10 @@ export class PoliticaService {
   /**
    * Crea una nueva política
    */
-  static async create(data: CreatePoliticaData, userId: string): Promise<string> {
+  static async create(
+    data: CreatePoliticaData,
+    userId: string
+  ): Promise<string> {
     try {
       const now = new Date();
       const year = now.getFullYear();
@@ -114,23 +118,16 @@ export class PoliticaService {
       // Generar código de política
       const codigo = await TraceabilityService.generateNumber('POL', year);
 
-      const politicaData: Omit<Politica, 'id'> = {
+      const politicaData: Record<string, unknown> = {
         organization_id: data.organization_id || '',
-        codigo,
+        codigo: data.codigo || codigo,
         titulo: data.titulo,
         descripcion: data.descripcion,
-        proposito: data.proposito,
-        alcance: data.alcance,
-        version: data.version || 1,
-        fecha_aprobacion: data.fecha_aprobacion,
-        fecha_revision: data.fecha_revision,
-        fecha_proxima_revision: data.fecha_proxima_revision,
-        aprobador_id: data.aprobador_id,
+        version: data.version || '1.0',
         estado: data.estado as Politica['estado'],
         procesos_relacionados: data.procesos_relacionados || [],
         departamentos_aplicables: data.departamentos_aplicables || [],
         puntos_norma: data.puntos_norma || [],
-        documento_url: data.documento_url,
         adjuntos: data.adjuntos || [],
         createdAt: now.toISOString(),
         updatedAt: now.toISOString(),
@@ -139,7 +136,23 @@ export class PoliticaService {
         isActive: true,
       };
 
-      const docRef = await addDoc(collection(db, this.COLLECTION), politicaData);
+      // Solo agregar campos opcionales si tienen valor
+      if (data.contenido) politicaData.contenido = data.contenido;
+      if (data.proposito) politicaData.proposito = data.proposito;
+      if (data.alcance) politicaData.alcance = data.alcance;
+      if (data.fecha_aprobacion)
+        politicaData.fecha_aprobacion = data.fecha_aprobacion;
+      if (data.fecha_revision)
+        politicaData.fecha_revision = data.fecha_revision;
+      if (data.fecha_proxima_revision)
+        politicaData.fecha_proxima_revision = data.fecha_proxima_revision;
+      if (data.aprobador_id) politicaData.aprobador_id = data.aprobador_id;
+      if (data.documento_url) politicaData.documento_url = data.documento_url;
+
+      const docRef = await addDoc(
+        collection(db, this.COLLECTION),
+        politicaData
+      );
       return docRef.id;
     } catch (error) {
       console.error('Error creating politica:', error);
@@ -217,7 +230,8 @@ export class PoliticaService {
         throw new Error('Política no encontrada');
       }
 
-      const nuevaVersion = politicaActual.version + 1;
+      const currentVersion = parseFloat(politicaActual.version);
+      const nuevaVersion = (currentVersion + 0.1).toFixed(1);
       const now = new Date();
 
       const nuevaPoliticaData: Omit<Politica, 'id'> = {
@@ -235,7 +249,10 @@ export class PoliticaService {
         isActive: true,
       };
 
-      const docRef = await addDoc(collection(db, this.COLLECTION), nuevaPoliticaData);
+      const docRef = await addDoc(
+        collection(db, this.COLLECTION),
+        nuevaPoliticaData
+      );
       return docRef.id;
     } catch (error) {
       console.error('Error versioning politica:', error);

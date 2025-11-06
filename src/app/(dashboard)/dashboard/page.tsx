@@ -1,18 +1,18 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+  BarChart,
+  BarChart3,
+  Briefcase,
+  Building2,
+  CheckCircle,
+  FileText,
+  FolderOpen,
+  Shield,
   TrendingUp,
   Users,
-  FileText,
-  CheckCircle,
-  Building2,
-  Briefcase,
-  BarChart3,
-  Shield,
-  FolderOpen,
-  BarChart,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -83,7 +83,7 @@ export default function Dashboard() {
       description: 'Sistema de auditorías internas',
       icon: Shield,
       color: 'orange',
-      href: '/dashboard/auditorias',
+      href: '/auditorias',
       enabled: false,
       stats: {},
     },

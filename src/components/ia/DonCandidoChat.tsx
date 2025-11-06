@@ -2,12 +2,14 @@
 
 // Don Cándido Chat Component
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Send, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Mensaje } from '@/types/chat';
+import { Clock, Loader2, Send, Settings, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AudioPlayer } from './AudioPlayer';
+import { VoiceRecorder } from './VoiceRecorder';
 
 interface DonCandidoChatProps {
   onClose: () => void;
@@ -22,11 +24,28 @@ export function DonCandidoChat({ onClose, modulo }: DonCandidoChatProps) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Nuevas configuraciones
+  const [autoPlayVoice, setAutoPlayVoice] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [sessionHistory, setSessionHistory] = useState<
+    Array<{
+      id: string;
+      titulo?: string;
+      created_at: Date;
+      updated_at?: Date;
+      modulo?: string;
+      mensajes?: Array<{ contenido: string }>;
+    }>
+  >([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
   // Mensaje inicial de Don Cándido (memoizado para evitar recreación)
-  const mensajeInicial = useMemo<Mensaje>(() => ({
-    id: 'inicial',
-    tipo: 'asistente',
-    contenido: `👷‍♂️ ¡Hola! Soy DON CÁNDIDO, tu asesor experto en ISO 9001 con más de 20 años de experiencia.
+  const mensajeInicial = useMemo<Mensaje>(
+    () => ({
+      id: 'inicial',
+      tipo: 'asistente',
+      contenido: `👷‍♂️ ¡Hola! Soy DON CÁNDIDO, tu asesor experto en ISO 9001 con más de 20 años de experiencia.
 
 Estoy aquí para ayudarte con:
 • Normas y cláusulas ISO 9001
@@ -36,9 +55,28 @@ Estoy aquí para ayudarte con:
 • Gestión de riesgos
 
 ¿En qué puedo asesorarte hoy?`,
-    timestamp: new Date(),
-    via: 'texto'
-  }), []);
+      timestamp: new Date(),
+      via: 'texto',
+    }),
+    []
+  );
+
+  const cargarHistorial = useCallback(async () => {
+    if (!usuario) return;
+
+    setLoadingHistory(true);
+    try {
+      const response = await fetch(`/api/ia/sessions?userId=${usuario.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSessionHistory(data.sessions || []);
+      }
+    } catch (error) {
+      console.error('[DonCandidoChat] Error loading history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [usuario]);
 
   const inicializarSesion = useCallback(async () => {
     if (!usuario) {
@@ -53,8 +91,8 @@ Estoy aquí para ayudarte con:
         body: JSON.stringify({
           userId: usuario.id,
           tipo: 'don-candido',
-          modulo
-        })
+          modulo,
+        }),
       });
 
       if (!response.ok) {
@@ -70,13 +108,29 @@ Estoy aquí para ayudarte con:
       const errorMsg: Mensaje = {
         id: `error-${Date.now()}`,
         tipo: 'sistema',
-        contenido: 'Error al inicializar el chat. Por favor, recarga la página.',
+        contenido:
+          'Error al inicializar el chat. Por favor, recarga la página.',
         timestamp: new Date(),
-        via: 'texto'
+        via: 'texto',
       };
       setMensajes(prev => [...prev, errorMsg]);
     }
   }, [usuario, modulo]);
+
+  const reanudarSesion = useCallback(async (sessionIdToResume: string) => {
+    try {
+      const response = await fetch(`/api/ia/sessions/${sessionIdToResume}`);
+      if (!response.ok) throw new Error('Failed to load session');
+
+      const data = await response.json();
+      setSessionId(sessionIdToResume);
+      setMensajes(data.session.mensajes || []);
+      setShowHistory(false);
+      console.log('[DonCandidoChat] Session resumed:', sessionIdToResume);
+    } catch (error) {
+      console.error('[DonCandidoChat] Error resuming session:', error);
+    }
+  }, []);
 
   // Initialize messages on mount
   useEffect(() => {
@@ -108,7 +162,7 @@ Estoy aquí para ayudarte con:
       tipo: 'usuario',
       contenido: textoMensaje,
       timestamp: new Date(),
-      via: 'texto'
+      via: 'texto',
     };
 
     setMensajes(prev => [...prev, nuevoMensajeUsuario]);
@@ -123,8 +177,8 @@ Estoy aquí para ayudarte con:
           mensaje: textoMensaje,
           userId: usuario.id,
           sessionId,
-          modulo
-        })
+          modulo,
+        }),
       });
 
       if (!response.ok) {
@@ -140,20 +194,22 @@ Estoy aquí para ayudarte con:
         contenido: data.respuesta,
         timestamp: new Date(),
         via: 'texto',
-        tokens: data.tokens
+        tokens: data.tokens,
+        autoPlay: autoPlayVoice, // Marcar para auto-reproducción
       };
 
       setMensajes(prev => [...prev, respuestaAsistente]);
     } catch (error) {
       console.error('[DonCandidoChat] Error sending message:', error);
-      
+
       // Add error message
       const errorMessage: Mensaje = {
         id: `error-${Date.now()}`,
         tipo: 'sistema',
-        contenido: 'Lo siento, ocurrió un error al procesar tu mensaje. Por favor, intenta nuevamente.',
+        contenido:
+          'Lo siento, ocurrió un error al procesar tu mensaje. Por favor, intenta nuevamente.',
         timestamp: new Date(),
-        via: 'texto'
+        via: 'texto',
       };
       setMensajes(prev => [...prev, errorMessage]);
     } finally {
@@ -184,6 +240,27 @@ Estoy aquí para ayudarte con:
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => {
+              setShowHistory(!showHistory);
+              if (!showHistory) cargarHistorial();
+            }}
+            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+            title="Historial de conversaciones"
+          >
+            <Clock className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSettings(!showSettings)}
+            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+            title="Configuración"
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
             className="text-white hover:bg-white/20 h-8 w-8 p-0"
           >
@@ -192,9 +269,80 @@ Estoy aquí para ayudarte con:
         </div>
       </div>
 
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className="bg-gray-50 border-b border-gray-200 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">
+              Respuesta automática con voz
+            </span>
+            <button
+              onClick={() => setAutoPlayVoice(!autoPlayVoice)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                autoPlayVoice ? 'bg-green-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  autoPlayVoice ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">
+            {autoPlayVoice
+              ? '🔊 Don Cándido responderá automáticamente con voz'
+              : '🔇 Debes hacer clic en el botón de audio para escuchar'}
+          </p>
+        </div>
+      )}
+
+      {/* History Panel */}
+      {showHistory && (
+        <div className="bg-gray-50 border-b border-gray-200 p-4 max-h-48 overflow-y-auto">
+          <h4 className="font-semibold text-sm text-gray-700 mb-3">
+            Conversaciones Anteriores
+          </h4>
+          {loadingHistory ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+            </div>
+          ) : sessionHistory.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-4">
+              No hay conversaciones anteriores
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {sessionHistory.map(session => (
+                <button
+                  key={session.id}
+                  onClick={() => reanudarSesion(session.id)}
+                  className="w-full text-left p-3 bg-white rounded-lg border border-gray-200 hover:border-green-500 hover:bg-green-50 transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-gray-700">
+                      {session.modulo || 'General'}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(session.updated_at || session.created_at).toLocaleDateString('es-ES')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600 truncate">
+                    {session.mensajes?.[
+                      session.mensajes.length - 1
+                    ]?.contenido?.substring(0, 50) || 'Sin mensajes'}
+                    ...
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-        {mensajes.map((msg) => (
+        {mensajes.map(msg => (
           <div
             key={msg.id}
             className={`flex gap-3 ${msg.tipo === 'usuario' ? 'justify-end' : 'justify-start'}`}
@@ -211,16 +359,23 @@ Estoy aquí para ayudarte con:
                   msg.tipo === 'usuario'
                     ? 'bg-blue-500 text-white rounded-br-none'
                     : msg.tipo === 'sistema'
-                    ? 'bg-yellow-100 text-yellow-800 rounded-bl-none border border-yellow-300'
-                    : 'bg-white text-gray-800 rounded-bl-none shadow-sm border border-gray-200'
+                      ? 'bg-yellow-100 text-yellow-800 rounded-bl-none border border-yellow-300'
+                      : 'bg-white text-gray-800 rounded-bl-none shadow-sm border border-gray-200'
                 }`}
               >
-                <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.contenido}</div>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {msg.contenido}
+                </div>
+                {msg.tipo === 'asistente' && (
+                  <div className="mt-2 flex justify-end">
+                    <AudioPlayer text={msg.contenido} autoPlay={msg.autoPlay} />
+                  </div>
+                )}
               </div>
               <span className="text-xs text-gray-400 mt-1 px-1">
-                {msg.timestamp.toLocaleTimeString('es-ES', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                {msg.timestamp.toLocaleTimeString('es-ES', {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })}
               </span>
             </div>
@@ -250,10 +405,14 @@ Estoy aquí para ayudarte con:
       {/* Input */}
       <div className="p-4 border-t border-gray-200 bg-white rounded-b-lg">
         <div className="flex gap-2">
+          <VoiceRecorder
+            onTranscript={text => setInputMensaje(text)}
+            disabled={cargando || !sessionId}
+          />
           <Input
             type="text"
             value={inputMensaje}
-            onChange={(e) => setInputMensaje(e.target.value)}
+            onChange={e => setInputMensaje(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Pregunta sobre ISO 9001..."
             className="flex-1"
@@ -268,7 +427,7 @@ Estoy aquí para ayudarte con:
           </Button>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          Solo consultas sobre ISO 9001, procesos y gestión de calidad
+          🎤 Usa el micrófono o escribe tu consulta sobre ISO 9001
         </p>
       </div>
     </div>

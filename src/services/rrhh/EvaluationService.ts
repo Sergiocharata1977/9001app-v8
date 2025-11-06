@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase';
 import {
+  CompetenceEvaluation,
   PaginatedResponse,
   PaginationParams,
   PerformanceEvaluation,
@@ -455,7 +456,7 @@ export class EvaluationService {
 
         const competence = compDoc.data();
         const evaluatedComp = lastEvaluation?.competencias?.find(
-          (c: any) => c.competenciaId === requiredCompId
+          (c: CompetenceEvaluation) => c.competenciaId === requiredCompId
         );
 
         if (
@@ -521,12 +522,12 @@ export class EvaluationService {
   /**
    * Calcular fecha de próxima evaluación desde posición
    */
-  private static calculateNextEvaluationDateFromPosition(position: any): Date {
+  private static calculateNextEvaluationDateFromPosition(position: Record<string, unknown>): Date {
     const frecuencia = position?.frecuenciaEvaluacion || 12; // meses por defecto
     const now = new Date();
     return new Date(
       now.getFullYear(),
-      now.getMonth() + frecuencia,
+      now.getMonth() + Number(frecuencia || 0),
       now.getDate()
     );
   }
@@ -545,7 +546,7 @@ export class EvaluationService {
       for (const evaluation of evaluations) {
         if (evaluation.estado === 'publicado') {
           const competenceEval = evaluation.competencias.find(
-            (c: any) => c.competenciaId === competenceId
+            (c: CompetenceEvaluation) => c.competenciaId === competenceId
           );
           if (competenceEval) {
             history.push({

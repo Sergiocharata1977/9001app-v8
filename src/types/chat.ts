@@ -9,7 +9,7 @@ export interface ChatSession {
   modulo?: string;
   estado: 'activo' | 'pausado' | 'completado';
   mensajes: Mensaje[];
-  contexto_snapshot: UserContext;    // Snapshot at session creation
+  contexto_snapshot: UserContext; // Snapshot at session creation
   created_at: Date;
   updated_at: Date;
 }
@@ -24,6 +24,7 @@ export interface Mensaje {
     input: number;
     output: number;
   };
+  autoPlay?: boolean; // Para reproducción automática de voz
 }
 
 export interface UsoClaude {

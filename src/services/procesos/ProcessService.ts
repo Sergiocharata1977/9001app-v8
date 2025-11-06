@@ -20,7 +20,7 @@ import { ProcessDefinition } from '@/types/procesos';
 const COLLECTION_NAME = 'processDefinitions';
 
 // Helper function to safely convert Firebase Timestamp to Date
-const safeToDate = (timestamp: any): Date => {
+const safeToDate = (timestamp: Record<string, unknown>): Date => {
   if (!timestamp) return new Date();
   
   // If it's already a Date object

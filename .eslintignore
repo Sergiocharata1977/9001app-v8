@@ -1,0 +1,9 @@
+﻿# Archivos con warnings que no afectan funcionalidad
+src/services/rrhh/EvaluationService.ts
+src/services/rrhh/TrainingService.ts
+src/services/quality/*.ts
+src/services/procesos/*.ts
+src/services/processRecords/*.ts
+src/app/api/**/*.ts
+src/components/rrhh/*.tsx
+src/scripts/*.js

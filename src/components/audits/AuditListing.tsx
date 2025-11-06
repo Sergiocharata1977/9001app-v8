@@ -1,17 +1,26 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { Grid, List, Kanban, Plus, Search, Filter, Edit, Trash2, Eye } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AuditCard } from './AuditCard';
-import { AuditKanban } from './AuditKanban';
-import { AuditFormDialog } from './AuditFormDialog';
-import { Audit, AuditFormData } from '@/types/audits';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { AuditService } from '@/services/audits/AuditService';
+import { Audit, AuditFormData } from '@/types/audits';
+import {
+  Edit,
+  Eye,
+  Filter,
+  Grid,
+  Kanban,
+  List,
+  Plus,
+  Search,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AuditCard } from './AuditCard';
+import { AuditFormDialog } from './AuditFormDialog';
+import { AuditKanban } from './AuditKanban';
 
 export const AuditListing: React.FC = () => {
   const router = useRouter();
@@ -35,7 +44,9 @@ export const AuditListing: React.FC = () => {
       setAudits(data || []);
     } catch (err) {
       console.error('Error al cargar datos:', err);
-      setError('Error al cargar los datos. Por favor, intenta de nuevo más tarde.');
+      setError(
+        'Error al cargar los datos. Por favor, intenta de nuevo más tarde.'
+      );
       setAudits([]);
     } finally {
       setLoading(false);
@@ -51,17 +62,21 @@ export const AuditListing: React.FC = () => {
     if (!searchTerm.trim()) return audits;
 
     const searchLower = searchTerm.toLowerCase();
-    return audits.filter(audit =>
-      audit.title?.toLowerCase().includes(searchLower) ||
-      audit.auditNumber?.toLowerCase().includes(searchLower) ||
-      audit.leadAuditorName?.toLowerCase().includes(searchLower)
+    return audits.filter(
+      audit =>
+        audit.title?.toLowerCase().includes(searchLower) ||
+        audit.auditNumber?.toLowerCase().includes(searchLower) ||
+        audit.leadAuditorName?.toLowerCase().includes(searchLower)
     );
   }, [audits, searchTerm]);
 
   // Handlers
-  const handleView = useCallback((audit: Audit) => {
-    router.push(`/dashboard/auditorias/${audit.id}`);
-  }, [router]);
+  const handleView = useCallback(
+    (audit: Audit) => {
+      router.push(`/auditorias/${audit.id}`);
+    },
+    [router]
+  );
 
   const handleEdit = useCallback((audit: Audit) => {
     setSelectedAudit(audit);
@@ -73,21 +88,24 @@ export const AuditListing: React.FC = () => {
     setShowForm(true);
   }, []);
 
-  const handleFormSuccess = useCallback(async (data: AuditFormData) => {
-    try {
-      if (selectedAudit) {
-        // Actualizar auditoría existente
-        await AuditService.update(selectedAudit.id, data, 'current-user-id'); // TODO: Get actual user ID
-      } else {
-        // Crear nueva auditoría
-        await AuditService.create(data, 'current-user-id'); // TODO: Get actual user ID
+  const handleFormSuccess = useCallback(
+    async (data: AuditFormData) => {
+      try {
+        if (selectedAudit) {
+          // Actualizar auditoría existente
+          await AuditService.update(selectedAudit.id, data, 'current-user-id'); // TODO: Get actual user ID
+        } else {
+          // Crear nueva auditoría
+          await AuditService.create(data, 'current-user-id'); // TODO: Get actual user ID
+        }
+        setShowForm(false);
+        fetchAudits(); // Recargar datos
+      } catch (error) {
+        console.error('Error al guardar auditoría:', error);
       }
-      setShowForm(false);
-      fetchAudits(); // Recargar datos
-    } catch (error) {
-      console.error('Error al guardar auditoría:', error);
-    }
-  }, [selectedAudit, fetchAudits]);
+    },
+    [selectedAudit, fetchAudits]
+  );
 
   const handleFormCancel = useCallback(() => {
     setShowForm(false);
@@ -96,11 +114,16 @@ export const AuditListing: React.FC = () => {
   // Función para obtener color del estado
   const getEstadoColor = (status: string) => {
     switch (status) {
-      case 'planned': return 'bg-blue-100 text-blue-800';
-      case 'in_progress': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'planned':
+        return 'bg-blue-100 text-blue-800';
+      case 'in_progress':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -133,17 +156,21 @@ export const AuditListing: React.FC = () => {
         <div className="text-center py-12">
           <Kanban className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">
-            {searchTerm ? 'No se encontraron auditorías' : 'No hay auditorías registradas'}
+            {searchTerm
+              ? 'No se encontraron auditorías'
+              : 'No hay auditorías registradas'}
           </h3>
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm
               ? 'No se encontraron resultados que coincidan con tu búsqueda.'
-              : 'Comienza agregando la primera auditoría.'
-            }
+              : 'Comienza agregando la primera auditoría.'}
           </p>
           {!searchTerm && (
             <div className="mt-6">
-              <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+              <Button
+                onClick={handleNew}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Nueva Auditoría
               </Button>
@@ -210,7 +237,7 @@ export const AuditListing: React.FC = () => {
                     onClick={() => handleView(audit)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         handleView(audit);
@@ -240,7 +267,9 @@ export const AuditListing: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">
-                        {new Date(audit.plannedDate).toLocaleDateString('es-ES')}
+                        {new Date(audit.plannedDate).toLocaleDateString(
+                          'es-ES'
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -249,7 +278,10 @@ export const AuditListing: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex justify-end space-x-2"
+                        onClick={e => e.stopPropagation()}
+                      >
                         <Button
                           size="sm"
                           variant="ghost"
@@ -276,15 +308,28 @@ export const AuditListing: React.FC = () => {
         </CardContent>
       </Card>
     );
-  }, [loading, filteredAudits, viewMode, searchTerm, handleNew, handleView, handleEdit, fetchAudits]);
+  }, [
+    loading,
+    filteredAudits,
+    viewMode,
+    searchTerm,
+    handleNew,
+    handleView,
+    handleEdit,
+    fetchAudits,
+  ]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestión de Auditorías</h2>
-          <p className="text-gray-600">Administra las auditorías del sistema de calidad</p>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Gestión de Auditorías
+          </h2>
+          <p className="text-gray-600">
+            Administra las auditorías del sistema de calidad
+          </p>
         </div>
         <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="mr-2 h-4 w-4" />
@@ -302,7 +347,7 @@ export const AuditListing: React.FC = () => {
                 type="text"
                 placeholder="Buscar auditorías..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -314,25 +359,25 @@ export const AuditListing: React.FC = () => {
 
           <div className="flex items-center space-x-2">
             <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("grid")}
+              onClick={() => setViewMode('grid')}
             >
               <Grid className="mr-2 h-4 w-4" />
               Tarjetas
             </Button>
             <Button
-              variant={viewMode === "list" ? "default" : "outline"}
+              variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("list")}
+              onClick={() => setViewMode('list')}
             >
               <List className="mr-2 h-4 w-4" />
               Tabla
             </Button>
             <Button
-              variant={viewMode === "kanban" ? "default" : "outline"}
+              variant={viewMode === 'kanban' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("kanban")}
+              onClick={() => setViewMode('kanban')}
             >
               <Kanban className="mr-2 h-4 w-4" />
               Kanban
@@ -342,9 +387,7 @@ export const AuditListing: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="min-h-96">
-        {renderContent}
-      </div>
+      <div className="min-h-96">{renderContent}</div>
 
       {/* Modal de formulario */}
       {showForm && (

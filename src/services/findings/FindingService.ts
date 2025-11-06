@@ -103,25 +103,28 @@ export class FindingService {
       // Construir cadena de trazabilidad
       let traceabilityChain: string[] = [findingNumber];
       if (data.source === 'audit' && data.sourceId) {
-        const audit = await TraceabilityService.getAuditFromFinding(
-          data.sourceId
-        );
-        if (audit) {
-          traceabilityChain = TraceabilityService.buildTraceabilityChain(
-            audit.traceabilityChain,
-            findingNumber
-          );
+        // Obtener la auditoría directamente por su ID
+        const auditRef = doc(db, 'audits', data.sourceId);
+        const auditDoc = await getDoc(auditRef);
+
+        if (auditDoc.exists()) {
+          const audit = auditDoc.data();
+          if (audit.traceabilityChain) {
+            traceabilityChain = TraceabilityService.buildTraceabilityChain(
+              audit.traceabilityChain,
+              findingNumber
+            );
+          }
         }
       }
 
-      const findingData: Omit<Finding, 'id'> = {
+      const findingData: Record<string, unknown> = {
         findingNumber,
         title: data.title,
         description: data.description,
         source: data.source,
         sourceId: data.sourceId,
         sourceName: data.sourceName,
-        sourceReference: data.sourceReference,
         identifiedDate: new Date().toISOString(),
         reportedBy: userId,
         reportedByName: 'Current User', // TODO: Get from user context
@@ -131,13 +134,6 @@ export class FindingService {
         severity: data.severity,
         category: data.category,
         riskLevel: data.riskLevel,
-        consequence: data.consequence,
-        processId: data.processId,
-        processName: data.processId ? 'Process Name' : undefined,
-        responsiblePersonId: data.responsiblePersonId,
-        responsiblePersonName: data.responsiblePersonId
-          ? 'Responsible Name'
-          : undefined,
         evidence: data.evidence,
         evidenceDocuments: data.evidenceDocuments || [],
         requiresAction: false,
@@ -149,13 +145,28 @@ export class FindingService {
         currentPhase: 'detection',
         priority: data.priority,
         isRecurrent: false,
-        impactAssessment: data.impactAssessment,
         traceabilityChain,
         createdBy: userId,
         isActive: true,
         createdAt: Timestamp.fromDate(now) as unknown as Date,
         updatedAt: Timestamp.fromDate(now) as unknown as Date,
       };
+
+      // Agregar campos opcionales solo si tienen valor
+      if (data.sourceReference)
+        findingData.sourceReference = data.sourceReference;
+      if (data.consequence) findingData.consequence = data.consequence;
+      if (data.processId) {
+        findingData.processId = data.processId;
+        findingData.processName = 'Process Name'; // TODO: Get from process
+      }
+      if (data.responsiblePersonId) {
+        findingData.responsiblePersonId = data.responsiblePersonId;
+        findingData.responsiblePersonName = 'Responsible Name'; // TODO: Get from user
+      }
+      if (data.impactAssessment) {
+        findingData.impactAssessment = data.impactAssessment;
+      }
 
       const docRef = await addDoc(collection(db, this.COLLECTION), findingData);
 

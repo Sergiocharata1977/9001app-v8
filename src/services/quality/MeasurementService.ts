@@ -19,7 +19,7 @@ import { QualityIndicatorService } from './QualityIndicatorService';
 const COLLECTION_NAME = 'measurements';
 
 // Helper function to safely convert Firestore Timestamp to ISO string
-const toISOString = (value: any): string | undefined => {
+const toISOString = (value: Record<string, unknown>): string | undefined => {
   if (!value) return undefined;
   if (typeof value === 'string') return value;
   if (value.toDate && typeof value.toDate === 'function') {

@@ -2,6 +2,7 @@ import { db } from '@/lib/firebase';
 import {
   PaginatedResponse,
   PaginationParams,
+  PerformanceEvaluation,
   Training,
   TrainingFilters,
 } from '@/types/rrhh';
@@ -428,7 +429,7 @@ export class TrainingService {
 
         // Buscar si ya tiene esta competencia
         const existingIndex = currentCompetences.findIndex(
-          (c: any) => c.competenciaId === competenceId
+          (c: Record<string, unknown>) => c.competenciaId === competenceId
         );
 
         if (existingIndex >= 0) {
@@ -603,7 +604,7 @@ export class TrainingService {
   /**
    * Método auxiliar para crear evaluación (debe importarse de EvaluationService)
    */
-  private static async createEvaluation(data: any): Promise<unknown> {
+  private static async createEvaluation(data: Omit<PerformanceEvaluation, "id" | "created_at" | "updated_at">): Promise<unknown> {
     // Importar dinámicamente para evitar dependencias circulares
     const { EvaluationService } = await import('./EvaluationService');
     return await EvaluationService.create(data);

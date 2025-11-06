@@ -1,13 +1,40 @@
 'use client';
 
 import { AnalisisFODA } from '@/types/analisis-foda';
-import { Filter, Plus, Target } from 'lucide-react';
+import { Filter, Plus, Target, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function AnalisisFODAPage() {
+  const router = useRouter();
   const [analisis, setAnalisis] = useState<AnalisisFODA[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [showDialog, setShowDialog] = useState(false);
+  const [editingAnalisis, setEditingAnalisis] = useState<AnalisisFODA | null>(
+    null
+  );
+  const [formData, setFormData] = useState<{
+    titulo: string;
+    tipo_analisis: 'organizacional' | 'proceso' | 'departamento' | 'proyecto';
+    descripcion: string;
+    fortalezas: string;
+    oportunidades: string;
+    debilidades: string;
+    amenazas: string;
+    fecha_analisis: string;
+    estado: 'en_proceso' | 'completado' | 'archivado';
+  }>({
+    titulo: '',
+    tipo_analisis: 'organizacional',
+    descripcion: '',
+    fortalezas: '',
+    oportunidades: '',
+    debilidades: '',
+    amenazas: '',
+    fecha_analisis: new Date().toISOString().split('T')[0],
+    estado: 'en_proceso',
+  });
 
   useEffect(() => {
     loadAnalisis();
@@ -49,6 +76,105 @@ export default function AnalisisFODAPage() {
     return labels[tipo as keyof typeof labels] || tipo;
   };
 
+  const handleCreate = () => {
+    setEditingAnalisis(null);
+    setFormData({
+      titulo: '',
+      tipo_analisis: 'organizacional',
+      descripcion: '',
+      fortalezas: '',
+      oportunidades: '',
+      debilidades: '',
+      amenazas: '',
+      fecha_analisis: new Date().toISOString().split('T')[0],
+      estado: 'en_proceso',
+    });
+    setShowDialog(true);
+  };
+
+  const handleEdit = (analisis: AnalisisFODA) => {
+    setEditingAnalisis(analisis);
+    setFormData({
+      titulo: analisis.titulo,
+      tipo_analisis: analisis.tipo_analisis,
+      descripcion: analisis.descripcion || '',
+      fortalezas: analisis.fortalezas.join('\n'),
+      oportunidades: analisis.oportunidades.join('\n'),
+      debilidades: analisis.debilidades.join('\n'),
+      amenazas: analisis.amenazas.join('\n'),
+      fecha_analisis: analisis.fecha_analisis.split('T')[0],
+      estado: analisis.estado,
+    });
+    setShowDialog(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const url = editingAnalisis
+        ? `/api/analisis-foda/${editingAnalisis.id}`
+        : '/api/analisis-foda';
+      const method = editingAnalisis ? 'PUT' : 'POST';
+
+      const payload = {
+        ...formData,
+        organization_id: 'default-org',
+        fortalezas: formData.fortalezas.split('\n').filter(f => f.trim()),
+        oportunidades: formData.oportunidades.split('\n').filter(o => o.trim()),
+        debilidades: formData.debilidades.split('\n').filter(d => d.trim()),
+        amenazas: formData.amenazas.split('\n').filter(a => a.trim()),
+      };
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert(
+          editingAnalisis
+            ? 'Análisis actualizado correctamente'
+            : 'Análisis creado correctamente'
+        );
+        setShowDialog(false);
+        loadAnalisis();
+      } else {
+        const result = await response.json();
+        alert(`Error: ${result.error || 'No se pudo guardar el análisis'}`);
+      }
+    } catch (error) {
+      console.error('Error saving analisis:', error);
+      alert('Error al guardar el análisis');
+    }
+  };
+
+  const handleDelete = async (id: string, titulo: string) => {
+    if (
+      !confirm(`¿Estás seguro de que deseas eliminar el análisis "${titulo}"?`)
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/analisis-foda/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('Análisis eliminado correctamente');
+        loadAnalisis();
+      } else {
+        const result = await response.json();
+        alert(`Error: ${result.error || 'No se pudo eliminar el análisis'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting analisis:', error);
+      alert('Error al eliminar el análisis');
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
@@ -58,7 +184,10 @@ export default function AnalisisFODAPage() {
             Fortalezas, Oportunidades, Debilidades y Amenazas
           </p>
         </div>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        <button
+          onClick={handleCreate}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
           <Plus size={20} />
           Nuevo Análisis
         </button>
@@ -163,16 +292,248 @@ export default function AnalisisFODAPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2 pt-4 border-t">
-                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Ver Matriz
-                </button>
-                <button className="text-gray-600 hover:text-gray-700 text-sm font-medium">
-                  Editar
+              <div className="flex justify-between items-center pt-4 border-t">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      alert('Funcionalidad de ver matriz próximamente')
+                    }
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Ver Matriz
+                  </button>
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                  >
+                    Editar
+                  </button>
+                </div>
+                <button
+                  onClick={() => handleDelete(item.id, item.titulo)}
+                  className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium"
+                  title="Eliminar análisis"
+                >
+                  <Trash2 size={16} />
+                  Eliminar
                 </button>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8">
+            <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white rounded-t-lg">
+              <h2 className="text-2xl font-bold">
+                {editingAnalisis
+                  ? 'Editar Análisis FODA'
+                  : 'Nuevo Análisis FODA'}
+              </h2>
+              <button
+                onClick={() => setShowDialog(false)}
+                className="text-gray-500 hover:text-gray-700 text-3xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Título *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.titulo}
+                      onChange={e =>
+                        setFormData({ ...formData, titulo: e.target.value })
+                      }
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="Análisis FODA Organizacional 2025"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo de Análisis *
+                    </label>
+                    <select
+                      value={formData.tipo_analisis}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          tipo_analisis: e.target.value as
+                            | 'organizacional'
+                            | 'proceso'
+                            | 'departamento'
+                            | 'proyecto',
+                        })
+                      }
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+                      <option value="organizacional">Organizacional</option>
+                      <option value="proceso">Proceso</option>
+                      <option value="departamento">Departamento</option>
+                      <option value="proyecto">Proyecto</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Descripción
+                  </label>
+                  <textarea
+                    value={formData.descripcion}
+                    onChange={e =>
+                      setFormData({ ...formData, descripcion: e.target.value })
+                    }
+                    className="w-full border rounded-lg px-3 py-2"
+                    rows={2}
+                    placeholder="Descripción breve del análisis"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                        <span className="text-xl">💪</span> Fortalezas
+                      </h3>
+                      <textarea
+                        value={formData.fortalezas}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            fortalezas: e.target.value,
+                          })
+                        }
+                        className="w-full border rounded-lg px-3 py-2 text-sm"
+                        rows={5}
+                        placeholder="Ingrese las fortalezas (una por línea)"
+                      />
+                    </div>
+
+                    <div className="bg-yellow-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                        <span className="text-xl">⚠️</span> Debilidades
+                      </h3>
+                      <textarea
+                        value={formData.debilidades}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            debilidades: e.target.value,
+                          })
+                        }
+                        className="w-full border rounded-lg px-3 py-2 text-sm"
+                        rows={5}
+                        placeholder="Ingrese las debilidades (una por línea)"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                        <span className="text-xl">🎯</span> Oportunidades
+                      </h3>
+                      <textarea
+                        value={formData.oportunidades}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            oportunidades: e.target.value,
+                          })
+                        }
+                        className="w-full border rounded-lg px-3 py-2 text-sm"
+                        rows={5}
+                        placeholder="Ingrese las oportunidades (una por línea)"
+                      />
+                    </div>
+
+                    <div className="bg-red-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+                        <span className="text-xl">⚡</span> Amenazas
+                      </h3>
+                      <textarea
+                        value={formData.amenazas}
+                        onChange={e =>
+                          setFormData({ ...formData, amenazas: e.target.value })
+                        }
+                        className="w-full border rounded-lg px-3 py-2 text-sm"
+                        rows={5}
+                        placeholder="Ingrese las amenazas (una por línea)"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fecha de Análisis *
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.fecha_analisis}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          fecha_analisis: e.target.value,
+                        })
+                      }
+                      className="w-full border rounded-lg px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Estado
+                    </label>
+                    <select
+                      value={formData.estado}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          estado: e.target.value as
+                            | 'en_proceso'
+                            | 'completado'
+                            | 'archivado',
+                        })
+                      }
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+                      <option value="en_proceso">En Proceso</option>
+                      <option value="completado">Completado</option>
+                      <option value="archivado">Archivado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-6 mt-6 border-t">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  {editingAnalisis ? 'Guardar Cambios' : 'Crear Análisis'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDialog(false)}
+                  className="px-6 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

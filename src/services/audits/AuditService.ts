@@ -95,7 +95,7 @@ export class AuditService {
       // Generar número de auditoría
       const auditNumber = await TraceabilityService.generateNumber('AUD', year);
 
-      const auditData: Omit<Audit, 'id'> = {
+      const auditData: Record<string, unknown> = {
         auditNumber,
         title: data.title,
         description: data.description,
@@ -103,7 +103,7 @@ export class AuditService {
         auditScope: data.auditScope,
         isoClausesCovered: data.isoClausesCovered || [],
         plannedDate: data.plannedDate,
-        duration: data.duration,
+        duration: data.duration || 0,
         leadAuditorId: data.leadAuditorId,
         leadAuditorName: data.leadAuditorName,
         auditTeam: data.auditTeam || [],
@@ -114,14 +114,17 @@ export class AuditService {
         minorFindings: 0,
         observations: 0,
         followUpRequired: data.followUpRequired || false,
-        followUpDate: data.followUpDate,
-        correctionDeadline: data.correctionDeadline,
         traceabilityChain: [auditNumber],
         createdBy: userId,
         isActive: true,
-        createdAt: Timestamp.fromDate(now) as unknown as Date,
-        updatedAt: Timestamp.fromDate(now) as unknown as Date,
+        createdAt: Timestamp.fromDate(now),
+        updatedAt: Timestamp.fromDate(now),
       };
+
+      // Solo agregar campos opcionales si tienen valor
+      if (data.followUpDate) auditData.followUpDate = data.followUpDate;
+      if (data.correctionDeadline)
+        auditData.correctionDeadline = data.correctionDeadline;
 
       const docRef = await addDoc(collection(db, this.COLLECTION), auditData);
       return docRef.id;

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const findingId = await FindingService.create(
-      validationResult.data,
+      { ...validationResult.data, sourceId: validationResult.data.sourceId || "", sourceName: validationResult.data.sourceName || "", riskLevel: validationResult.data.riskLevel || "low" },
       userId
     );
 

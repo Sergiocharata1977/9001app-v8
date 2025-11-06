@@ -1,10 +1,22 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
+
+interface SeedResult {
+  success: boolean;
+  message?: string;
+  data?: unknown;
+  ids?: {
+    politica?: string;
+    reunion?: string;
+    foda?: string;
+  };
+}
 
 export default function SeedQualityPage() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<SeedResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSeed = async () => {
@@ -68,42 +80,42 @@ export default function SeedQualityPage() {
                 <li>
                   Política:{' '}
                   <code className="bg-gray-100 px-2 py-1 rounded">
-                    {result.ids.politica}
+                    {result.ids?.politica}
                   </code>
                 </li>
                 <li>
                   Reunión:{' '}
                   <code className="bg-gray-100 px-2 py-1 rounded">
-                    {result.ids.reunion}
+                    {result.ids?.reunion}
                   </code>
                 </li>
                 <li>
                   FODA:{' '}
                   <code className="bg-gray-100 px-2 py-1 rounded">
-                    {result.ids.foda}
+                    {result.ids?.foda}
                   </code>
                 </li>
               </ul>
             </div>
             <div className="mt-4 space-y-2">
-              <a
+              <Link
                 href="/politicas"
                 className="block text-blue-600 hover:text-blue-700"
               >
                 → Ver Políticas
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/reuniones-trabajo"
                 className="block text-blue-600 hover:text-blue-700"
               >
                 → Ver Reuniones
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/analisis-foda"
                 className="block text-blue-600 hover:text-blue-700"
               >
                 → Ver Análisis FODA
-              </a>
+              </Link>
             </div>
           </div>
         )}

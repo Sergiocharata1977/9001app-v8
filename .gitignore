@@ -102,3 +102,20 @@ firebase.json
 # Environment and secrets
 .env*
 !.env.example
+
+# Scripts de deployment y testing
+*.ps1
+*.sh
+!scripts/**/*.ps1
+!scripts/**/*.sh
+
+# Archivos de texto temporales y logs de errores
+*.txt
+!README.txt
+eslint_errors.txt
+ts_errors.txt
+
+# Archivos de instrucciones temporales
+ACTIVAR_*.txt
+COPIAR_*.txt
+comando-rapido-*

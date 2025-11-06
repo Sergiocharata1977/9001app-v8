@@ -62,9 +62,10 @@ export class AnalisisFODAService {
       // Filtrar por búsqueda si se proporciona
       if (filters?.search) {
         const searchTerm = filters.search.toLowerCase();
-        analisis = analisis.filter(item =>
-          item.titulo.toLowerCase().includes(searchTerm) ||
-          item.descripcion?.toLowerCase().includes(searchTerm)
+        analisis = analisis.filter(
+          item =>
+            item.titulo.toLowerCase().includes(searchTerm) ||
+            item.descripcion?.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -100,7 +101,10 @@ export class AnalisisFODAService {
   /**
    * Crea un nuevo análisis FODA
    */
-  static async create(data: CreateAnalisisFODAData, userId: string): Promise<string> {
+  static async create(
+    data: CreateAnalisisFODAData,
+    userId: string
+  ): Promise<string> {
     try {
       const now = new Date();
       const year = now.getFullYear();
@@ -108,51 +112,39 @@ export class AnalisisFODAService {
       // Generar código de análisis
       const codigo = await TraceabilityService.generateNumber('FODA', year);
 
-      const analisisData: Omit<AnalisisFODA, 'id'> = {
-        organization_id: '', // TODO: Obtener de contexto de usuario
+      const dataWithOrg = data as CreateAnalisisFODAData & {
+        organization_id?: string;
+      };
+      const analisisData: Record<string, unknown> = {
+        organization_id: dataWithOrg.organization_id || 'default-org',
         codigo,
         titulo: data.titulo,
-        descripcion: data.descripcion,
-        tipo_analisis: data.tipo_analisis as AnalisisFODA['tipo_analisis'],
-        ambito_id: data.ambito_id,
+        descripcion: data.descripcion || '',
+        tipo_analisis: data.tipo_analisis,
         fecha_analisis: data.fecha_analisis,
-        fecha_proxima_revision: data.fecha_proxima_revision,
-        responsable_id: data.responsable_id,
-        participantes: data.participantes?.map(p => ({
-          usuario_id: p.usuario_id,
-          usuario_nombre: '',
-          rol: p.rol || '',
-        })) || [],
-        fortalezas: data.fortalezas?.map(f => ({
-          descripcion: f.descripcion,
-          impacto: f.impacto as AnalisisFODA['fortalezas'][0]['impacto'],
-          acciones_asociadas: [],
-        })) || [],
-        oportunidades: data.oportunidades?.map(o => ({
-          descripcion: o.descripcion,
-          impacto: o.impacto as AnalisisFODA['oportunidades'][0]['impacto'],
-          probabilidad: o.probabilidad as AnalisisFODA['oportunidades'][0]['probabilidad'],
-          acciones_asociadas: [],
-        })) || [],
-        debilidades: data.debilidades?.map(d => ({
-          descripcion: d.descripcion,
-          impacto: d.impacto as AnalisisFODA['debilidades'][0]['impacto'],
-          acciones_asociadas: [],
-        })) || [],
-        amenazas: data.amenazas?.map(a => ({
-          descripcion: a.descripcion,
-          impacto: a.impacto as AnalisisFODA['amenazas'][0]['impacto'],
-          probabilidad: a.probabilidad as AnalisisFODA['amenazas'][0]['probabilidad'],
-          acciones_asociadas: [],
-        })) || [],
-        estado: (data.estado as AnalisisFODA['estado']) || 'en_proceso',
+        participantes: data.participantes || [],
+        fortalezas: data.fortalezas || [],
+        oportunidades: data.oportunidades || [],
+        debilidades: data.debilidades || [],
+        amenazas: data.amenazas || [],
+        estado: data.estado || 'en_proceso',
         createdAt: now.toISOString(),
         updatedAt: now.toISOString(),
         created_by: userId,
         isActive: true,
       };
 
-      const docRef = await addDoc(collection(db, this.COLLECTION), analisisData);
+      // Solo agregar campos opcionales si tienen valor
+      if (data.ambito_id) analisisData.ambito_id = data.ambito_id;
+      if (data.fecha_proxima_revision)
+        analisisData.fecha_proxima_revision = data.fecha_proxima_revision;
+      if (data.responsable_id)
+        analisisData.responsable_id = data.responsable_id;
+
+      const docRef = await addDoc(
+        collection(db, this.COLLECTION),
+        analisisData
+      );
       return docRef.id;
     } catch (error) {
       console.error('Error creating analisis FODA:', error);

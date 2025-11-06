@@ -1,22 +1,35 @@
 // Service for managing chat sessions
 
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  query,
-  where,
-  orderBy,
-  limit as firestoreLimit,
-  serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { ChatSession, Mensaje } from '@/types/chat';
 import { UserContext } from '@/types/context';
+import {
+  addDoc,
+  collection,
+  doc,
+  limit as firestoreLimit,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  Timestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+
+// Helper function to safely convert Firestore Timestamp to Date
+function toDate(value: unknown): Date {
+  if (
+    value &&
+    typeof value === 'object' &&
+    'toDate' in value &&
+    typeof value.toDate === 'function'
+  ) {
+    return (value as Timestamp).toDate();
+  }
+  return new Date();
+}
 
 const COLLECTION_NAME = 'chat_sessions';
 const INACTIVE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -38,10 +51,12 @@ export class ChatSessionService {
   ): Promise<string> {
     try {
       // Limpiar undefined values del contexto (Firestore no los permite)
-      const cleanContexto = JSON.parse(JSON.stringify({
-        ...contexto,
-        supervisor: contexto.supervisor || null
-      }));
+      const cleanContexto = JSON.parse(
+        JSON.stringify({
+          ...contexto,
+          supervisor: contexto.supervisor || null,
+        })
+      );
 
       const sessionData = {
         user_id: userId,
@@ -51,11 +66,11 @@ export class ChatSessionService {
         mensajes: [],
         contexto_snapshot: cleanContexto,
         created_at: serverTimestamp(),
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), sessionData);
-      
+
       console.log('[ChatSessionService] Created session:', docRef.id);
       return docRef.id;
     } catch (error) {
@@ -79,20 +94,20 @@ export class ChatSessionService {
       }
 
       const data = docSnap.data();
-      
+
       return {
         id: docSnap.id,
         user_id: data.user_id,
         tipo: data.tipo,
         modulo: data.modulo,
         estado: data.estado,
-        mensajes: data.mensajes.map((msg: any) => ({
+        mensajes: data.mensajes.map((msg: Record<string, unknown>) => ({
           ...msg,
-          timestamp: msg.timestamp?.toDate() || new Date()
+          timestamp: toDate(msg.timestamp),
         })),
         contexto_snapshot: data.contexto_snapshot,
         created_at: data.created_at?.toDate() || new Date(),
-        updated_at: data.updated_at?.toDate() || new Date()
+        updated_at: data.updated_at?.toDate() || new Date(),
       } as ChatSession;
     } catch (error) {
       console.error('[ChatSessionService] Error getting session:', error);
@@ -118,16 +133,16 @@ export class ChatSessionService {
       }
 
       const mensajesActuales = docSnap.data().mensajes || [];
-      
+
       const nuevoMensaje = {
         ...mensaje,
         id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        timestamp: Timestamp.now()
+        timestamp: Timestamp.now(),
       };
 
       await updateDoc(docRef, {
         mensajes: [...mensajesActuales, nuevoMensaje],
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
 
       console.log('[ChatSessionService] Added message to session:', sessionId);
@@ -167,16 +182,19 @@ export class ChatSessionService {
         tipo: data.tipo,
         modulo: data.modulo,
         estado: data.estado,
-        mensajes: data.mensajes.map((msg: any) => ({
+        mensajes: data.mensajes.map((msg: Record<string, unknown>) => ({
           ...msg,
-          timestamp: msg.timestamp?.toDate() || new Date()
+          timestamp: toDate(msg.timestamp),
         })),
         contexto_snapshot: data.contexto_snapshot,
         created_at: data.created_at?.toDate() || new Date(),
-        updated_at: data.updated_at?.toDate() || new Date()
+        updated_at: data.updated_at?.toDate() || new Date(),
       } as ChatSession;
     } catch (error) {
-      console.error('[ChatSessionService] Error getting active session:', error);
+      console.error(
+        '[ChatSessionService] Error getting active session:',
+        error
+      );
       throw new Error('Failed to get active session');
     }
   }
@@ -192,13 +210,17 @@ export class ChatSessionService {
   ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, sessionId);
-      
+
       await updateDoc(docRef, {
         estado,
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
 
-      console.log('[ChatSessionService] Updated session status:', sessionId, estado);
+      console.log(
+        '[ChatSessionService] Updated session status:',
+        sessionId,
+        estado
+      );
     } catch (error) {
       console.error('[ChatSessionService] Error updating status:', error);
       throw new Error('Failed to update session status');
@@ -233,13 +255,13 @@ export class ChatSessionService {
           tipo: data.tipo,
           modulo: data.modulo,
           estado: data.estado,
-          mensajes: data.mensajes.map((msg: any) => ({
+          mensajes: data.mensajes.map((msg: Record<string, unknown>) => ({
             ...msg,
-            timestamp: msg.timestamp?.toDate() || new Date()
+            timestamp: toDate(msg.timestamp),
           })),
           contexto_snapshot: data.contexto_snapshot,
           created_at: data.created_at?.toDate() || new Date(),
-          updated_at: data.updated_at?.toDate() || new Date()
+          updated_at: data.updated_at?.toDate() || new Date(),
         } as ChatSession;
       });
     } catch (error) {
@@ -255,7 +277,7 @@ export class ChatSessionService {
   static async pauseInactiveSessions(): Promise<void> {
     try {
       const cutoffTime = new Date(Date.now() - INACTIVE_THRESHOLD_MS);
-      
+
       const q = query(
         collection(db, COLLECTION_NAME),
         where('estado', '==', 'activo'),
@@ -264,18 +286,23 @@ export class ChatSessionService {
 
       const querySnapshot = await getDocs(q);
 
-      const updates = querySnapshot.docs.map(async (docSnapshot) => {
+      const updates = querySnapshot.docs.map(async docSnapshot => {
         await updateDoc(docSnapshot.ref, {
           estado: 'pausado',
-          updated_at: serverTimestamp()
+          updated_at: serverTimestamp(),
         });
       });
 
       await Promise.all(updates);
 
-      console.log(`[ChatSessionService] Paused ${querySnapshot.size} inactive sessions`);
+      console.log(
+        `[ChatSessionService] Paused ${querySnapshot.size} inactive sessions`
+      );
     } catch (error) {
-      console.error('[ChatSessionService] Error pausing inactive sessions:', error);
+      console.error(
+        '[ChatSessionService] Error pausing inactive sessions:',
+        error
+      );
       throw new Error('Failed to pause inactive sessions');
     }
   }
@@ -301,17 +328,20 @@ export class ChatSessionService {
           tipo: data.tipo,
           modulo: data.modulo,
           estado: data.estado,
-          mensajes: data.mensajes.map((msg: any) => ({
+          mensajes: data.mensajes.map((msg: Record<string, unknown>) => ({
             ...msg,
-            timestamp: msg.timestamp?.toDate() || new Date()
+            timestamp: toDate(msg.timestamp),
           })),
           contexto_snapshot: data.contexto_snapshot,
           created_at: data.created_at?.toDate() || new Date(),
-          updated_at: data.updated_at?.toDate() || new Date()
+          updated_at: data.updated_at?.toDate() || new Date(),
         } as ChatSession;
       });
     } catch (error) {
-      console.error('[ChatSessionService] Error getting active sessions:', error);
+      console.error(
+        '[ChatSessionService] Error getting active sessions:',
+        error
+      );
       throw new Error('Failed to get active sessions');
     }
   }
