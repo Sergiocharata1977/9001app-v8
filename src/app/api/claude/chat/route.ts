@@ -97,6 +97,32 @@ export async function POST(request: NextRequest) {
     console.log('[API /claude/chat] Fetching user context...');
     const contexto = await UserContextService.getUserFullContext(userId);
 
+    // Detect intent (optional - can be enabled/disabled)
+    const ENABLE_INTENT_DETECTION =
+      process.env.ENABLE_INTENT_DETECTION === 'true';
+    let detectedIntent = null;
+
+    if (ENABLE_INTENT_DETECTION) {
+      const { IntentDetectionService } = await import(
+        '@/lib/claude/intent-detection'
+      );
+
+      // Quick check if it's likely a form or action request
+      const isLikelyForm =
+        IntentDetectionService.isLikelyFormRequest(mensajeSanitizado);
+      const isLikelyAction =
+        IntentDetectionService.isLikelyActionRequest(mensajeSanitizado);
+
+      if (isLikelyForm || isLikelyAction) {
+        console.log('[API /claude/chat] Detecting intent...');
+        detectedIntent = await IntentDetectionService.detectIntent(
+          mensajeSanitizado,
+          contexto
+        );
+        console.log('[API /claude/chat] Intent detected:', detectedIntent);
+      }
+    }
+
     // Generate contextual prompt
     const systemPrompt = modulo
       ? PromptService.generarPromptModulo(modulo, contexto)
@@ -183,6 +209,7 @@ export async function POST(request: NextRequest) {
       tokens: response.usage,
       tiempo_respuesta_ms,
       rateLimitRemaining: rateLimit.remaining,
+      intent: detectedIntent, // Include detected intent if available
     });
   } catch (error) {
     const tiempo_respuesta_ms = Date.now() - startTime;

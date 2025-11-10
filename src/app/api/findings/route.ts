@@ -1,73 +1,56 @@
-import { findingFormDataSchema } from '@/lib/validations/findings';
+import { FindingFormSchema } from '@/lib/validations/findings';
 import { FindingService } from '@/services/findings/FindingService';
+import type { FindingStatus } from '@/types/findings';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * GET /api/findings
- * Obtiene todos los hallazgos con filtros opcionales
- */
+// GET /api/findings - Listar hallazgos
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const filters = {
-      source: searchParams.get('source') || undefined,
-      status: searchParams.get('status') || undefined,
-      severity: searchParams.get('severity') || undefined,
-      responsiblePersonId: searchParams.get('responsiblePersonId') || undefined,
+      status: (searchParams.get('status') as FindingStatus) || undefined,
+      processId: searchParams.get('processId') || undefined,
+      year: searchParams.get('year')
+        ? parseInt(searchParams.get('year')!)
+        : undefined,
+      search: searchParams.get('search') || undefined,
+      requiresAction: searchParams.get('requiresAction')
+        ? searchParams.get('requiresAction') === 'true'
+        : undefined,
     };
 
-    const findings = await FindingService.getAll(filters);
+    const { findings } = await FindingService.list(filters);
 
-    return NextResponse.json({ findings }, { status: 200 });
+    return NextResponse.json({ findings });
   } catch (error) {
     console.error('Error in GET /api/findings:', error);
     return NextResponse.json(
-      { error: 'Failed to get findings' },
+      { error: 'Error al obtener hallazgos' },
       { status: 500 }
     );
   }
 }
 
-/**
- * POST /api/findings
- * Crea un nuevo hallazgo
- */
+// POST /api/findings - Crear hallazgo
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = 'current-user-id'; // TODO: Get from token
     const body = await request.json();
 
-    const validationResult = findingFormDataSchema.safeParse(body);
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.issues },
-        { status: 400 }
-      );
-    }
+    // Validar datos
+    const validatedData = FindingFormSchema.parse(body);
 
+    // Crear hallazgo
     const findingId = await FindingService.create(
-      { ...validationResult.data, sourceId: validationResult.data.sourceId || "", sourceName: validationResult.data.sourceName || "", riskLevel: validationResult.data.riskLevel || "low" },
-      userId
+      validatedData,
+      'system',
+      body.userName || 'Usuario'
     );
 
-    return NextResponse.json(
-      { message: 'Finding created successfully', id: findingId },
-      { status: 201 }
-    );
+    return NextResponse.json({ id: findingId }, { status: 201 });
   } catch (error) {
     console.error('Error in POST /api/findings:', error);
     return NextResponse.json(
-      { error: 'Failed to create finding' },
+      { error: 'Error al crear hallazgo' },
       { status: 500 }
     );
   }

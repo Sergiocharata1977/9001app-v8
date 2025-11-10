@@ -2,6 +2,9 @@ import { db } from '@/firebase/config';
 import { TraceabilityService } from '@/services/shared/TraceabilityService';
 import type {
   Action,
+  ActionControlExecutionFormData,
+  ActionControlPlanningFormData,
+  ActionExecutionFormData,
   ActionFilters,
   ActionFormData,
   ActionStats,
@@ -12,459 +15,404 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
+  QueryConstraint,
   Timestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
 
-/**
- * ActionService - Phase 2: Treatment
- *
- * Servicio para gestionar acciones correctivas, preventivas y de mejora.
- */
+const COLLECTION_NAME = 'actions';
+
 export class ActionService {
-  private static readonly COLLECTION = 'actions';
+  // ============================================
+  // CREAR ACCIÓN (Formulario 1: Planificación)
+  // ============================================
 
-  /**
-   * Obtiene todas las acciones con filtros opcionales
-   */
-  static async getAll(filters?: ActionFilters): Promise<Action[]> {
+  static async create(
+    data: ActionFormData,
+    userId: string,
+    userName: string
+  ): Promise<string> {
     try {
-      const actionsRef = collection(db, this.COLLECTION);
-      let q = query(actionsRef, where('isActive', '==', true));
-
-      if (filters?.status) {
-        q = query(q, where('status', '==', filters.status));
-      }
-      if (filters?.actionType) {
-        q = query(q, where('actionType', '==', filters.actionType));
-      }
-      if (filters?.priority) {
-        q = query(q, where('priority', '==', filters.priority));
-      }
-      if (filters?.responsiblePersonId) {
-        q = query(
-          q,
-          where('responsiblePersonId', '==', filters.responsiblePersonId)
-        );
-      }
-      if (filters?.findingId) {
-        q = query(q, where('findingId', '==', filters.findingId));
-      }
-
-      q = query(q, orderBy('plannedEndDate', 'asc'));
-
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Action[];
-    } catch (error) {
-      console.error('Error getting actions:', error);
-      throw new Error('Failed to get actions');
-    }
-  }
-
-  /**
-   * Obtiene una acción por ID
-   */
-  static async getById(id: string): Promise<Action | null> {
-    try {
-      const actionRef = doc(db, this.COLLECTION, id);
-      const actionDoc = await getDoc(actionRef);
-
-      if (!actionDoc.exists()) {
-        return null;
-      }
-
-      return {
-        id: actionDoc.id,
-        ...actionDoc.data(),
-      } as Action;
-    } catch (error) {
-      console.error('Error getting action:', error);
-      throw new Error('Failed to get action');
-    }
-  }
-
-  /**
-   * Crea una nueva acción (Fase 2: Tratamiento)
-   */
-  static async create(data: ActionFormData, userId: string): Promise<string> {
-    try {
-      const now = new Date();
-      const year = now.getFullYear();
-
       // Generar número de acción
+      const year = new Date().getFullYear();
       const actionNumber = await TraceabilityService.generateNumber(
         'ACC',
         year
       );
 
-      // Construir cadena de trazabilidad desde el hallazgo
-      let traceabilityChain: string[] = [actionNumber];
-      if (data.findingId) {
-        const finding = await TraceabilityService.getFindingFromAction(
-          data.findingId
-        );
-        if (finding) {
-          traceabilityChain = TraceabilityService.buildTraceabilityChain(
-            finding.traceabilityChain,
-            actionNumber
-          );
-        }
-      }
+      const now = Timestamp.now();
 
       const actionData: Omit<Action, 'id'> = {
         actionNumber,
         title: data.title,
         description: data.description,
+
         actionType: data.actionType,
-        sourceType: data.sourceType,
-        sourceId: data.sourceId,
-        findingId: data.findingId,
-        findingNumber: data.findingNumber,
-        plannedStartDate: data.plannedStartDate,
-        plannedEndDate: data.plannedEndDate,
-        responsiblePersonId: data.responsiblePersonId,
-        responsiblePersonName: data.responsiblePersonName,
-        teamMembers: data.teamMembers || [],
-        status: 'planned',
         priority: data.priority,
+
+        sourceType: data.sourceType,
+        findingId: null,
+        findingNumber: null,
+        sourceName: data.sourceName,
+
+        processId: data.processId,
+        processName: data.processName,
+
+        // Fase 1: Planificación
+        planning: {
+          responsiblePersonId: data.implementationResponsibleId,
+          responsiblePersonName: data.implementationResponsibleName,
+          plannedDate: Timestamp.fromDate(data.plannedExecutionDate),
+          observations: data.planningObservations || null,
+        },
+
+        // Fase 2: Ejecución (null inicialmente)
+        execution: null,
+
+        // Fase 3: Planificación del Control (null inicialmente, se completa después de ejecutar)
+        controlPlanning: null,
+
+        // Fase 4: Ejecución del Control (null inicialmente)
+        controlExecution: null,
+
+        status: 'planificada',
+        currentPhase: 'planning',
         progress: 0,
-        currentPhase: 'treatment',
-        actionPlan: data.actionPlan,
-        requiredResources: data.requiredResources,
-        documents: data.documents || [],
-        comments: [],
-        traceabilityChain,
+
+        observations: null,
+
+        createdAt: now,
+        updatedAt: now,
         createdBy: userId,
+        createdByName: userName,
+        updatedBy: null,
+        updatedByName: null,
         isActive: true,
-        createdAt: Timestamp.fromDate(now) as unknown as Date,
-        updatedAt: Timestamp.fromDate(now) as unknown as Date,
       };
 
-      const docRef = await addDoc(collection(db, this.COLLECTION), actionData);
-
-      // Actualizar contadores del hallazgo
-      if (data.findingId) {
-        await this.updateFindingCounters(data.findingId);
-      }
+      const docRef = await addDoc(collection(db, COLLECTION_NAME), actionData);
 
       return docRef.id;
     } catch (error) {
       console.error('Error creating action:', error);
-      throw new Error('Failed to create action');
+      throw new Error('Error al crear la acción');
     }
   }
 
-  /**
-   * Actualiza una acción existente
-   */
-  static async update(
-    id: string,
-    data: Partial<ActionFormData>,
-    userId: string
-  ): Promise<void> {
+  // ============================================
+  // OBTENER ACCIÓN POR ID
+  // ============================================
+
+  static async getById(id: string): Promise<Action | null> {
     try {
-      const actionRef = doc(db, this.COLLECTION, id);
-      const updateData: Record<string, unknown> = {
-        ...data,
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      };
+      const docRef = doc(db, COLLECTION_NAME, id);
+      const docSnap = await getDoc(docRef);
 
-      await updateDoc(actionRef, updateData);
-    } catch (error) {
-      console.error('Error updating action:', error);
-      throw new Error('Failed to update action');
-    }
-  }
-
-  /**
-   * Elimina una acción (soft delete)
-   */
-  static async delete(id: string, userId: string): Promise<void> {
-    try {
-      const actionRef = doc(db, this.COLLECTION, id);
-      await updateDoc(actionRef, {
-        isActive: false,
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      });
-    } catch (error) {
-      console.error('Error deleting action:', error);
-      throw new Error('Failed to delete action');
-    }
-  }
-
-  /**
-   * Actualiza el estado de una acción
-   */
-  static async updateStatus(
-    id: string,
-    status: Action['status'],
-    userId: string
-  ): Promise<void> {
-    try {
-      const actionRef = doc(db, this.COLLECTION, id);
-      const updateData: Record<string, unknown> = {
-        status,
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      };
-
-      if (status === 'in_progress' && !updateData.actualStartDate) {
-        updateData.actualStartDate = new Date().toISOString();
+      if (!docSnap.exists()) {
+        return null;
       }
 
-      if (status === 'completed') {
-        updateData.actualEndDate = new Date().toISOString();
-        updateData.progress = 100;
-      }
-
-      await updateDoc(actionRef, updateData);
-
-      // Actualizar contadores del hallazgo
-      const action = await this.getById(id);
-      if (action?.findingId) {
-        await this.updateFindingCounters(action.findingId);
-      }
+      return {
+        id: docSnap.id,
+        ...docSnap.data(),
+      } as Action;
     } catch (error) {
-      console.error('Error updating action status:', error);
-      throw new Error('Failed to update action status');
+      console.error('Error getting action:', error);
+      throw new Error('Error al obtener la acción');
     }
   }
 
-  /**
-   * Actualiza el progreso de una acción
-   */
-  static async updateProgress(
-    id: string,
-    progress: number,
-    userId: string
-  ): Promise<void> {
-    try {
-      const actionRef = doc(db, this.COLLECTION, id);
-      await updateDoc(actionRef, {
-        progress: Math.min(100, Math.max(0, progress)),
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      });
-    } catch (error) {
-      console.error('Error updating action progress:', error);
-      throw new Error('Failed to update action progress');
-    }
-  }
+  // ============================================
+  // LISTAR ACCIONES CON FILTROS
+  // ============================================
 
-  /**
-   * Actualiza un paso del plan de acción
-   */
-  static async updateActionPlanStep(
-    actionId: string,
-    stepSequence: number,
-    status: 'pending' | 'in_progress' | 'completed',
-    userId: string
-  ): Promise<void> {
+  static async list(
+    filters?: ActionFilters,
+    pageSize: number = 50
+  ): Promise<{ actions: Action[] }> {
     try {
-      const action = await this.getById(actionId);
-      if (!action || !action.actionPlan) {
-        throw new Error('Action or action plan not found');
+      const constraints: QueryConstraint[] = [where('isActive', '==', true)];
+
+      // Aplicar filtros
+      if (filters?.status) {
+        constraints.push(where('status', '==', filters.status));
       }
 
-      const updatedSteps = action.actionPlan.steps.map(step =>
-        step.sequence === stepSequence ? { ...step, status } : step
-      );
+      if (filters?.actionType) {
+        constraints.push(where('actionType', '==', filters.actionType));
+      }
 
-      const actionRef = doc(db, this.COLLECTION, actionId);
-      await updateDoc(actionRef, {
-        actionPlan: { steps: updatedSteps },
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      });
+      if (filters?.priority) {
+        constraints.push(where('priority', '==', filters.priority));
+      }
 
-      // Calcular progreso basado en pasos completados
-      const completedSteps = updatedSteps.filter(
-        s => s.status === 'completed'
-      ).length;
-      const totalSteps = updatedSteps.length;
-      const progress = Math.round((completedSteps / totalSteps) * 100);
+      if (filters?.processId) {
+        constraints.push(where('processId', '==', filters.processId));
+      }
 
-      await this.updateProgress(actionId, progress, userId);
-    } catch (error) {
-      console.error('Error updating action plan step:', error);
-      throw new Error('Failed to update action plan step');
-    }
-  }
+      if (filters?.findingId) {
+        constraints.push(where('findingId', '==', filters.findingId));
+      }
 
-  /**
-   * Obtiene acciones por hallazgo
-   */
-  static async getByFinding(findingId: string): Promise<Action[]> {
-    try {
-      const actionsRef = collection(db, this.COLLECTION);
-      const q = query(
-        actionsRef,
-        where('findingId', '==', findingId),
-        where('isActive', '==', true),
-        orderBy('createdAt', 'desc')
-      );
+      if (filters?.year) {
+        const startDate = new Date(filters.year, 0, 1);
+        const endDate = new Date(filters.year, 11, 31, 23, 59, 59);
+        constraints.push(
+          where('createdAt', '>=', Timestamp.fromDate(startDate))
+        );
+        constraints.push(where('createdAt', '<=', Timestamp.fromDate(endDate)));
+      }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      // Ordenar por fecha de creación
+      constraints.push(orderBy('createdAt', 'desc'));
+      constraints.push(limit(pageSize));
+
+      const q = query(collection(db, COLLECTION_NAME), ...constraints);
+      const querySnapshot = await getDocs(q);
+
+      const actions: Action[] = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       })) as Action[];
-    } catch (error) {
-      console.error('Error getting actions by finding:', error);
-      throw new Error('Failed to get actions by finding');
-    }
-  }
 
-  /**
-   * Agrega un comentario a una acción
-   */
-  static async addComment(
-    id: string,
-    comment: { userId: string; userName: string; comment: string },
-    userId: string
-  ): Promise<void> {
-    try {
-      const action = await this.getById(id);
-      if (!action) {
-        throw new Error('Action not found');
-      }
-
-      const newComment = {
-        ...comment,
-        timestamp: new Date().toISOString(),
-      };
-
-      const actionRef = doc(db, this.COLLECTION, id);
-      await updateDoc(actionRef, {
-        comments: [...action.comments, newComment],
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      });
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      throw new Error('Failed to add comment');
-    }
-  }
-
-  /**
-   * Actualiza los contadores de un hallazgo relacionado
-   */
-  private static async updateFindingCounters(findingId: string): Promise<void> {
-    try {
-      const { FindingService } = await import(
-        '@/services/findings/FindingService'
-      );
-      await FindingService.updateActionsCounters(findingId);
-    } catch (error) {
-      console.error('Error updating finding counters:', error);
-    }
-  }
-
-  /**
-   * Obtiene estadísticas de acciones
-   */
-  static async getStats(year?: number): Promise<ActionStats> {
-    try {
-      const actionsRef = collection(db, this.COLLECTION);
-      let q = query(actionsRef, where('isActive', '==', true));
-
-      if (year) {
-        const startDate = `${year}-01-01`;
-        const endDate = `${year}-12-31`;
-        q = query(
-          q,
-          where('plannedStartDate', '>=', startDate),
-          where('plannedStartDate', '<=', endDate)
+      // Filtro de búsqueda en memoria
+      let filteredActions = actions;
+      if (filters?.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredActions = actions.filter(
+          action =>
+            action.title.toLowerCase().includes(searchLower) ||
+            action.description.toLowerCase().includes(searchLower) ||
+            action.actionNumber.toLowerCase().includes(searchLower)
         );
       }
 
-      const snapshot = await getDocs(q);
-      const actions = snapshot.docs.map(doc => doc.data()) as Action[];
+      return { actions: filteredActions };
+    } catch (error) {
+      console.error('Error listing actions:', error);
+      throw new Error('Error al listar las acciones');
+    }
+  }
+
+  // ============================================
+  // ACTUALIZAR EJECUCIÓN (Formulario 2)
+  // ============================================
+
+  static async updateExecution(
+    id: string,
+    data: ActionExecutionFormData,
+    userId: string,
+    userName: string
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, id);
+
+      const execution = {
+        executionDate: Timestamp.fromDate(data.executionDate),
+        comments: data.comments || null,
+        completedBy: userId,
+        completedByName: userName,
+      };
+
+      await updateDoc(docRef, {
+        execution,
+        status: 'ejecutada',
+        currentPhase: 'executed',
+        progress: 33,
+        updatedAt: Timestamp.now(),
+        updatedBy: userId,
+        updatedByName: userName,
+      });
+    } catch (error) {
+      console.error('Error updating execution:', error);
+      throw new Error('Error al actualizar la ejecución');
+    }
+  }
+
+  // ============================================
+  // ACTUALIZAR PLANIFICACIÓN DEL CONTROL (Formulario 3)
+  // ============================================
+
+  static async updateControlPlanning(
+    id: string,
+    data: ActionControlPlanningFormData,
+    userId: string,
+    userName: string
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, id);
+
+      const controlPlanning = {
+        responsiblePersonId: data.responsiblePersonId,
+        responsiblePersonName: data.responsiblePersonName,
+        plannedDate: Timestamp.fromDate(data.plannedDate),
+        effectivenessCriteria: data.effectivenessCriteria,
+        comments: data.comments || null,
+      };
+
+      await updateDoc(docRef, {
+        controlPlanning,
+        status: 'en_control',
+        currentPhase: 'control_planning',
+        progress: 66,
+        updatedAt: Timestamp.now(),
+        updatedBy: userId,
+        updatedByName: userName,
+      });
+    } catch (error) {
+      console.error('Error updating control planning:', error);
+      throw new Error('Error al actualizar la planificación del control');
+    }
+  }
+
+  // ============================================
+  // ACTUALIZAR EJECUCIÓN DEL CONTROL (Formulario 4)
+  // ============================================
+
+  static async updateControlExecution(
+    id: string,
+    data: ActionControlExecutionFormData,
+    userId: string,
+    userName: string
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, id);
+
+      const controlExecution = {
+        executionDate: Timestamp.fromDate(data.executionDate),
+        verificationResult: data.verificationResult,
+        isEffective: data.isEffective,
+        comments: data.comments || null,
+        verifiedBy: userId,
+        verifiedByName: userName,
+      };
+
+      await updateDoc(docRef, {
+        controlExecution,
+        status: 'completada',
+        currentPhase: 'completed',
+        progress: 100,
+        updatedAt: Timestamp.now(),
+        updatedBy: userId,
+        updatedByName: userName,
+      });
+    } catch (error) {
+      console.error('Error updating control execution:', error);
+      throw new Error('Error al actualizar la ejecución del control');
+    }
+  }
+
+  // ============================================
+  // ELIMINAR (SOFT DELETE)
+  // ============================================
+
+  static async delete(
+    id: string,
+    userId: string,
+    userName: string
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, id);
+
+      await updateDoc(docRef, {
+        isActive: false,
+        updatedAt: Timestamp.now(),
+        updatedBy: userId,
+        updatedByName: userName,
+      });
+    } catch (error) {
+      console.error('Error deleting action:', error);
+      throw new Error('Error al eliminar la acción');
+    }
+  }
+
+  // ============================================
+  // OBTENER ESTADÍSTICAS
+  // ============================================
+
+  static async getStats(filters?: ActionFilters): Promise<ActionStats> {
+    try {
+      const { actions } = await this.list(filters, 1000);
 
       const stats: ActionStats = {
         total: actions.length,
-        byStatus: {},
-        byType: {},
-        byPriority: {},
-        effectiveness: 0,
+        byStatus: {
+          planificada: 0,
+          ejecutada: 0,
+          en_control: 0,
+          completada: 0,
+          cancelada: 0,
+        },
+        byType: {
+          correctiva: 0,
+          preventiva: 0,
+          mejora: 0,
+        },
+        byPriority: {
+          baja: 0,
+          media: 0,
+          alta: 0,
+          critica: 0,
+        },
+        byProcess: {},
+        averageProgress: 0,
+        verifiedCount: 0,
+        effectiveCount: 0,
+        overdueCount: 0,
       };
 
+      let totalProgress = 0;
+      const now = new Date();
+
       actions.forEach(action => {
-        stats.byStatus[action.status] =
-          (stats.byStatus[action.status] || 0) + 1;
-        stats.byType[action.actionType] =
-          (stats.byType[action.actionType] || 0) + 1;
-        stats.byPriority[action.priority] =
-          (stats.byPriority[action.priority] || 0) + 1;
+        // Contar por estado
+        stats.byStatus[action.status]++;
+
+        // Contar por tipo
+        stats.byType[action.actionType]++;
+
+        // Contar por prioridad
+        stats.byPriority[action.priority]++;
+
+        // Contar por proceso
+        if (action.processName) {
+          stats.byProcess[action.processName] =
+            (stats.byProcess[action.processName] || 0) + 1;
+        }
+
+        // Progreso total
+        totalProgress += action.progress;
+
+        // Verificadas y efectivas
+        if (action.controlExecution) {
+          stats.verifiedCount++;
+          if (action.controlExecution.isEffective) {
+            stats.effectiveCount++;
+          }
+        }
+
+        // Vencidas
+        const plannedDate = action.planning.plannedDate.toDate();
+        if (
+          plannedDate < now &&
+          action.status !== 'completada' &&
+          action.status !== 'cancelada'
+        ) {
+          stats.overdueCount++;
+        }
       });
 
-      // Calcular efectividad (acciones completadas con verificación efectiva)
-      const completedActions = actions.filter(a => a.status === 'completed');
-      const effectiveActions = completedActions.filter(
-        a => a.effectivenessVerification?.isEffective
-      );
-      stats.effectiveness =
-        completedActions.length > 0
-          ? Math.round(
-              (effectiveActions.length / completedActions.length) * 100
-            )
-          : 0;
+      stats.averageProgress =
+        actions.length > 0 ? Math.round(totalProgress / actions.length) : 0;
 
       return stats;
     } catch (error) {
       console.error('Error getting action stats:', error);
-      throw new Error('Failed to get action stats');
-    }
-  }
-
-  /**
-   * FASE 3: CONTROL
-   * Verificación de efectividad de acciones
-   */
-
-  /**
-   * Verifica la efectividad de una acción (Fase 3: Control)
-   */
-  static async verifyEffectiveness(
-    id: string,
-    verification: {
-      responsiblePersonId: string;
-      responsiblePersonName: string;
-      verificationCommitmentDate?: string;
-      verificationExecutionDate?: string;
-      method: string;
-      criteria: string;
-      isEffective: boolean;
-      result: string;
-      evidence: string;
-      comments?: string;
-    },
-    userId: string
-  ): Promise<void> {
-    try {
-      const actionRef = doc(db, this.COLLECTION, id);
-      await updateDoc(actionRef, {
-        effectivenessVerification: verification,
-        currentPhase: 'control',
-        updatedBy: userId,
-        updatedAt: Timestamp.fromDate(new Date()),
-      });
-
-      // Si la verificación es efectiva, actualizar estado a completado
-      if (verification.isEffective) {
-        await this.updateStatus(id, 'completed', userId);
-      }
-    } catch (error) {
-      console.error('Error verifying effectiveness:', error);
-      throw new Error('Failed to verify effectiveness');
+      throw new Error('Error al obtener estadísticas');
     }
   }
 }

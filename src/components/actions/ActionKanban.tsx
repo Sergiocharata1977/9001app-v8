@@ -1,99 +1,120 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ActionCard } from './ActionCard';
-import type { Action } from '@/types/actions';
+import { ActionCard } from '@/components/actions/ActionCard';
+import type { Action, ActionStatus } from '@/types/actions';
+import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-interface ActionKanbanProps {
-  actions: Action[];
-  onRefresh: () => void;
-}
-
-interface KanbanColumn {
-  id: string;
-  title: string;
+const KANBAN_COLUMNS: {
+  status: ActionStatus;
+  label: string;
   color: string;
-  actions: Action[];
-}
+}[] = [
+  {
+    status: 'planificada',
+    label: 'Planificadas',
+    color: 'bg-gray-100 border-gray-300',
+  },
+  {
+    status: 'ejecutada',
+    label: 'Ejecutadas',
+    color: 'bg-blue-100 border-blue-300',
+  },
+  {
+    status: 'en_control',
+    label: 'En Control',
+    color: 'bg-yellow-100 border-yellow-300',
+  },
+  {
+    status: 'completada',
+    label: 'Completadas',
+    color: 'bg-green-100 border-green-300',
+  },
+];
 
-export const ActionKanban: React.FC<ActionKanbanProps> = ({ actions, onRefresh }) => {
-  const columns: KanbanColumn[] = useMemo(() => {
-    const groupedActions = actions.reduce((acc, action) => {
-      if (!acc[action.status]) {
-        acc[action.status] = [];
+export function ActionKanban() {
+  const [actions, setActions] = useState<Action[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchActions();
+  }, []);
+
+  const fetchActions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/actions');
+
+      if (!response.ok) {
+        throw new Error('Error al cargar las acciones');
       }
-      acc[action.status].push(action);
-      return acc;
-    }, {} as Record<string, Action[]>);
 
-    return [
-      {
-        id: 'planned',
-        title: 'Planificada',
-        color: 'bg-gray-100 text-gray-800',
-        actions: groupedActions.planned || [],
-      },
-      {
-        id: 'in_progress',
-        title: 'En Progreso',
-        color: 'bg-blue-100 text-blue-800',
-        actions: groupedActions.in_progress || [],
-      },
-      {
-        id: 'completed',
-        title: 'Completada',
-        color: 'bg-yellow-100 text-yellow-800',
-        actions: groupedActions.completed || [],
-      },
-      {
-        id: 'cancelled',
-        title: 'Cancelada',
-        color: 'bg-red-100 text-red-800',
-        actions: groupedActions.cancelled || [],
-      },
-      {
-        id: 'on_hold',
-        title: 'En Espera',
-        color: 'bg-orange-100 text-orange-800',
-        actions: groupedActions.on_hold || [],
-      },
-    ];
-  }, [actions]);
+      const data = await response.json();
+      setActions(data.actions || []);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Error al cargar las acciones'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getActionsByStatus = (status: ActionStatus) => {
+    return actions.filter(
+      action => action.status === status && action.isActive
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-      {columns.map((column) => (
-        <Card key={column.id} className="border-0 shadow-md">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between text-sm font-medium">
-              <span>{column.title}</span>
-              <Badge className={column.color}>
-                {column.actions.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {column.actions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 text-sm">
-                No hay acciones en esta etapa
-              </div>
-            ) : (
-              column.actions.map((action) => (
-                <ActionCard
-                  key={action.id}
-                  action={action}
-                  onClick={() => {
-                    // Handle card click - navigate to detail
-                    console.log('Navigate to action detail:', action.id);
-                  }}
-                />
-              ))
-            )}
-          </CardContent>
-        </Card>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {KANBAN_COLUMNS.map(column => {
+        const columnActions = getActionsByStatus(column.status);
+
+        return (
+          <div key={column.status} className="flex flex-col">
+            {/* Column Header */}
+            <div
+              className={`${column.color} border-2 rounded-t-lg px-4 py-3 flex items-center justify-between`}
+            >
+              <h3 className="font-semibold text-gray-900">{column.label}</h3>
+              <span className="bg-white px-2 py-1 rounded-full text-sm font-medium text-gray-700">
+                {columnActions.length}
+              </span>
+            </div>
+
+            {/* Column Content */}
+            <div className="flex-1 bg-gray-50 border-2 border-t-0 border-gray-200 rounded-b-lg p-3 space-y-3 min-h-[400px] max-h-[calc(100vh-300px)] overflow-y-auto">
+              {columnActions.length === 0 ? (
+                <div className="text-center text-gray-500 text-sm py-8">
+                  No hay acciones
+                </div>
+              ) : (
+                columnActions.map(action => (
+                  <ActionCard key={action.id} action={action} />
+                ))
+              )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
-};
+}

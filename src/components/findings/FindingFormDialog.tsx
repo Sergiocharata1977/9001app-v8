@@ -9,199 +9,168 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { FindingFormSchema } from '@/lib/validations/findings';
 import type { FindingFormData } from '@/types/findings';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface FindingFormDialogProps {
   open: boolean;
-  onClose: () => void;
-  onSubmit: (data: FindingFormData) => Promise<void>;
-  initialData?: Partial<FindingFormData>;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export function FindingFormDialog({
   open,
-  onClose,
-  onSubmit,
-  initialData,
+  onOpenChange,
+  onSuccess,
 }: FindingFormDialogProps) {
-  const [formData, setFormData] = useState<Partial<FindingFormData>>(
-    initialData || {}
-  );
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FindingFormData>({
+    resolver: zodResolver(FindingFormSchema),
+  });
+
+  const onSubmit = async (data: FindingFormData) => {
     try {
-      await onSubmit(formData as FindingFormData);
-      onClose();
+      setIsSubmitting(true);
+
+      const response = await fetch('/api/findings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          userName: 'Usuario',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al crear hallazgo');
+      }
+
+      const { id } = await response.json();
+
+      alert('Hallazgo creado exitosamente');
+      reset();
+      onOpenChange(false);
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      router.push(`/hallazgos/${id}`);
     } catch (error) {
-      console.error('Error submitting finding:', error);
+      console.error('Error creating finding:', error);
+      alert('Error al crear el hallazgo');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {initialData ? 'Editar Hallazgo' : 'Nuevo Hallazgo'}
-          </DialogTitle>
+          <DialogTitle>Nuevo Hallazgo</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Origen */}
           <div>
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="origin">Origen *</Label>
             <Input
-              id="title"
-              value={formData.title || ''}
-              onChange={e =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
+              id="origin"
+              {...register('origin')}
+              placeholder="Ej: Auditoría Interna, Inspección, Cliente"
             />
+            {errors.origin && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.origin.message}
+              </p>
+            )}
           </div>
 
+          {/* Nombre */}
           <div>
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="name">Nombre *</Label>
+            <Input
+              id="name"
+              {...register('name')}
+              placeholder="Nombre del hallazgo"
+            />
+            {errors.name && (
+              <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Descripción */}
+          <div>
+            <Label htmlFor="description">Descripción *</Label>
             <Textarea
               id="description"
-              value={formData.description || ''}
-              onChange={e =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              required
+              {...register('description')}
+              placeholder="Descripción detallada del hallazgo"
+              rows={4}
             />
+            {errors.description && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
+          {/* Proceso Involucrado */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="source">Fuente</Label>
-              <Select
-                value={formData.source}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    source: value as FindingFormData['source'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar fuente" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="audit">Auditoría</SelectItem>
-                  <SelectItem value="employee">Empleado</SelectItem>
-                  <SelectItem value="customer">Cliente</SelectItem>
-                  <SelectItem value="inspection">Inspección</SelectItem>
-                  <SelectItem value="supplier">Proveedor</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="processId">ID Proceso *</Label>
+              <Input
+                id="processId"
+                {...register('processId')}
+                placeholder="ID del proceso"
+              />
+              {errors.processId && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.processId.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="severity">Severidad</Label>
-              <Select
-                value={formData.severity}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    severity: value as FindingFormData['severity'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar severidad" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="critical">Crítica</SelectItem>
-                  <SelectItem value="major">Mayor</SelectItem>
-                  <SelectItem value="minor">Menor</SelectItem>
-                  <SelectItem value="low">Baja</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="processName">Nombre del Proceso *</Label>
+              <Input
+                id="processName"
+                {...register('processName')}
+                placeholder="Nombre del proceso"
+              />
+              {errors.processName && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.processName.message}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="findingType">Tipo</Label>
-              <Select
-                value={formData.findingType}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    findingType: value as FindingFormData['findingType'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="non_conformity">No Conformidad</SelectItem>
-                  <SelectItem value="observation">Observación</SelectItem>
-                  <SelectItem value="improvement_opportunity">
-                    Oportunidad de Mejora
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="category">Categoría</Label>
-              <Select
-                value={formData.category}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    category: value as FindingFormData['category'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="quality">Calidad</SelectItem>
-                  <SelectItem value="safety">Seguridad</SelectItem>
-                  <SelectItem value="environment">Medio Ambiente</SelectItem>
-                  <SelectItem value="process">Proceso</SelectItem>
-                  <SelectItem value="equipment">Equipo</SelectItem>
-                  <SelectItem value="documentation">Documentación</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="evidence">Evidencia</Label>
-            <Textarea
-              id="evidence"
-              value={formData.evidence || ''}
-              onChange={e =>
-                setFormData({ ...formData, evidence: e.target.value })
-              }
-              required
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+          {/* Botones */}
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creando...' : 'Crear Hallazgo'}
             </Button>
           </div>
         </form>

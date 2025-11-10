@@ -9,6 +9,8 @@ interface TTSRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+
   try {
     const body: TTSRequest = await request.json();
     const { text, voiceId } = body;
@@ -21,6 +23,10 @@ export async function POST(request: NextRequest) {
       '[API /elevenlabs/text-to-speech] Converting text to speech...'
     );
     console.log('[API /elevenlabs/text-to-speech] Text length:', text.length);
+    console.log(
+      '[API /elevenlabs/text-to-speech] Voice ID:',
+      voiceId || 'default'
+    );
 
     // Convert text to speech
     const audioBuffer = await ElevenLabsService.textToSpeech({
@@ -28,20 +34,43 @@ export async function POST(request: NextRequest) {
       voiceId,
     });
 
-    // Return audio as response
+    const totalLatencyMs = Date.now() - startTime;
+
+    console.log('[API /elevenlabs/text-to-speech] Success');
+    console.log(
+      '[API /elevenlabs/text-to-speech] Total latency:',
+      totalLatencyMs,
+      'ms'
+    );
+    console.log(
+      '[API /elevenlabs/text-to-speech] Audio size:',
+      audioBuffer.byteLength,
+      'bytes'
+    );
+
+    // Return audio as response with latency header
     return new NextResponse(audioBuffer, {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Content-Length': audioBuffer.byteLength.toString(),
+        'X-Latency-Ms': totalLatencyMs.toString(),
+        'X-Character-Count': text.length.toString(),
       },
     });
   } catch (error) {
+    const totalLatencyMs = Date.now() - startTime;
     console.error('[API /elevenlabs/text-to-speech] Error:', error);
+    console.error(
+      '[API /elevenlabs/text-to-speech] Failed after:',
+      totalLatencyMs,
+      'ms'
+    );
 
     return NextResponse.json(
       {
         error: 'Error generating speech',
         message: error instanceof Error ? error.message : 'Unknown error',
+        latencyMs: totalLatencyMs,
       },
       { status: 500 }
     );

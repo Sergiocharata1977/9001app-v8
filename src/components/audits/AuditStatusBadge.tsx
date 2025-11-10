@@ -1,21 +1,29 @@
-'use client';
-
 import { Badge } from '@/components/ui/badge';
-import type { Audit } from '@/types/audits';
+import type { AuditStatus } from '@/types/audits';
 
 interface AuditStatusBadgeProps {
-  status: Audit['status'];
+  status: AuditStatus;
 }
 
-const statusConfig = {
-  planned: { label: 'Planificada', variant: 'secondary' as const },
-  in_progress: { label: 'En Progreso', variant: 'default' as const },
-  completed: { label: 'Completada', variant: 'success' as const },
-  cancelled: { label: 'Cancelada', variant: 'destructive' as const },
-  postponed: { label: 'Pospuesta', variant: 'outline' as const },
-};
-
 export function AuditStatusBadge({ status }: AuditStatusBadgeProps) {
-  const config = statusConfig[status];
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+  const config: Record<
+    AuditStatus,
+    {
+      variant: 'default' | 'secondary' | 'outline';
+      label: string;
+      icon: string;
+    }
+  > = {
+    planned: { variant: 'secondary', label: 'Planificada', icon: '📋' },
+    in_progress: { variant: 'default', label: 'En Progreso', icon: '🔄' },
+    completed: { variant: 'outline', label: 'Completada', icon: '✅' },
+  };
+
+  const { variant, label, icon } = config[status];
+
+  return (
+    <Badge variant={variant}>
+      {icon} {label}
+    </Badge>
+  );
 }

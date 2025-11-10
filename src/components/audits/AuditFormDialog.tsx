@@ -4,186 +4,155 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { AuditFormData } from '@/types/audits';
+import { AuditFormSchema, type AuditFormInput } from '@/lib/validations/audits';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface AuditFormDialogProps {
   open: boolean;
-  onClose: () => void;
-  onSubmit: (data: AuditFormData) => Promise<void>;
-  initialData?: Partial<AuditFormData>;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (data: AuditFormInput) => Promise<void>;
+  initialData?: AuditFormInput;
+  mode: 'create' | 'edit';
 }
 
 export function AuditFormDialog({
   open,
-  onClose,
+  onOpenChange,
   onSubmit,
   initialData,
+  mode,
 }: AuditFormDialogProps) {
-  const [formData, setFormData] = useState<Partial<AuditFormData>>(
-    initialData || {}
-  );
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(AuditFormSchema),
+    defaultValues: initialData,
+  });
+
+  const onSubmitForm = async (data: Record<string, unknown>) => {
     setLoading(true);
     try {
-      await onSubmit(formData as AuditFormData);
-      onClose();
+      await onSubmit(data as AuditFormInput);
+      onOpenChange(false);
     } catch (error) {
-      console.error('Error submitting audit:', error);
+      console.error('Error submitting form:', error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {initialData ? 'Editar Auditoría' : 'Nueva Auditoría'}
+            {mode === 'create'
+              ? 'Planificar Nueva Auditoría'
+              : 'Editar Auditoría'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
           <div>
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">Título *</Label>
             <Input
               id="title"
-              value={formData.title || ''}
-              onChange={e =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
+              {...register('title')}
+              placeholder="Ej: Auditoría Interna ISO 9001:2015"
             />
+            {errors.title && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.title.message}
+              </p>
+            )}
           </div>
 
           <div>
             <Label htmlFor="description">Descripción</Label>
             <Textarea
               id="description"
-              value={formData.description || ''}
-              onChange={e =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              {...register('description')}
+              placeholder="Descripción de la auditoría..."
+              rows={3}
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="auditType">Tipo de Auditoría</Label>
-              <Select
-                value={formData.auditType}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    auditType: value as AuditFormData['auditType'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="internal">Interna</SelectItem>
-                  <SelectItem value="external">Externa</SelectItem>
-                  <SelectItem value="supplier">Proveedor</SelectItem>
-                  <SelectItem value="customer">Cliente</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="auditScope">Alcance</Label>
-              <Select
-                value={formData.auditScope}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    auditScope: value as AuditFormData['auditScope'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar alcance" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full">Completa</SelectItem>
-                  <SelectItem value="partial">Parcial</SelectItem>
-                  <SelectItem value="follow_up">Seguimiento</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="plannedDate">Fecha Planificada</Label>
-              <Input
-                id="plannedDate"
-                type="date"
-                value={formData.plannedDate || ''}
-                onChange={e =>
-                  setFormData({ ...formData, plannedDate: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="duration">Duración (horas)</Label>
-              <Input
-                id="duration"
-                type="number"
-                value={formData.duration || ''}
-                onChange={e =>
-                  setFormData({
-                    ...formData,
-                    duration: parseInt(e.target.value),
-                  })
-                }
-              />
-            </div>
+            {errors.description && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="leadAuditorName">Auditor Líder</Label>
+            <Label htmlFor="plannedDate">Fecha Planificada *</Label>
             <Input
-              id="leadAuditorName"
-              value={formData.leadAuditorName || ''}
-              onChange={e =>
-                setFormData({
-                  ...formData,
-                  leadAuditorName: e.target.value,
-                  leadAuditorId: 'temp-id',
-                })
+              id="plannedDate"
+              type="date"
+              {...register('plannedDate', {
+                setValueAs: v => {
+                  if (!v) return undefined;
+                  // Crear fecha en zona horaria local
+                  const date = new Date(v + 'T00:00:00');
+                  return date;
+                },
+              })}
+              defaultValue={
+                initialData?.plannedDate
+                  ? new Date(initialData.plannedDate)
+                      .toISOString()
+                      .split('T')[0]
+                  : ''
               }
-              required
             />
+            {errors.plannedDate && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.plannedDate.message}
+              </p>
+            )}
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div>
+            <Label htmlFor="leadAuditor">Auditor Líder *</Label>
+            <Input
+              id="leadAuditor"
+              {...register('leadAuditor')}
+              placeholder="Nombre del auditor líder"
+            />
+            {errors.leadAuditor && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.leadAuditor.message}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+              {loading
+                ? 'Guardando...'
+                : mode === 'create'
+                  ? 'Crear Auditoría'
+                  : 'Guardar Cambios'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

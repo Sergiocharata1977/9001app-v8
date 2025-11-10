@@ -1,11 +1,10 @@
-import { actionFormDataSchema } from '@/lib/validations/actions';
 import { ActionService } from '@/services/actions/ActionService';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * GET /api/actions/[id]
- * Obtiene una acción por ID
- */
+// ============================================
+// GET - Obtener acción por ID
+// ============================================
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,87 +14,76 @@ export async function GET(
     const action = await ActionService.getById(id);
 
     if (!action) {
-      return NextResponse.json({ error: 'Action not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ action }, { status: 200 });
-  } catch (error) {
-    console.error('Error in GET /api/actions/[id]:', error);
-    return NextResponse.json(
-      { error: 'Failed to get action' },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * PUT /api/actions/[id]
- * Actualiza una acción
- */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = 'current-user-id'; // TODO: Get from token
-    const body = await request.json();
-
-    const validationResult = actionFormDataSchema.partial().safeParse(body);
-    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.issues },
-        { status: 400 }
+        { error: 'Acción no encontrada' },
+        { status: 404 }
       );
     }
 
-    const { id } = await params;
-    await ActionService.update(id, validationResult.data, userId);
+    // Serializar Timestamps
+    const serializedAction = {
+      ...action,
+      planning: {
+        ...action.planning,
+        plannedDate: action.planning.plannedDate.toDate().toISOString(),
+      },
+      execution: action.execution
+        ? {
+            ...action.execution,
+            executionDate:
+              action.execution.executionDate?.toDate().toISOString() || null,
+          }
+        : null,
+      controlPlanning: action.controlPlanning
+        ? {
+            ...action.controlPlanning,
+            plannedDate: action.controlPlanning.plannedDate
+              .toDate()
+              .toISOString(),
+          }
+        : null,
+      controlExecution: action.controlExecution
+        ? {
+            ...action.controlExecution,
+            executionDate:
+              action.controlExecution.executionDate?.toDate().toISOString() ||
+              null,
+          }
+        : null,
+      createdAt: action.createdAt.toDate().toISOString(),
+      updatedAt: action.updatedAt.toDate().toISOString(),
+    };
 
-    return NextResponse.json(
-      { message: 'Action updated successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json(serializedAction);
   } catch (error) {
-    console.error('Error in PUT /api/actions/[id]:', error);
+    console.error('Error in GET /api/actions/[id]:', error);
     return NextResponse.json(
-      { error: 'Failed to update action' },
+      { error: 'Error al obtener la acción' },
       { status: 500 }
     );
   }
 }
 
-/**
- * DELETE /api/actions/[id]
- * Elimina una acción (soft delete)
- */
+// ============================================
+// DELETE - Eliminar acción (soft delete)
+// ============================================
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = 'current-user-id'; // TODO: Get from token
+    const userId = 'temp-user-id';
+    const userName = 'Usuario Temporal';
 
     const { id } = await params;
-    await ActionService.delete(id, userId);
+    await ActionService.delete(id, userId, userName);
 
-    return NextResponse.json(
-      { message: 'Action deleted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: 'Acción eliminada exitosamente' });
   } catch (error) {
     console.error('Error in DELETE /api/actions/[id]:', error);
     return NextResponse.json(
-      { error: 'Failed to delete action' },
+      { error: 'Error al eliminar la acción' },
       { status: 500 }
     );
   }

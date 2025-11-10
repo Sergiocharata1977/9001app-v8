@@ -1,32 +1,67 @@
-// API endpoint for managing chat sessions
+// API endpoint for chat sessions management
 
-import { NextRequest, NextResponse } from 'next/server';
-import { UserContextService } from '@/services/context/UserContextService';
 import { ChatSessionService } from '@/services/chat/ChatSessionService';
-import { ChatSession } from '@/types/chat';
+import { UserContextService } from '@/services/context/UserContextService';
+import { NextRequest, NextResponse } from 'next/server';
 
-interface CreateSessionRequest {
-  userId: string;
-  tipo: ChatSession['tipo'];
-  modulo?: string;
+// GET /api/ia/sessions - Get user's session history
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    const search = searchParams.get('search');
+    const modulo = searchParams.get('modulo');
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'userId is required' },
+        { status: 400 }
+      );
+    }
+
+    console.log('[API /ia/sessions] Getting sessions for user:', userId, {
+      limit,
+      offset,
+      search,
+      modulo,
+    });
+
+    // Get sessions with filters
+    const sessions = await ChatSessionService.getUserSessions(userId, {
+      limit,
+      offset,
+      search,
+      modulo,
+    });
+
+    return NextResponse.json({
+      success: true,
+      sessions,
+      count: sessions.length,
+    });
+  } catch (error) {
+    console.error('[API /ia/sessions] Error:', error);
+    return NextResponse.json(
+      {
+        error: 'Error getting sessions',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
 }
 
+// POST /api/ia/sessions - Create new session
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
-    const body: CreateSessionRequest = await request.json();
+    const body = await request.json();
     const { userId, tipo, modulo } = body;
 
-    // Validate required parameters
     if (!userId || !tipo) {
       return NextResponse.json(
-        {
-          error: 'Parámetros requeridos faltantes',
-          details: {
-            userId: !userId ? 'requerido' : 'ok',
-            tipo: !tipo ? 'requerido' : 'ok',
-          },
-        },
+        { error: 'userId and tipo are required' },
         { status: 400 }
       );
     }
@@ -50,17 +85,16 @@ export async function POST(request: NextRequest) {
 
     console.log('[API /ia/sessions] Session created:', sessionId);
 
-    // Return session ID and context
     return NextResponse.json({
+      success: true,
       sessionId,
       contexto,
     });
   } catch (error) {
     console.error('[API /ia/sessions] Error:', error);
-
     return NextResponse.json(
       {
-        error: 'Error interno del servidor',
+        error: 'Error creating session',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
@@ -68,31 +102,34 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to retrieve user's sessions
-export async function GET(request: NextRequest) {
+// DELETE /api/ia/sessions - Delete session
+export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get('sessionId');
     const userId = searchParams.get('userId');
-    const limit = parseInt(searchParams.get('limit') || '10');
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requerido' }, { status: 400 });
+    if (!sessionId || !userId) {
+      return NextResponse.json(
+        { error: 'sessionId and userId are required' },
+        { status: 400 }
+      );
     }
 
-    console.log('[API /ia/sessions] Getting sessions for user:', userId);
+    console.log('[API /ia/sessions] Deleting session:', sessionId);
 
-    const sessions = await ChatSessionService.getUserSessions(userId, limit);
+    // Delete session
+    await ChatSessionService.deleteSession(sessionId, userId);
 
     return NextResponse.json({
-      sessions,
-      count: sessions.length,
+      success: true,
+      message: 'Session deleted successfully',
     });
   } catch (error) {
-    console.error('[API /ia/sessions GET] Error:', error);
-
+    console.error('[API /ia/sessions] Error:', error);
     return NextResponse.json(
       {
-        error: 'Error interno del servidor',
+        error: 'Error deleting session',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

@@ -10,6 +10,9 @@ const nextConfig = {
       },
     ],
   },
+  // NOTA: Turbopack se desactiva desde el comando npm, no desde config
+  // Usar: npm run dev:no-turbo
+  // Ver: PROBLEMA_SPECS_AUDITORIAS.md
 };
 
 module.exports = nextConfig;

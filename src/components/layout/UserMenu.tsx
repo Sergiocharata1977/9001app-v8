@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Settings, User } from 'lucide-react';
+import { Clock, LogOut, Settings, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -75,6 +75,14 @@ export function UserMenu() {
             >
               <User className="w-4 h-4 text-emerald-600" />
               Mi Contexto
+            </button>
+
+            <button
+              onClick={() => handleNavigation('/historial-conversaciones')}
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-emerald-50 flex items-center gap-3 transition-colors"
+            >
+              <Clock className="w-4 h-4 text-emerald-600" />
+              Historial de Conversaciones
             </button>
 
             <button

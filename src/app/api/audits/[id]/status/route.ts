@@ -1,56 +1,40 @@
+import { AuditStatusSchema } from '@/lib/validations/audits';
 import { AuditService } from '@/services/audits/AuditService';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 
-const statusSchema = z.object({
-  status: z.enum([
-    'planned',
-    'in_progress',
-    'completed',
-    'cancelled',
-    'postponed',
-  ]),
-});
-
-/**
- * PATCH /api/audits/[id]/status
- * Actualiza el estado de una auditoría
- */
-export async function PATCH(
+// PUT /api/audits/[id]/status - Cambiar estado de auditoría
+export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-
-    // Verificar autenticación
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = 'current-user-id'; // TODO: Obtener del token
     const body = await request.json();
+    const status = AuditStatusSchema.parse(body.status);
 
-    // Validar datos
-    const validationResult = statusSchema.safeParse(body);
-    if (!validationResult.success) {
+    await AuditService.updateStatus(id, status);
+
+    return NextResponse.json({ message: 'Estado actualizado exitosamente' });
+  } catch (error: unknown) {
+    console.error('Error updating audit status:', error);
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.issues },
+        {
+          error: 'Estado inválido',
+          details: 'errors' in error ? error.errors : [],
+        },
         { status: 400 }
       );
     }
 
-    await AuditService.updateStatus(id, validationResult.data.status, userId);
-
     return NextResponse.json(
-      { message: 'Audit status updated successfully' },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('Error in PATCH /api/audits/[id]/status:', error);
-    return NextResponse.json(
-      { error: 'Failed to update audit status' },
+      { error: 'Error al actualizar estado' },
       { status: 500 }
     );
   }

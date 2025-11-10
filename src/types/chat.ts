@@ -10,8 +10,17 @@ export interface ChatSession {
   estado: 'activo' | 'pausado' | 'completado';
   mensajes: Mensaje[];
   contexto_snapshot: UserContext; // Snapshot at session creation
+
+  // Enhanced fields for Phase 2
+  titulo?: string; // Auto-generated title
+  resumen?: string; // AI-generated summary
+  tags?: string[]; // Auto-tagged topics
+  duracion_minutos?: number;
+  modo_continuo_usado?: boolean;
+
   created_at: Date;
   updated_at: Date;
+  last_accessed_at?: Date;
 }
 
 export interface Mensaje {

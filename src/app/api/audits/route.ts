@@ -1,78 +1,106 @@
-import { auditFormDataSchema } from '@/lib/validations/audits';
+import { AuditFormSchema } from '@/lib/validations/audits';
 import { AuditService } from '@/services/audits/AuditService';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * GET /api/audits
- * Obtiene todas las auditorías con filtros opcionales
- */
-export async function GET(request: NextRequest) {
+// GET /api/audits - Listar todas las auditorías
+export async function GET() {
   try {
-    // Verificar autenticación
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const audits = await AuditService.getAll();
 
-    // Obtener filtros de query params
-    const { searchParams } = new URL(request.url);
-    const filters = {
-      status: searchParams.get('status') || undefined,
-      auditType: searchParams.get('auditType') || undefined,
-      leadAuditorId: searchParams.get('leadAuditorId') || undefined,
-      year: searchParams.get('year')
-        ? parseInt(searchParams.get('year')!)
-        : undefined,
-    };
+    // Serializar Timestamps a strings ISO (manejar datos antiguos y nuevos)
+    const serializedAudits = audits.map(audit => {
+      const serializeDate = (date: unknown): string => {
+        if (!date) return new Date().toISOString();
+        if (typeof date === 'string') return date;
+        if (
+          typeof date === 'object' &&
+          date !== null &&
+          'toDate' in date &&
+          typeof date.toDate === 'function'
+        ) {
+          return date.toDate().toISOString();
+        }
+        if (date instanceof Date) return date.toISOString();
+        return new Date().toISOString();
+      };
 
-    const audits = await AuditService.getAll(filters);
+      return {
+        ...audit,
+        plannedDate: serializeDate(audit.plannedDate),
+        createdAt: serializeDate(audit.createdAt),
+        updatedAt: serializeDate(audit.updatedAt),
+      };
+    });
 
-    return NextResponse.json({ audits }, { status: 200 });
+    return NextResponse.json({ audits: serializedAudits });
   } catch (error) {
-    console.error('Error in GET /api/audits:', error);
+    console.error('Error fetching audits:', error);
     return NextResponse.json(
-      { error: 'Failed to get audits' },
+      { error: 'Error al obtener auditorías' },
       { status: 500 }
     );
   }
 }
 
-/**
- * POST /api/audits
- * Crea una nueva auditoría
- */
+// POST /api/audits - Crear nueva auditoría
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Obtener usuario actual (simplificado, deberías usar tu sistema de auth)
-    const userId = 'current-user-id'; // TODO: Obtener del token
-
     const body = await request.json();
+    console.log('Received audit data:', body);
 
-    // Validar datos
-    const validationResult = auditFormDataSchema.safeParse(body);
-    if (!validationResult.success) {
+    // Validar que plannedDate existe y es válido
+    if (!body.plannedDate) {
       return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.issues },
+        { error: 'La fecha planificada es requerida' },
         { status: 400 }
       );
     }
 
-    const auditId = await AuditService.create(validationResult.data, userId);
+    // Convertir plannedDate a Date object
+    const plannedDate = new Date(body.plannedDate);
+    if (isNaN(plannedDate.getTime())) {
+      return NextResponse.json(
+        { error: 'Fecha planificada inválida' },
+        { status: 400 }
+      );
+    }
+
+    // Validar datos con Zod
+    const validatedData = AuditFormSchema.parse({
+      ...body,
+      plannedDate,
+    });
+
+    console.log('Validated data:', validatedData);
+
+    // Crear auditoría en Firestore
+    const auditId = await AuditService.create(validatedData);
+    console.log('Created audit with ID:', auditId);
 
     return NextResponse.json(
-      { message: 'Audit created successfully', id: auditId },
+      { id: auditId, message: 'Auditoría creada exitosamente' },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('Error in POST /api/audits:', error);
+  } catch (error: unknown) {
+    console.error('Error creating audit:', error);
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Datos inválidos',
+          details: 'errors' in error ? error.errors : [],
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create audit' },
+      { error: 'Error al crear auditoría' },
       { status: 500 }
     );
   }

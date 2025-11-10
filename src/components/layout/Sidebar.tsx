@@ -15,13 +15,13 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  ClipboardCheck,
   FileSpreadsheet,
   FileText,
   GraduationCap,
   Home,
   Kanban,
   MessageSquare,
-  Search,
   Settings,
   Shield,
   UserCheck,
@@ -61,7 +61,7 @@ const navigation: MenuItem[] = [
     href: '/dashboard/mejoras',
     icon: Zap,
     children: [
-      { name: 'Auditorías', href: '/auditorias', icon: Search },
+      { name: 'Auditorías', href: '/auditorias', icon: ClipboardCheck },
       { name: 'Hallazgos', href: '/hallazgos', icon: AlertTriangle },
       { name: 'Acciones', href: '/acciones', icon: CheckCircle },
       {

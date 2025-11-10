@@ -228,15 +228,21 @@ export class ChatSessionService {
   }
 
   /**
-   * Get user's session history
+   * Get user's session history with filters
    * @param userId User ID
-   * @param limit Maximum number of sessions to return
+   * @param options Filter options
    * @returns Array of sessions
    */
   static async getUserSessions(
     userId: string,
-    limit: number = 10
+    options?: {
+      limit?: number;
+      offset?: number;
+      search?: string | null;
+      modulo?: string | null;
+    }
   ): Promise<ChatSession[]> {
+    const { limit = 10, offset = 0, search, modulo } = options || {};
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
@@ -343,6 +349,60 @@ export class ChatSessionService {
         error
       );
       throw new Error('Failed to get active sessions');
+    }
+  }
+
+  /**
+   * Delete session
+   * @param sessionId Session ID
+   * @param userId User ID (for security check)
+   */
+  static async deleteSession(sessionId: string, userId: string): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, sessionId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error('Session not found');
+      }
+
+      // Security check: verify user owns this session
+      if (docSnap.data().user_id !== userId) {
+        throw new Error('Unauthorized');
+      }
+
+      // Delete the session
+      await updateDoc(docRef, {
+        estado: 'completado',
+        updated_at: serverTimestamp(),
+      });
+
+      console.log('[ChatSessionService] Deleted session:', sessionId);
+    } catch (error) {
+      console.error('[ChatSessionService] Error deleting session:', error);
+      throw new Error('Failed to delete session');
+    }
+  }
+
+  /**
+   * Update last accessed time
+   * @param sessionId Session ID
+   */
+  static async updateLastAccessed(sessionId: string): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, sessionId);
+
+      await updateDoc(docRef, {
+        last_accessed_at: serverTimestamp(),
+      });
+
+      console.log('[ChatSessionService] Updated last accessed:', sessionId);
+    } catch (error) {
+      console.error(
+        '[ChatSessionService] Error updating last accessed:',
+        error
+      );
+      // Don't throw error, this is not critical
     }
   }
 }

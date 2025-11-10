@@ -1,262 +1,377 @@
 'use client';
 
-import { FindingPhaseIndicator } from '@/components/findings/FindingPhaseIndicator';
-import { FindingStatusBadge } from '@/components/findings/FindingStatusBadge';
-import { ImmediateCorrectionForm } from '@/components/findings/ImmediateCorrectionForm';
-import { RelatedEntitiesCard } from '@/components/shared/RelatedEntitiesCard';
-import { TraceabilityBreadcrumb } from '@/components/shared/TraceabilityBreadcrumb';
+import { FindingImmediateActionExecutionForm } from '@/components/findings/FindingImmediateActionExecutionForm';
+import { FindingImmediateActionPlanningForm } from '@/components/findings/FindingImmediateActionPlanningForm';
+import { FindingRootCauseAnalysisForm } from '@/components/findings/FindingRootCauseAnalysisForm';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Action } from '@/types/actions';
-import type { Audit } from '@/types/audits';
+import { formatDate } from '@/lib/utils';
 import type { Finding } from '@/types/findings';
-import { AlertTriangle, ArrowLeft, Calendar, User } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { FINDING_STATUS_COLORS, FINDING_STATUS_LABELS } from '@/types/findings';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
+// Helper para convertir fechas de Firestore
+const toDate = (
+  timestamp: Date | { toDate?: () => Date; seconds?: number } | string | null
+): Date => {
+  if (!timestamp) return new Date();
+  if (timestamp instanceof Date) return timestamp;
+  if (
+    typeof timestamp === 'object' &&
+    'toDate' in timestamp &&
+    typeof timestamp.toDate === 'function'
+  ) {
+    return timestamp.toDate();
+  }
+  if (
+    typeof timestamp === 'object' &&
+    'seconds' in timestamp &&
+    timestamp.seconds
+  ) {
+    return new Date(timestamp.seconds * 1000);
+  }
+  if (typeof timestamp === 'string') {
+    return new Date(timestamp);
+  }
+  return new Date();
+};
 
 export default function FindingDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [finding, setFinding] = useState<Finding | null>(null);
-  const [sourceAudit, setSourceAudit] = useState<Audit | null>(null);
-  const [relatedActions, setRelatedActions] = useState<Action[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchFinding = async (id: string) => {
+  useEffect(() => {
+    if (params.id) {
+      fetchFinding();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id]);
+
+  const fetchFinding = async () => {
     try {
-      const response = await fetch(`/api/findings/${id}`, {
-        headers: { authorization: 'Bearer token' },
-      });
+      setLoading(true);
+      const response = await fetch(`/api/findings/${params.id}`);
+
+      if (!response.ok) {
+        throw new Error('Hallazgo no encontrado');
+      }
+
       const data = await response.json();
       setFinding(data.finding);
-
-      // Fetch source audit if applicable
-      if (data.finding.source === 'audit' && data.finding.sourceId) {
-        fetchSourceAudit(data.finding.sourceId);
-      }
-    } catch (error) {
-      console.error('Error fetching finding:', error);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Error al cargar el hallazgo'
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (params.id) {
-      fetchFinding(params.id as string);
-      fetchRelatedActions(params.id as string);
-    }
-  }, [params.id]);
+  const handleClose = async () => {
+    if (!finding) return;
 
+    if (!confirm('¿Está seguro de cerrar este hallazgo?')) return;
 
-  const fetchSourceAudit = async (auditId: string) => {
     try {
-      const response = await fetch(`/api/audits/${auditId}`, {
-        headers: { authorization: 'Bearer token' },
-      });
-      const data = await response.json();
-      setSourceAudit(data.audit);
-    } catch (error) {
-      console.error('Error fetching source audit:', error);
-    }
-  };
-
-  const fetchRelatedActions = async (findingId: string) => {
-    try {
-      const response = await fetch(`/api/actions/by-finding/${findingId}`, {
-        headers: { authorization: 'Bearer token' },
-      });
-      const data = await response.json();
-      setRelatedActions(data.actions || []);
-    } catch (error) {
-      console.error('Error fetching related actions:', error);
-    }
-  };
-
-  const handleCorrectionSubmit = async (
-    correction: Finding['immediateCorrection']
-  ) => {
-    try {
-      await fetch(`/api/findings/${params.id}/correction`, {
+      const response = await fetch(`/api/findings/${finding.id}/close`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: 'Bearer token',
-        },
-        body: JSON.stringify(correction),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userName: 'Usuario' }),
       });
-      fetchFinding(params.id as string);
+
+      if (!response.ok) {
+        throw new Error('Error al cerrar hallazgo');
+      }
+
+      alert('Hallazgo cerrado exitosamente');
+      fetchFinding();
     } catch (error) {
-      console.error('Error submitting correction:', error);
+      console.error('Error closing finding:', error);
+      alert('Error al cerrar el hallazgo');
     }
   };
 
-  if (loading) return <div>Cargando...</div>;
-  if (!finding) return <div>Hallazgo no encontrado</div>;
-
-  // Build traceability chain
-  const traceabilityItems = [];
-  if (sourceAudit) {
-    traceabilityItems.push({
-      type: 'audit' as const,
-      id: sourceAudit.id,
-      number: sourceAudit.auditNumber,
-      title: sourceAudit.title,
-    });
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
   }
-  traceabilityItems.push({
-    type: 'finding' as const,
-    id: finding.id,
-    number: finding.findingNumber,
-    title: finding.title,
-  });
+
+  if (error || !finding) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error || 'Hallazgo no encontrado'}
+        </div>
+        <Link
+          href="/hallazgos"
+          className="inline-flex items-center gap-2 mt-4 text-blue-600 hover:text-blue-700"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a hallazgos
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Button variant="ghost" onClick={() => router.back()}>
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Volver
-      </Button>
-
-      {traceabilityItems.length > 0 && (
-        <TraceabilityBreadcrumb
-          items={traceabilityItems}
-          currentId={finding.id}
-        />
-      )}
-
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">{finding.title}</h1>
-          <p className="text-muted-foreground">{finding.findingNumber}</p>
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link
+          href="/hallazgos"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {finding.findingNumber}
+            </h1>
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${FINDING_STATUS_COLORS[finding.status]}`}
+            >
+              {FINDING_STATUS_LABELS[finding.status]}
+            </span>
+          </div>
+          <p className="text-gray-600">{finding.registration.name}</p>
         </div>
-        <div className="flex gap-2">
-          <FindingStatusBadge status={finding.status} />
-          <FindingPhaseIndicator phase={finding.currentPhase} />
+
+        {/* Botón Cerrar */}
+        {finding.status === 'analisis_completado' && (
+          <Button onClick={handleClose} variant="outline">
+            Cerrar Hallazgo
+          </Button>
+        )}
+      </div>
+
+      {/* Progress Bar */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">Progreso</span>
+          <span className="text-2xl font-bold text-gray-900">
+            {finding.progress}%
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-4">
+          <div
+            className="bg-blue-600 h-4 rounded-full transition-all"
+            style={{ width: `${finding.progress}%` }}
+          />
         </div>
       </div>
 
-      <Tabs defaultValue="detection" className="w-full">
-        <TabsList>
-          <TabsTrigger value="detection">Detección</TabsTrigger>
-          <TabsTrigger value="treatment">Tratamiento</TabsTrigger>
-          <TabsTrigger value="control">Control</TabsTrigger>
-        </TabsList>
+      {/* Fase 1: Registro del Hallazgo */}
+      <div className="bg-white rounded-lg shadow p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
+          Fase 1: Registro del Hallazgo
+        </h2>
 
-        <TabsContent value="detection" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Información General</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span className="text-sm">
-                    Identificado:{' '}
-                    {new Date(finding.identifiedDate).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Severidad: {finding.severity}</span>
-                </div>
-                <div className="flex items-center">
-                  <User className="h-4 w-4 mr-2" />
-                  <span className="text-sm">
-                    Reportado por: {finding.reportedByName}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Clasificación</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Tipo:</span>
-                  <span className="font-medium">{finding.findingType}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Categoría:</span>
-                  <span className="font-medium">{finding.category}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Fuente:</span>
-                  <span className="font-medium">{finding.source}</span>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-500">Origen</label>
+            <p className="text-gray-900 mt-1">{finding.registration.origin}</p>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Descripción</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{finding.description}</p>
-            </CardContent>
-          </Card>
+          <div>
+            <label className="text-sm font-medium text-gray-500">Nombre</label>
+            <p className="text-gray-900 mt-1">{finding.registration.name}</p>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Evidencia</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{finding.evidence}</p>
-            </CardContent>
-          </Card>
+          <div className="col-span-2">
+            <label className="text-sm font-medium text-gray-500">
+              Descripción
+            </label>
+            <p className="text-gray-900 mt-1">
+              {finding.registration.description}
+            </p>
+          </div>
 
-          <ImmediateCorrectionForm
+          {finding.registration.processName && (
+            <div>
+              <label className="text-sm font-medium text-gray-500">
+                Proceso Involucrado
+              </label>
+              <p className="text-gray-900 mt-1">
+                {finding.registration.processName}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Fase 2: Planificación de Acción Inmediata - Formulario o Vista */}
+      {finding.immediateActionPlanning ? (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
+            Fase 2: Planificación de Acción Inmediata
+          </h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">
+                Responsable de la Acción
+              </label>
+              <p className="text-gray-900 mt-1">
+                {finding.immediateActionPlanning.responsiblePersonName}
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-500">
+                Fecha Programada
+              </label>
+              <p className="text-gray-900 mt-1">
+                {formatDate(
+                  toDate(finding.immediateActionPlanning.plannedDate)
+                )}
+              </p>
+            </div>
+
+            {finding.immediateActionPlanning.comments && (
+              <div className="col-span-2">
+                <label className="text-sm font-medium text-gray-500">
+                  Comentarios
+                </label>
+                <p className="text-gray-900 mt-1">
+                  {finding.immediateActionPlanning.comments}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        finding.status === 'registrado' && (
+          <FindingImmediateActionPlanningForm
             findingId={finding.id}
-            currentCorrection={finding.immediateCorrection}
-            onSubmit={handleCorrectionSubmit}
+            onSuccess={fetchFinding}
           />
-        </TabsContent>
+        )
+      )}
 
-        <TabsContent value="treatment">
-          <Card>
-            <CardHeader>
-              <CardTitle>Análisis de Causa Raíz</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Esta sección se completará en la Fase 2: Tratamiento
+      {/* Fase 3: Ejecución de Acción Inmediata - Formulario o Vista */}
+      {finding.immediateActionExecution ? (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
+            Fase 3: Ejecución de Acción Inmediata
+          </h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">
+                Fecha de Ejecución
+              </label>
+              <p className="text-gray-900 mt-1">
+                {formatDate(
+                  toDate(finding.immediateActionExecution.executionDate)
+                )}
               </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
 
-        <TabsContent value="control">
-          <Card>
-            <CardHeader>
-              <CardTitle>Verificación de Efectividad</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Esta sección se completará en la Fase 3: Control
+            <div>
+              <label className="text-sm font-medium text-gray-500">
+                Ejecutado por
+              </label>
+              <p className="text-gray-900 mt-1">
+                {finding.immediateActionExecution.executedByName}
               </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
 
-      {/* Related Actions */}
-      <RelatedEntitiesCard
-        title="Acciones Relacionadas"
-        entityType="actions"
-        entities={relatedActions.map(action => ({
-          id: action.id,
-          number: action.actionNumber,
-          title: action.title,
-          status: action.status,
-          type: action.actionType,
-        }))}
-        emptyMessage="No hay acciones asociadas a este hallazgo"
-      />
+            <div className="col-span-2">
+              <label className="text-sm font-medium text-gray-500">
+                Corrección Realizada
+              </label>
+              <p className="text-gray-900 mt-1">
+                {finding.immediateActionExecution.correction}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        finding.status === 'accion_planificada' &&
+        finding.immediateActionPlanning && (
+          <FindingImmediateActionExecutionForm
+            findingId={finding.id}
+            onSuccess={fetchFinding}
+          />
+        )
+      )}
+
+      {/* Fase 4: Análisis de Causa Raíz - Formulario o Vista */}
+      {finding.rootCauseAnalysis ? (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
+            Fase 4: Análisis de Causa Raíz
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-500">
+                Análisis
+              </label>
+              <p className="text-gray-900 mt-1 whitespace-pre-wrap">
+                {finding.rootCauseAnalysis.analysis}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <label className="text-sm font-medium text-gray-700">
+                ¿Requiere Acción?
+              </label>
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  finding.rootCauseAnalysis.requiresAction
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-green-100 text-green-800'
+                }`}
+              >
+                {finding.rootCauseAnalysis.requiresAction ? 'Sí' : 'No'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+              <div>
+                Analizado por: {finding.rootCauseAnalysis.analyzedByName}
+              </div>
+              <div>
+                Fecha:{' '}
+                {formatDate(toDate(finding.rootCauseAnalysis.analyzedDate))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        finding.status === 'accion_ejecutada' &&
+        finding.immediateActionExecution && (
+          <FindingRootCauseAnalysisForm
+            findingId={finding.id}
+            onSuccess={fetchFinding}
+          />
+        )
+      )}
+
+      {/* Metadatos */}
+      <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            Creado por: {finding.createdByName} el{' '}
+            {formatDate(toDate(finding.createdAt))}
+          </div>
+          {finding.updatedBy && (
+            <div>
+              Actualizado por: {finding.updatedByName} el{' '}
+              {formatDate(toDate(finding.updatedAt))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

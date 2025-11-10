@@ -18,6 +18,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { ActionFormData } from '@/types/actions';
+import {
+  ACTION_PRIORITY_LABELS,
+  ACTION_SOURCE_TYPE_LABELS,
+  ACTION_TYPE_LABELS,
+} from '@/types/actions';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ActionFormDialogProps {
@@ -39,22 +45,50 @@ export function ActionFormDialog({
 }: ActionFormDialogProps) {
   const [formData, setFormData] = useState<Partial<ActionFormData>>(
     initialData || {
-      findingId: findingId || '',
-      findingNumber: findingNumber || '',
-      sourceType: 'finding',
-      sourceId: findingId || '',
+      title: '',
+      description: '',
+      actionType: 'correctiva',
+      priority: 'media',
+      sourceType: findingId ? 'hallazgo' : 'manual',
+      sourceName: findingNumber || '',
+      processId: '',
+      processName: '',
+      implementationResponsibleId: '',
+      implementationResponsibleName: '',
+      plannedExecutionDate: new Date(),
+      planningObservations: '',
     }
   );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+
     try {
       await onSubmit(formData as ActionFormData);
       onClose();
-    } catch (error) {
-      console.error('Error submitting action:', error);
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        actionType: 'correctiva',
+        priority: 'media',
+        sourceType: 'manual',
+        sourceName: '',
+        processId: '',
+        processName: '',
+        implementationResponsibleId: '',
+        implementationResponsibleName: '',
+        plannedExecutionDate: new Date(),
+        planningObservations: '',
+      });
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Error al guardar la acción'
+      );
     } finally {
       setLoading(false);
     }
@@ -62,135 +96,318 @@ export function ActionFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {initialData ? 'Editar Acción' : 'Nueva Acción'}
-          </DialogTitle>
+          <DialogTitle>Nueva Acción - Planificación</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Título</Label>
-            <Input
-              id="title"
-              value={formData.title || ''}
-              onChange={e =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
-            />
-          </div>
 
-          <div>
-            <Label htmlFor="description">Descripción</Label>
-            <Textarea
-              id="description"
-              value={formData.description || ''}
-              onChange={e =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              rows={3}
-              required
-            />
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
           </div>
+        )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="actionType">Tipo de Acción</Label>
-              <Select
-                value={formData.actionType}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    actionType: value as ActionFormData['actionType'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="corrective">Correctiva</SelectItem>
-                  <SelectItem value="preventive">Preventiva</SelectItem>
-                  <SelectItem value="improvement">Mejora</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Información Básica */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
+              Información Básica
+            </h3>
 
             <div>
-              <Label htmlFor="priority">Prioridad</Label>
-              <Select
-                value={formData.priority}
-                onValueChange={value =>
-                  setFormData({
-                    ...formData,
-                    priority: value as ActionFormData['priority'],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar prioridad" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Baja</SelectItem>
-                  <SelectItem value="medium">Media</SelectItem>
-                  <SelectItem value="high">Alta</SelectItem>
-                  <SelectItem value="critical">Crítica</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="plannedStartDate">Fecha Inicio</Label>
+              <Label htmlFor="title">
+                Título <span className="text-red-500">*</span>
+              </Label>
               <Input
-                id="plannedStartDate"
-                type="date"
-                value={formData.plannedStartDate || ''}
+                id="title"
+                value={formData.title || ''}
                 onChange={e =>
-                  setFormData({ ...formData, plannedStartDate: e.target.value })
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                maxLength={200}
+                placeholder="Ej: Calibrar sensor de temperatura"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description">
+                Descripción <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="description"
+                value={formData.description || ''}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={3}
+                maxLength={2000}
+                placeholder="Describe detalladamente la acción a realizar..."
+                required
+              />
+            </div>
+          </div>
+
+          {/* Clasificación */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
+              Clasificación
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="actionType">
+                  Tipo de Acción <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.actionType}
+                  onValueChange={value =>
+                    setFormData({
+                      ...formData,
+                      actionType: value as ActionFormData['actionType'],
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ACTION_TYPE_LABELS).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="priority">
+                  Prioridad <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.priority}
+                  onValueChange={value =>
+                    setFormData({
+                      ...formData,
+                      priority: value as ActionFormData['priority'],
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar prioridad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ACTION_PRIORITY_LABELS).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Origen */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
+              Origen
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="sourceType">
+                  Tipo de Origen <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.sourceType}
+                  onValueChange={value =>
+                    setFormData({
+                      ...formData,
+                      sourceType: value as ActionFormData['sourceType'],
+                    })
+                  }
+                  disabled={!!findingId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar origen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ACTION_SOURCE_TYPE_LABELS).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="sourceName">
+                  Nombre del Origen <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="sourceName"
+                  value={formData.sourceName || ''}
+                  onChange={e =>
+                    setFormData({ ...formData, sourceName: e.target.value })
+                  }
+                  placeholder="Ej: Auditoría interna 2025"
+                  required
+                  disabled={!!findingNumber}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Proceso */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
+              Proceso
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="processId">
+                  ID del Proceso <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="processId"
+                  value={formData.processId || ''}
+                  onChange={e =>
+                    setFormData({ ...formData, processId: e.target.value })
+                  }
+                  placeholder="Ej: proc-001"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="processName">
+                  Nombre del Proceso <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="processName"
+                  value={formData.processName || ''}
+                  onChange={e =>
+                    setFormData({ ...formData, processName: e.target.value })
+                  }
+                  placeholder="Ej: Gestión de Calidad"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Planificación de la Acción */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
+              Planificación de la Acción
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="implementationResponsibleId">
+                  ID del Responsable <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="implementationResponsibleId"
+                  value={formData.implementationResponsibleId || ''}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      implementationResponsibleId: e.target.value,
+                    })
+                  }
+                  placeholder="Ej: user-123"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="implementationResponsibleName">
+                  Nombre del Responsable <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="implementationResponsibleName"
+                  value={formData.implementationResponsibleName || ''}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      implementationResponsibleName: e.target.value,
+                    })
+                  }
+                  placeholder="Ej: Juan Pérez"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="plannedExecutionDate">
+                Fecha Planificada de Ejecución{' '}
+                <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="plannedExecutionDate"
+                type="date"
+                value={
+                  formData.plannedExecutionDate
+                    ? new Date(formData.plannedExecutionDate)
+                        .toISOString()
+                        .split('T')[0]
+                    : ''
+                }
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    plannedExecutionDate: new Date(e.target.value),
+                  })
                 }
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="plannedEndDate">Fecha Fin</Label>
-              <Input
-                id="plannedEndDate"
-                type="date"
-                value={formData.plannedEndDate || ''}
+              <Label htmlFor="planningObservations">
+                Observaciones de Planificación
+              </Label>
+              <Textarea
+                id="planningObservations"
+                value={formData.planningObservations || ''}
                 onChange={e =>
-                  setFormData({ ...formData, plannedEndDate: e.target.value })
+                  setFormData({
+                    ...formData,
+                    planningObservations: e.target.value,
+                  })
                 }
-                required
+                rows={2}
+                placeholder="Comentarios adicionales sobre la planificación..."
               />
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="responsiblePersonName">Responsable</Label>
-            <Input
-              id="responsiblePersonName"
-              value={formData.responsiblePersonName || ''}
-              onChange={e =>
-                setFormData({
-                  ...formData,
-                  responsiblePersonName: e.target.value,
-                  responsiblePersonId: 'temp-id',
-                })
-              }
-              required
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
+          {/* Buttons */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar'}
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                'Crear Acción'
+              )}
             </Button>
           </div>
         </form>

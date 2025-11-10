@@ -7,16 +7,21 @@ interface AudioPlayerProps {
   text: string;
   voiceId?: string;
   autoPlay?: boolean;
+  onPlayStart?: () => void;
+  onPlayEnd?: () => void;
+  onError?: (error: string) => void;
 }
 
 export function AudioPlayer({
   text,
   voiceId,
   autoPlay = false,
+  onPlayStart,
+  onPlayEnd,
+  onError,
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playAudio = async () => {
@@ -31,7 +36,6 @@ export function AudioPlayer({
     }
 
     setIsLoading(true);
-    setError(null);
 
     try {
       console.log('[AudioPlayer] Requesting audio...');
@@ -63,29 +67,44 @@ export function AudioPlayer({
       audio.onplay = () => {
         setIsPlaying(true);
         setIsLoading(false);
+        if (onPlayStart) {
+          onPlayStart();
+        }
       };
 
       audio.onended = () => {
         setIsPlaying(false);
         URL.revokeObjectURL(audioUrl);
+        if (onPlayEnd) {
+          onPlayEnd();
+        }
       };
 
       audio.onerror = () => {
-        setError('Error al reproducir el audio');
+        const errorMsg = 'Error al reproducir el audio';
         setIsPlaying(false);
         setIsLoading(false);
+        if (onError) {
+          onError(errorMsg);
+        }
       };
 
       await audio.play();
     } catch (err) {
       console.error('[AudioPlayer] Error:', err);
-      setError('Error al generar el audio');
+      const errorMsg = 'Error al generar el audio';
       setIsLoading(false);
+      if (onError) {
+        onError(errorMsg);
+      }
     }
   };
 
+  const hasAutoPlayedRef = useRef(false);
+
   useEffect(() => {
-    if (autoPlay && text) {
+    if (autoPlay && text && !hasAutoPlayedRef.current) {
+      hasAutoPlayedRef.current = true;
       playAudio();
     }
 
@@ -95,6 +114,7 @@ export function AudioPlayer({
         audioRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, autoPlay]);
 
   return (

@@ -1,129 +1,137 @@
 import { z } from 'zod';
 
-// Team Member Schema
-export const teamMemberSchema = z.object({
-  userId: z.string().min(1, 'User ID is required'),
-  userName: z.string().min(1, 'User name is required'),
-  role: z.string().min(1, 'Role is required'),
-});
+// ============================================
+// SCHEMAS DE ENUMS
+// ============================================
 
-// Action Plan Step Schema
-export const actionPlanStepSchema = z.object({
-  sequence: z.number().positive(),
-  description: z.string().min(1, 'Step description is required'),
-  responsible: z.string().min(1, 'Responsible person is required'),
-  deadline: z.string().min(1, 'Deadline is required'),
-  status: z.enum(['pending', 'in_progress', 'completed']),
-  evidence: z.string().optional(),
-});
+export const ActionTypeSchema = z.enum(['correctiva', 'preventiva', 'mejora']);
 
-// Action Plan Schema
-export const actionPlanSchema = z.object({
-  steps: z.array(actionPlanStepSchema).min(1, 'At least one step is required'),
-});
+export const ActionPrioritySchema = z.enum([
+  'baja',
+  'media',
+  'alta',
+  'critica',
+]);
 
-// Required Resources Schema
-export const requiredResourcesSchema = z.object({
-  budget: z.number().positive().optional(),
-  equipment: z.array(z.string()).optional(),
-  personnel: z.array(z.string()).optional(),
-  time: z.number().positive().optional(),
-});
+export const ActionStatusSchema = z.enum([
+  'planificada',
+  'ejecutada',
+  'en_control',
+  'completada',
+  'cancelada',
+]);
 
-// Effectiveness Verification Schema
-export const effectivenessVerificationSchema = z.object({
-  responsiblePersonId: z.string().min(1, 'Responsible person ID is required'),
-  responsiblePersonName: z
+export const ActionSourceTypeSchema = z.enum([
+  'manual',
+  'hallazgo',
+  'auditoria',
+  'otro',
+]);
+
+// ============================================
+// SCHEMA DE FORMULARIO 1: PLANIFICACIÓN INICIAL
+// ============================================
+
+export const ActionFormSchema = z.object({
+  // Información básica
+  title: z
     .string()
-    .min(1, 'Responsible person name is required'),
-  verificationCommitmentDate: z.string().optional(),
-  verificationExecutionDate: z.string().optional(),
-  method: z.string().min(1, 'Verification method is required'),
-  criteria: z.string().min(1, 'Effectiveness criteria is required'),
-  isEffective: z.boolean(),
-  result: z.string().min(1, 'Verification result is required'),
-  evidence: z.string().min(1, 'Verification evidence is required'),
+    .min(1, 'El título es requerido')
+    .max(200, 'El título no puede exceder 200 caracteres'),
+
+  description: z
+    .string()
+    .min(1, 'La descripción es requerida')
+    .max(2000, 'La descripción no puede exceder 2000 caracteres'),
+
+  // Clasificación
+  actionType: ActionTypeSchema,
+  priority: ActionPrioritySchema,
+
+  // Origen
+  sourceType: ActionSourceTypeSchema,
+  sourceName: z.string().min(1, 'El nombre del origen es requerido'),
+
+  // Proceso
+  processId: z.string().min(1, 'El proceso es requerido'),
+  processName: z.string().min(1, 'El nombre del proceso es requerido'),
+
+  // Planificación de la acción
+  implementationResponsibleId: z
+    .string()
+    .min(1, 'El responsable de implementación es requerido'),
+  implementationResponsibleName: z
+    .string()
+    .min(1, 'El nombre del responsable es requerido'),
+  plannedExecutionDate: z.date(),
+  planningObservations: z.string().optional(),
+});
+
+// ============================================
+// SCHEMA DE FORMULARIO 2: EJECUCIÓN
+// ============================================
+
+export const ActionExecutionSchema = z.object({
+  executionDate: z.date(),
   comments: z.string().optional(),
 });
 
-// Action Form Data Schema
-export const actionFormDataSchema = z
-  .object({
-    title: z
-      .string()
-      .min(1, 'Title is required')
-      .max(200, 'Title must be less than 200 characters'),
-    description: z.string().min(1, 'Description is required'),
-    actionType: z.enum(['corrective', 'preventive', 'improvement']),
-    sourceType: z.enum(['audit', 'employee', 'customer', 'finding']),
-    sourceId: z.string().min(1, 'Source ID is required'),
-    findingId: z.string().min(1, 'Finding ID is required'),
-    findingNumber: z.string().min(1, 'Finding number is required'),
-    plannedStartDate: z.string().min(1, 'Planned start date is required'),
-    plannedEndDate: z.string().min(1, 'Planned end date is required'),
-    responsiblePersonId: z.string().min(1, 'Responsible person is required'),
-    responsiblePersonName: z
-      .string()
-      .min(1, 'Responsible person name is required'),
-    teamMembers: z.array(teamMemberSchema).optional(),
-    priority: z.enum(['low', 'medium', 'high', 'critical']),
-    actionPlan: actionPlanSchema.optional(),
-    requiredResources: requiredResourcesSchema.optional(),
-    documents: z.array(z.string()).optional(),
-  })
-  .refine(
-    data => {
-      // Validate that plannedEndDate is after plannedStartDate
-      const start = new Date(data.plannedStartDate);
-      const end = new Date(data.plannedEndDate);
-      return end > start;
-    },
-    {
-      message: 'Planned end date must be after planned start date',
-      path: ['plannedEndDate'],
-    }
-  );
+// ============================================
+// SCHEMA DE FORMULARIO 3: PLANIFICACIÓN DEL CONTROL
+// ============================================
 
-// Action Update Schema (partial)
-export const actionUpdateSchema = actionFormDataSchema.partial();
-
-// Action Status Update Schema
-export const actionStatusUpdateSchema = z.object({
-  status: z.enum([
-    'planned',
-    'in_progress',
-    'completed',
-    'cancelled',
-    'on_hold',
-  ]),
-  userId: z.string().min(1, 'User ID is required'),
+export const ActionControlPlanningSchema = z.object({
+  responsiblePersonId: z
+    .string()
+    .min(1, 'El responsable del control es requerido'),
+  responsiblePersonName: z
+    .string()
+    .min(1, 'El nombre del responsable es requerido'),
+  plannedDate: z.date(),
+  effectivenessCriteria: z
+    .string()
+    .min(1, 'El criterio de efectividad es requerido'),
+  comments: z.string().optional(),
 });
 
-// Action Progress Update Schema
-export const actionProgressUpdateSchema = z.object({
-  progress: z.number().min(0).max(100),
+// ============================================
+// SCHEMA DE FORMULARIO 4: EJECUCIÓN DEL CONTROL
+// ============================================
+
+export const ActionControlExecutionSchema = z.object({
+  executionDate: z.date(),
+  verificationResult: z
+    .string()
+    .min(1, 'El resultado de la verificación es requerido'),
+  isEffective: z.boolean(),
+  comments: z.string().optional(),
 });
 
-// Action Phase Update Schema
-export const actionPhaseUpdateSchema = z.object({
-  phase: z.enum(['treatment', 'control']),
-});
+// ============================================
+// SCHEMA DE FILTROS
+// ============================================
 
-// Comment Data Schema
-export const commentDataSchema = z.object({
-  userId: z.string().min(1, 'User ID is required'),
-  userName: z.string().min(1, 'User name is required'),
-  comment: z.string().min(1, 'Comment is required'),
-});
-
-// Action Filters Schema
-export const actionFiltersSchema = z.object({
-  status: z.string().optional(),
-  actionType: z.string().optional(),
-  priority: z.string().optional(),
-  sourceType: z.string().optional(),
+export const ActionFiltersSchema = z.object({
+  status: ActionStatusSchema.optional(),
+  actionType: ActionTypeSchema.optional(),
+  priority: ActionPrioritySchema.optional(),
   responsiblePersonId: z.string().optional(),
+  processId: z.string().optional(),
   findingId: z.string().optional(),
   year: z.number().optional(),
   search: z.string().optional(),
 });
+
+// ============================================
+// TIPOS INFERIDOS
+// ============================================
+
+export type ActionFormInput = z.infer<typeof ActionFormSchema>;
+export type ActionExecutionInput = z.infer<typeof ActionExecutionSchema>;
+export type ActionControlPlanningInput = z.infer<
+  typeof ActionControlPlanningSchema
+>;
+export type ActionControlExecutionInput = z.infer<
+  typeof ActionControlExecutionSchema
+>;
+export type ActionFiltersInput = z.infer<typeof ActionFiltersSchema>;
