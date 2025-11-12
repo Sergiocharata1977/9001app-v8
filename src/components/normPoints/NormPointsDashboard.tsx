@@ -59,9 +59,7 @@ export function NormPointsDashboard() {
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.by_status.completo}
-            </div>
+            <div className="text-2xl font-bold">{stats.by_status.completo}</div>
           </CardContent>
         </Card>
 
@@ -73,9 +71,7 @@ export function NormPointsDashboard() {
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.mandatory_pending}
-            </div>
+            <div className="text-2xl font-bold">{stats.mandatory_pending}</div>
           </CardContent>
         </Card>
 

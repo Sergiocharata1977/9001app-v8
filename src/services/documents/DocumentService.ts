@@ -40,7 +40,7 @@ export class DocumentService {
         where('is_archived', '==', false)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -78,7 +78,6 @@ export class DocumentService {
     }
   }
 
-
   static async getPaginated(
     filters: DocumentFilters = {},
     pagination: PaginationParams = { page: 1, limit: 20 }
@@ -103,7 +102,10 @@ export class DocumentService {
       }
 
       if (filters.responsible_user_id) {
-        q = query(q, where('responsible_user_id', '==', filters.responsible_user_id));
+        q = query(
+          q,
+          where('responsible_user_id', '==', filters.responsible_user_id)
+        );
       }
 
       if (filters.process_id) {
@@ -123,7 +125,7 @@ export class DocumentService {
       const offset = (pagination.page - 1) * pagination.limit;
       const docs = querySnapshot.docs.slice(offset, offset + pagination.limit);
 
-      const data = docs.map((doc) => ({
+      const data = docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -153,7 +155,7 @@ export class DocumentService {
   static async create(data: DocumentCreateData): Promise<Document> {
     try {
       const now = Timestamp.now();
-      
+
       // Generate code
       const code = await this.generateCode(data.type);
 
@@ -162,9 +164,15 @@ export class DocumentService {
         code,
         download_count: 0,
         is_archived: false,
-        effective_date: data.effective_date ? Timestamp.fromDate(data.effective_date) : null,
-        review_date: data.review_date ? Timestamp.fromDate(data.review_date) : null,
-        approved_at: data.approved_at ? Timestamp.fromDate(data.approved_at) : null,
+        effective_date: data.effective_date
+          ? Timestamp.fromDate(data.effective_date)
+          : null,
+        review_date: data.review_date
+          ? Timestamp.fromDate(data.review_date)
+          : null,
+        approved_at: data.approved_at
+          ? Timestamp.fromDate(data.approved_at)
+          : null,
         created_at: now,
         updated_at: now,
       };
@@ -192,17 +200,30 @@ export class DocumentService {
   ): Promise<Document> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
-      
+
       // Build update object with proper types
-      const updateData: Record<string, Timestamp | string | number | boolean | string[] | null> = {
+      const updateData: Record<
+        string,
+        Timestamp | string | number | boolean | string[] | null
+      > = {
         updated_at: Timestamp.now(),
       };
 
       // Copy non-date fields
-      Object.keys(data).forEach((key) => {
+      Object.keys(data).forEach(key => {
         const value = (data as Record<string, unknown>)[key];
-        if (value !== undefined && key !== 'effective_date' && key !== 'review_date' && key !== 'approved_at') {
-          updateData[key] = value as string | number | boolean | string[] | null;
+        if (
+          value !== undefined &&
+          key !== 'effective_date' &&
+          key !== 'review_date' &&
+          key !== 'approved_at'
+        ) {
+          updateData[key] = value as
+            | string
+            | number
+            | boolean
+            | string[]
+            | null;
         }
       });
 
@@ -244,20 +265,20 @@ export class DocumentService {
   static async archive(id: string): Promise<Document> {
     try {
       console.log('[Service] Archivando documento:', id);
-      
+
       const docRef = doc(db, COLLECTION_NAME, id);
       await updateDoc(docRef, {
         is_archived: true,
         updated_at: Timestamp.now(),
       });
-      
+
       console.log('[Service] Documento marcado como archivado');
-      
+
       const updated = await this.getById(id);
       if (!updated) {
         throw new Error('Documento no encontrado después de archivar');
       }
-      
+
       console.log('[Service] Documento archivado exitosamente:', updated.id);
       return updated;
     } catch (error) {
@@ -269,7 +290,6 @@ export class DocumentService {
       throw new Error('Error al archivar documento');
     }
   }
-
 
   // ============================================
   // STATUS MANAGEMENT
@@ -447,7 +467,9 @@ export class DocumentService {
     }
   }
 
-  static async getVersionHistory(documentId: string): Promise<DocumentVersion[]> {
+  static async getVersionHistory(
+    documentId: string
+  ): Promise<DocumentVersion[]> {
     try {
       const q = query(
         collection(db, 'documentVersions'),
@@ -455,8 +477,8 @@ export class DocumentService {
         orderBy('changed_at', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      
-      return querySnapshot.docs.map((doc) => ({
+
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         document_id: doc.data().document_id,
         version: doc.data().version,
@@ -515,15 +537,18 @@ export class DocumentService {
       // Restore from snapshot
       const docRef = doc(db, COLLECTION_NAME, documentId);
       const snapshot = version.snapshot as Partial<Document>;
-      
-      const restoreData: Record<string, Timestamp | string | number | boolean | string[] | Date | null> = {
+
+      const restoreData: Record<
+        string,
+        Timestamp | string | number | boolean | string[] | Date | null
+      > = {
         ...snapshot,
         updated_by: userId,
         updated_at: Timestamp.now(),
       };
 
       // Remove undefined values
-      Object.keys(restoreData).forEach((key) => {
+      Object.keys(restoreData).forEach(key => {
         if (restoreData[key] === undefined) {
           delete restoreData[key];
         }
@@ -553,7 +578,7 @@ export class DocumentService {
         documentId,
         fileName: file.name,
         fileSize: file.size,
-        fileType: file.type
+        fileType: file.type,
       });
 
       // Validate file type
@@ -580,24 +605,32 @@ export class DocumentService {
         throw new Error('El archivo excede el tamaño máximo de 10MB');
       }
 
-      console.log('[Service] Validaciones pasadas, importando Firebase Storage...');
+      console.log(
+        '[Service] Validaciones pasadas, importando Firebase Storage...'
+      );
 
       // Upload to Firebase Storage
-      const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+      const { ref, uploadBytes, getDownloadURL } = await import(
+        'firebase/storage'
+      );
       const { storage } = await import('@/firebase/config');
-      
-      console.log('[Service] Firebase Storage importado, creando referencia...');
-      
+
+      console.log(
+        '[Service] Firebase Storage importado, creando referencia...'
+      );
+
       const fileName = `documents/${documentId}/${Date.now()}_${file.name}`;
       const storageRef = ref(storage, fileName);
-      
+
       console.log('[Service] Subiendo archivo a Storage:', fileName);
       await uploadBytes(storageRef, file);
-      
+
       console.log('[Service] Archivo subido, obteniendo URL de descarga...');
       const downloadURL = await getDownloadURL(storageRef);
-      
-      console.log('[Service] URL obtenida, actualizando documento en Firestore...');
+
+      console.log(
+        '[Service] URL obtenida, actualizando documento en Firestore...'
+      );
 
       // Update document with file info
       const docRef = doc(db, COLLECTION_NAME, documentId);
@@ -620,7 +653,10 @@ export class DocumentService {
     }
   }
 
-  static async downloadFile(documentId: string, userId: string): Promise<string> {
+  static async downloadFile(
+    documentId: string,
+    userId: string
+  ): Promise<string> {
     try {
       const document = await this.getById(documentId);
       if (!document || !document.file_path) {
@@ -636,7 +672,7 @@ export class DocumentService {
       // Get download URL
       const { ref, getDownloadURL } = await import('firebase/storage');
       const { storage } = await import('@/firebase/config');
-      
+
       const storageRef = ref(storage, document.file_path);
       const downloadURL = await getDownloadURL(storageRef);
 
@@ -657,7 +693,7 @@ export class DocumentService {
       // Delete from Storage
       const { ref, deleteObject } = await import('firebase/storage');
       const { storage } = await import('@/firebase/config');
-      
+
       const storageRef = ref(storage, document.file_path);
       await deleteObject(storageRef);
 
@@ -685,11 +721,11 @@ export class DocumentService {
       const term = searchTerm.toLowerCase();
 
       return allDocs.filter(
-        (doc) =>
+        doc =>
           doc.title.toLowerCase().includes(term) ||
           doc.description?.toLowerCase().includes(term) ||
           doc.code.toLowerCase().includes(term) ||
-          doc.keywords?.some((k) => k.toLowerCase().includes(term))
+          doc.keywords?.some(k => k.toLowerCase().includes(term))
       );
     } catch (error) {
       console.error('Error searching documents:', error);
@@ -699,9 +735,12 @@ export class DocumentService {
 
   static async getByType(type: DocumentType): Promise<Document[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), where('type', '==', type));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('type', '==', type)
+      );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -718,9 +757,12 @@ export class DocumentService {
 
   static async getByStatus(status: DocumentStatus): Promise<Document[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), where('status', '==', status));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('status', '==', status)
+      );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -742,7 +784,7 @@ export class DocumentService {
         where('process_id', '==', processId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -764,7 +806,7 @@ export class DocumentService {
         where('norm_point_ids', 'array-contains', normPointId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -779,7 +821,6 @@ export class DocumentService {
     }
   }
 
-
   // ============================================
   // STATISTICS
   // ============================================
@@ -788,7 +829,9 @@ export class DocumentService {
     try {
       const allDocs = await this.getAll();
       const now = new Date();
-      const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const thirtyDaysFromNow = new Date(
+        now.getTime() + 30 * 24 * 60 * 60 * 1000
+      );
 
       const by_status: Record<DocumentStatus, number> = {
         borrador: 0,
@@ -811,7 +854,7 @@ export class DocumentService {
       let expiring_soon = 0;
       let expired = 0;
 
-      allDocs.forEach((doc) => {
+      allDocs.forEach(doc => {
         by_status[doc.status]++;
         by_type[doc.type]++;
 
@@ -856,7 +899,7 @@ export class DocumentService {
       const futureDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
       return allDocs.filter(
-        (doc) =>
+        doc =>
           doc.review_date &&
           doc.review_date > now &&
           doc.review_date <= futureDate
@@ -872,7 +915,7 @@ export class DocumentService {
       const allDocs = await this.getAll();
       const now = new Date();
 
-      return allDocs.filter((doc) => doc.review_date && doc.review_date < now);
+      return allDocs.filter(doc => doc.review_date && doc.review_date < now);
     } catch (error) {
       console.error('Error getting expired documents:', error);
       throw new Error('Error al obtener documentos vencidos');
@@ -899,14 +942,14 @@ export class DocumentService {
     try {
       const prefix = this.getCodePrefix(type);
       const docs = await this.getByType(type);
-      
+
       // Extract numbers from existing codes
       const numbers = docs
-        .map((doc) => {
+        .map(doc => {
           const match = doc.code.match(/\d+$/);
           return match ? parseInt(match[0], 10) : 0;
         })
-        .filter((n) => !isNaN(n));
+        .filter(n => !isNaN(n));
 
       const maxNumber = numbers.length > 0 ? Math.max(...numbers) : 0;
       const nextNumber = maxNumber + 1;

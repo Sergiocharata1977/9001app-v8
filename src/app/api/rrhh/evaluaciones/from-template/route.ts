@@ -12,17 +12,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const evaluation = await EvaluationService.createFromPositionTemplate(personnelId);
+    const evaluation =
+      await EvaluationService.createFromPositionTemplate(personnelId);
 
     return NextResponse.json(evaluation, { status: 201 });
   } catch (error) {
     console.error('Error en POST /api/rrhh/evaluaciones/from-template:', error);
 
     if (error instanceof Error && error.message.includes('no encontrado')) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
     return NextResponse.json(

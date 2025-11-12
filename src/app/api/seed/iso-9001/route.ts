@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/firebase/config';
-import { collection, addDoc, Timestamp, getDocs, query, where } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  Timestamp,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore';
 import iso9001PointsData from '@/data/iso-9001-points.json';
 
 export async function POST() {
   try {
     console.log('Iniciando carga de puntos ISO 9001...');
-    
+
     let created = 0;
     let skipped = 0;
-    
+
     for (const point of iso9001PointsData) {
       // Verificar si ya existe
       const existingQuery = query(
@@ -17,9 +24,9 @@ export async function POST() {
         where('code', '==', point.code),
         where('tipo_norma', '==', 'iso_9001')
       );
-      
+
       const existing = await getDocs(existingQuery);
-      
+
       if (existing.empty) {
         await addDoc(collection(db, 'normPoints'), {
           code: point.code,
@@ -43,7 +50,7 @@ export async function POST() {
         console.log(`⊘ Punto ${point.code} ya existe`);
       }
     }
-    
+
     return NextResponse.json({
       success: true,
       message: `Proceso completado: ${created} creados, ${skipped} omitidos`,

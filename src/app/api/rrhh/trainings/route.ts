@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TrainingService } from '@/services/rrhh/TrainingService';
-import { trainingSchema, trainingFiltersSchema, paginationSchema } from '@/lib/validations/rrhh';
+import {
+  trainingSchema,
+  trainingFiltersSchema,
+  paginationSchema,
+} from '@/lib/validations/rrhh';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,8 +15,12 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') || undefined,
       estado: (searchParams.get('estado') as any) || undefined,
       modalidad: (searchParams.get('modalidad') as any) || undefined,
-      fecha_inicio: searchParams.get('fecha_inicio') ? new Date(searchParams.get('fecha_inicio')!) : undefined,
-      fecha_fin: searchParams.get('fecha_fin') ? new Date(searchParams.get('fecha_fin')!) : undefined,
+      fecha_inicio: searchParams.get('fecha_inicio')
+        ? new Date(searchParams.get('fecha_inicio')!)
+        : undefined,
+      fecha_fin: searchParams.get('fecha_fin')
+        ? new Date(searchParams.get('fecha_fin')!)
+        : undefined,
     });
 
     // Parse pagination
@@ -46,7 +54,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in trainings POST:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }

@@ -1,13 +1,13 @@
 // Types for Norm Points module
 
-export type NormType = 
-  | 'iso_9001' 
-  | 'iso_14001' 
-  | 'iso_45001' 
-  | 'legal' 
+export type NormType =
+  | 'iso_9001'
+  | 'iso_14001'
+  | 'iso_45001'
+  | 'legal'
   | 'otra';
 
-export type NormCategory = 
+export type NormCategory =
   | 'contexto'
   | 'liderazgo'
   | 'planificacion'
@@ -16,43 +16,43 @@ export type NormCategory =
   | 'evaluacion'
   | 'mejora';
 
-export type ComplianceStatus = 
-  | 'completo' 
-  | 'parcial' 
-  | 'pendiente' 
+export type ComplianceStatus =
+  | 'completo'
+  | 'parcial'
+  | 'pendiente'
   | 'no_aplica';
 
 export interface NormPoint {
   id: string;
-  
+
   // Identificación
   code: string;
   title: string;
   description: string;
   requirement: string;
-  
+
   // Tipo de norma
   tipo_norma: NormType;
   nombre_norma?: string;
-  
+
   // Clasificación ISO
   chapter?: number;
   category?: NormCategory;
-  
+
   // Clasificación Legal
   jurisdiccion?: string;
   numero_ley?: string;
   articulo?: string;
-  
+
   // Prioridad
   is_mandatory: boolean;
   priority: 'alta' | 'media' | 'baja';
-  
+
   // Relaciones
   related_process_ids?: string[];
   related_document_ids?: string[];
   related_objective_ids?: string[];
-  
+
   // Auditoría
   created_at: Date;
   updated_at: Date;
@@ -62,26 +62,26 @@ export interface NormPoint {
 
 export interface NormPointRelation {
   id: string;
-  
+
   // Relación principal
   norm_point_id: string;
   process_id: string;
-  
+
   // Documentos asociados
   document_ids: string[];
-  
+
   // Estado de cumplimiento
   compliance_status: ComplianceStatus;
   compliance_percentage: number;
-  
+
   // Evidencias
   evidence_description?: string;
   evidence_files?: string[];
-  
+
   // Fechas
   verification_date?: Date;
   next_review_date?: Date;
-  
+
   // Auditoría
   created_at: Date;
   updated_at: Date;
@@ -89,9 +89,15 @@ export interface NormPointRelation {
   updated_by: string;
 }
 
-export type NormPointFormData = Omit<NormPoint, 'id' | 'created_at' | 'updated_at'>;
+export type NormPointFormData = Omit<
+  NormPoint,
+  'id' | 'created_at' | 'updated_at'
+>;
 
-export type NormPointRelationFormData = Omit<NormPointRelation, 'id' | 'created_at' | 'updated_at'>;
+export type NormPointRelationFormData = Omit<
+  NormPointRelation,
+  'id' | 'created_at' | 'updated_at'
+>;
 
 export interface NormPointFilters {
   search?: string;

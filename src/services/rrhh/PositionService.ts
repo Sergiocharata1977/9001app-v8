@@ -30,10 +30,13 @@ export class PositionService {
    */
   static async getAll(): Promise<Position[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), orderBy('nombre', 'asc'));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        orderBy('nombre', 'asc')
+      );
       const querySnapshot = await getDocs(q);
-      
-      return querySnapshot.docs.map((doc) => ({
+
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -51,10 +54,10 @@ export class PositionService {
   static async getAllWithPersonnelCount(): Promise<PositionWithAssignments[]> {
     try {
       const positions = await this.getAll();
-      
+
       // Obtener conteo de personnel para cada position
       const positionsWithCount = await Promise.all(
-        positions.map(async (position) => {
+        positions.map(async position => {
           const count = await this.getPersonnelCountInPosition(position.id);
           return {
             ...position,
@@ -62,7 +65,7 @@ export class PositionService {
           } as PositionWithAssignments;
         })
       );
-      
+
       return positionsWithCount;
     } catch (error) {
       console.error('Error getting positions with personnel count:', error);
@@ -97,22 +100,28 @@ export class PositionService {
   /**
    * Obtener un puesto por ID con asignaciones expandidas
    */
-  static async getByIdWithAssignments(id: string): Promise<PositionWithAssignments | null> {
+  static async getByIdWithAssignments(
+    id: string
+  ): Promise<PositionWithAssignments | null> {
     try {
       const position = await this.getById(id);
-      
+
       if (!position) {
         return null;
       }
 
       // Expandir asignaciones en paralelo
-      const [procesos_details, objetivos_details, indicadores_details, personnel_count] =
-        await Promise.all([
-          this.expandProcesses(position.procesos_asignados || []),
-          this.expandObjectives(position.objetivos_asignados || []),
-          this.expandIndicators(position.indicadores_asignados || []),
-          this.getPersonnelCountInPosition(id),
-        ]);
+      const [
+        procesos_details,
+        objetivos_details,
+        indicadores_details,
+        personnel_count,
+      ] = await Promise.all([
+        this.expandProcesses(position.procesos_asignados || []),
+        this.expandObjectives(position.objetivos_asignados || []),
+        this.expandIndicators(position.indicadores_asignados || []),
+        this.getPersonnelCountInPosition(id),
+      ]);
 
       return {
         ...position,
@@ -157,7 +166,10 @@ export class PositionService {
   /**
    * Actualizar información básica del puesto
    */
-  static async update(id: string, data: Partial<PositionFormData>): Promise<void> {
+  static async update(
+    id: string,
+    data: Partial<PositionFormData>
+  ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const docSnap = await getDoc(docRef);
@@ -172,7 +184,9 @@ export class PositionService {
       });
     } catch (error) {
       console.error('Error updating position:', error);
-      throw error instanceof Error ? error : new Error('Error al actualizar puesto');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al actualizar puesto');
     }
   }
 
@@ -183,7 +197,9 @@ export class PositionService {
     try {
       // Verificar que no haya personnel activo con este puesto
       const personnelInPosition = await this.getPersonnelInPosition(id);
-      const activePersonnel = personnelInPosition.filter((p) => p.estado === 'Activo');
+      const activePersonnel = personnelInPosition.filter(
+        p => p.estado === 'Activo'
+      );
 
       if (activePersonnel.length > 0) {
         throw new Error(
@@ -195,14 +211,18 @@ export class PositionService {
       await deleteDoc(docRef);
     } catch (error) {
       console.error('Error deleting position:', error);
-      throw error instanceof Error ? error : new Error('Error al eliminar puesto');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al eliminar puesto');
     }
   }
 
   /**
    * Obtener personal en un puesto
    */
-  static async getPersonnelInPosition(positionId: string): Promise<Personnel[]> {
+  static async getPersonnelInPosition(
+    positionId: string
+  ): Promise<Personnel[]> {
     try {
       const q = query(
         collection(db, PERSONNEL_COLLECTION),
@@ -210,9 +230,9 @@ export class PositionService {
         // orderBy('apellidos', 'asc') // Comentado temporalmente - requiere índice
       );
       const querySnapshot = await getDocs(q);
-      
+
       // Ordenar en memoria
-      const personnel = querySnapshot.docs.map((doc) => ({
+      const personnel = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         fecha_nacimiento: doc.data().fecha_nacimiento?.toDate(),
@@ -221,9 +241,9 @@ export class PositionService {
         created_at: doc.data().created_at?.toDate() || new Date(),
         updated_at: doc.data().updated_at?.toDate() || new Date(),
       })) as Personnel[];
-      
+
       // Ordenar por apellidos en memoria
-      return personnel.sort((a, b) => 
+      return personnel.sort((a, b) =>
         (a.apellidos || '').localeCompare(b.apellidos || '')
       );
     } catch (error) {
@@ -235,7 +255,9 @@ export class PositionService {
   /**
    * Obtener conteo de personnel en un puesto
    */
-  private static async getPersonnelCountInPosition(positionId: string): Promise<number> {
+  private static async getPersonnelCountInPosition(
+    positionId: string
+  ): Promise<number> {
     try {
       const q = query(
         collection(db, PERSONNEL_COLLECTION),
@@ -252,12 +274,14 @@ export class PositionService {
   /**
    * Expandir IDs de procesos a objetos completos
    */
-  private static async expandProcesses(processIds: string[]): Promise<unknown[]> {
+  private static async expandProcesses(
+    processIds: string[]
+  ): Promise<unknown[]> {
     if (processIds.length === 0) return [];
 
     try {
       const processes = await Promise.all(
-        processIds.map(async (id) => {
+        processIds.map(async id => {
           const docRef = doc(db, 'processDefinitions', id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -267,7 +291,7 @@ export class PositionService {
         })
       );
 
-      return processes.filter((p) => p !== null);
+      return processes.filter(p => p !== null);
     } catch (error) {
       console.error('Error expanding processes:', error);
       return [];
@@ -277,12 +301,14 @@ export class PositionService {
   /**
    * Expandir IDs de objetivos a objetos completos
    */
-  private static async expandObjectives(objectiveIds: string[]): Promise<unknown[]> {
+  private static async expandObjectives(
+    objectiveIds: string[]
+  ): Promise<unknown[]> {
     if (objectiveIds.length === 0) return [];
 
     try {
       const objectives = await Promise.all(
-        objectiveIds.map(async (id) => {
+        objectiveIds.map(async id => {
           const docRef = doc(db, 'qualityObjectives', id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -292,7 +318,7 @@ export class PositionService {
         })
       );
 
-      return objectives.filter((o) => o !== null);
+      return objectives.filter(o => o !== null);
     } catch (error) {
       console.error('Error expanding objectives:', error);
       return [];
@@ -302,12 +328,14 @@ export class PositionService {
   /**
    * Expandir IDs de indicadores a objetos completos
    */
-  private static async expandIndicators(indicatorIds: string[]): Promise<unknown[]> {
+  private static async expandIndicators(
+    indicatorIds: string[]
+  ): Promise<unknown[]> {
     if (indicatorIds.length === 0) return [];
 
     try {
       const indicators = await Promise.all(
-        indicatorIds.map(async (id) => {
+        indicatorIds.map(async id => {
           const docRef = doc(db, 'qualityIndicators', id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -317,7 +345,7 @@ export class PositionService {
         })
       );
 
-      return indicators.filter((i) => i !== null);
+      return indicators.filter(i => i !== null);
     } catch (error) {
       console.error('Error expanding indicators:', error);
       return [];
@@ -351,18 +379,22 @@ export class PositionService {
       });
     } catch (error) {
       console.error('Error updating position assignments:', error);
-      throw error instanceof Error ? error : new Error('Error al actualizar asignaciones');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al actualizar asignaciones');
     }
   }
 
   /**
    * Propagar asignaciones del puesto a todo su personal
    */
-  static async propagateAssignmentsToPersonnel(positionId: string): Promise<number> {
+  static async propagateAssignmentsToPersonnel(
+    positionId: string
+  ): Promise<number> {
     try {
       // Obtener position con sus asignaciones
       const position = await this.getById(positionId);
-      
+
       if (!position) {
         throw new Error('El puesto no existe');
       }
@@ -383,7 +415,7 @@ export class PositionService {
       const batch = writeBatch(db);
       let count = 0;
 
-      querySnapshot.docs.forEach((personnelDoc) => {
+      querySnapshot.docs.forEach(personnelDoc => {
         const personnelRef = doc(db, PERSONNEL_COLLECTION, personnelDoc.id);
         batch.update(personnelRef, {
           procesos_asignados: position.procesos_asignados || [],
@@ -398,7 +430,9 @@ export class PositionService {
       return count;
     } catch (error) {
       console.error('Error propagating assignments to personnel:', error);
-      throw error instanceof Error ? error : new Error('Error al propagar asignaciones');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al propagar asignaciones');
     }
   }
 
@@ -473,7 +507,9 @@ export class PositionService {
       }
     } catch (error) {
       console.error('Error adding competence to position:', error);
-      throw error instanceof Error ? error : new Error('Error al asignar competencia');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al asignar competencia');
     }
   }
 
@@ -492,7 +528,9 @@ export class PositionService {
 
       // Remover competencia
       const currentCompetences = position.competenciasRequeridas || [];
-      const updatedCompetences = currentCompetences.filter(id => id !== competenceId);
+      const updatedCompetences = currentCompetences.filter(
+        id => id !== competenceId
+      );
 
       await updateDoc(doc(db, COLLECTION_NAME, positionId), {
         competenciasRequeridas: updatedCompetences,
@@ -500,14 +538,18 @@ export class PositionService {
       });
     } catch (error) {
       console.error('Error removing competence from position:', error);
-      throw error instanceof Error ? error : new Error('Error al quitar competencia');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al quitar competencia');
     }
   }
 
   /**
    * Obtener competencias requeridas de un puesto
    */
-  static async getCompetencesRequired(positionId: string): Promise<import('@/types/rrhh').Competence[]> {
+  static async getCompetencesRequired(
+    positionId: string
+  ): Promise<import('@/types/rrhh').Competence[]> {
     try {
       const position = await this.getById(positionId);
       if (!position || !position.competenciasRequeridas) {
@@ -516,7 +558,7 @@ export class PositionService {
 
       // Obtener detalles de cada competencia
       const competences = await Promise.all(
-        position.competenciasRequeridas.map(async (competenceId) => {
+        position.competenciasRequeridas.map(async competenceId => {
           const docRef = doc(db, 'competencias', competenceId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -529,7 +571,9 @@ export class PositionService {
         })
       );
 
-      return competences.filter((c): c is import('@/types/rrhh').Competence => c !== null);
+      return competences.filter(
+        (c): c is import('@/types/rrhh').Competence => c !== null
+      );
     } catch (error) {
       console.error('Error getting competences for position:', error);
       throw new Error('Error al obtener competencias del puesto');
@@ -554,7 +598,9 @@ export class PositionService {
       });
     } catch (error) {
       console.error('Error updating evaluation frequency:', error);
-      throw error instanceof Error ? error : new Error('Error al actualizar frecuencia');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al actualizar frecuencia');
     }
   }
 

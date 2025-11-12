@@ -7,7 +7,7 @@ export const DocumentTypeSchema = z.enum([
   'formato',
   'registro',
   'politica',
-  'otro'
+  'otro',
 ]);
 
 export const DocumentStatusSchema = z.enum([
@@ -15,7 +15,7 @@ export const DocumentStatusSchema = z.enum([
   'en_revision',
   'aprobado',
   'publicado',
-  'obsoleto'
+  'obsoleto',
 ]);
 
 export const DocumentSchema = z.object({
@@ -42,30 +42,30 @@ export const DocumentSchema = z.object({
   download_count: z.number().default(0),
   is_archived: z.boolean().default(false),
   created_by: z.string().min(1),
-  updated_by: z.string().min(1)
+  updated_by: z.string().min(1),
 });
 
 export const DocumentCreateSchema = DocumentSchema.omit({
   code: true,
   download_count: true,
-  is_archived: true
+  is_archived: true,
 });
 
 export const DocumentUpdateSchema = DocumentSchema.partial().required({
-  updated_by: true
+  updated_by: true,
 });
 
 export const DocumentStatusChangeSchema = z.object({
   status: DocumentStatusSchema,
-  user_id: z.string().min(1)
+  user_id: z.string().min(1),
 });
 
 export const DocumentVersionSchema = z.object({
   change_reason: z.string().min(1, 'Change reason is required'),
-  user_id: z.string().min(1)
+  user_id: z.string().min(1),
 });
 
 export const DocumentFileUploadSchema = z.object({
   file: z.instanceof(File),
-  document_id: z.string().min(1)
+  document_id: z.string().min(1),
 });

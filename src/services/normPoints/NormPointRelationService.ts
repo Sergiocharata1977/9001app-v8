@@ -31,7 +31,7 @@ export class NormPointRelationService {
   static async getAll(): Promise<NormPointRelation[]> {
     try {
       const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         verification_date: doc.data().verification_date?.toDate(),
@@ -67,7 +67,9 @@ export class NormPointRelationService {
     }
   }
 
-  static async create(data: NormPointRelationFormData): Promise<NormPointRelation> {
+  static async create(
+    data: NormPointRelationFormData
+  ): Promise<NormPointRelation> {
     try {
       const now = Timestamp.now();
 
@@ -104,25 +106,35 @@ export class NormPointRelationService {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
 
-      const updateData: Record<string, Timestamp | string | number | boolean | string[] | null> = {
+      const updateData: Record<
+        string,
+        Timestamp | string | number | boolean | string[] | null
+      > = {
         updated_at: Timestamp.now(),
       };
 
       // Copy non-date fields
-      Object.keys(data).forEach((key) => {
+      Object.keys(data).forEach(key => {
         const value = (data as Record<string, unknown>)[key];
         if (
           value !== undefined &&
           key !== 'verification_date' &&
           key !== 'next_review_date'
         ) {
-          updateData[key] = value as string | number | boolean | string[] | null;
+          updateData[key] = value as
+            | string
+            | number
+            | boolean
+            | string[]
+            | null;
         }
       });
 
       // Convert dates
       if (data.verification_date) {
-        updateData.verification_date = Timestamp.fromDate(data.verification_date);
+        updateData.verification_date = Timestamp.fromDate(
+          data.verification_date
+        );
       }
       if (data.next_review_date) {
         updateData.next_review_date = Timestamp.fromDate(data.next_review_date);
@@ -156,14 +168,16 @@ export class NormPointRelationService {
   // SEARCH AND FILTER
   // ============================================
 
-  static async getByNormPoint(normPointId: string): Promise<NormPointRelation[]> {
+  static async getByNormPoint(
+    normPointId: string
+  ): Promise<NormPointRelation[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
         where('norm_point_id', '==', normPointId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         verification_date: doc.data().verification_date?.toDate(),
@@ -184,7 +198,7 @@ export class NormPointRelationService {
         where('process_id', '==', processId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         verification_date: doc.data().verification_date?.toDate(),
@@ -198,14 +212,16 @@ export class NormPointRelationService {
     }
   }
 
-  static async getByStatus(status: ComplianceStatus): Promise<NormPointRelation[]> {
+  static async getByStatus(
+    status: ComplianceStatus
+  ): Promise<NormPointRelation[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
         where('compliance_status', '==', status)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         verification_date: doc.data().verification_date?.toDate(),
@@ -276,7 +292,9 @@ export class NormPointRelationService {
         // Validate file size (5MB max)
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
-          throw new Error(`El archivo ${file.name} excede el tamaño máximo de 5MB`);
+          throw new Error(
+            `El archivo ${file.name} excede el tamaño máximo de 5MB`
+          );
         }
 
         const fileName = `evidence/${id}/${Date.now()}_${file.name}`;
@@ -325,7 +343,7 @@ export class NormPointRelationService {
 
       // Update relation
       const updatedFiles = (relation.evidence_files || []).filter(
-        (f) => f !== filePath
+        f => f !== filePath
       );
       const docRef = doc(db, COLLECTION_NAME, id);
       await updateDoc(docRef, {
@@ -344,7 +362,6 @@ export class NormPointRelationService {
       throw new Error('Error al eliminar evidencia');
     }
   }
-
 
   // ============================================
   // STATISTICS
@@ -366,16 +383,18 @@ export class NormPointRelationService {
       // By chapter
       const by_chapter: Record<number, number> = {};
       for (let chapter = 4; chapter <= 10; chapter++) {
-        const chapterPoints = allNormPoints.filter((p) => p.chapter === chapter);
-        const chapterRelations = allRelations.filter((rel) =>
-          chapterPoints.some((p) => p.id === rel.norm_point_id)
+        const chapterPoints = allNormPoints.filter(p => p.chapter === chapter);
+        const chapterRelations = allRelations.filter(rel =>
+          chapterPoints.some(p => p.id === rel.norm_point_id)
         );
         const chapterTotal = chapterRelations.reduce(
           (sum, rel) => sum + rel.compliance_percentage,
           0
         );
         by_chapter[chapter] =
-          chapterRelations.length > 0 ? chapterTotal / chapterRelations.length : 0;
+          chapterRelations.length > 0
+            ? chapterTotal / chapterRelations.length
+            : 0;
       }
 
       // By category
@@ -399,17 +418,21 @@ export class NormPointRelationService {
         'mejora',
       ];
 
-      categories.forEach((category) => {
-        const categoryPoints = allNormPoints.filter((p) => p.category === category);
-        const categoryRelations = allRelations.filter((rel) =>
-          categoryPoints.some((p) => p.id === rel.norm_point_id)
+      categories.forEach(category => {
+        const categoryPoints = allNormPoints.filter(
+          p => p.category === category
+        );
+        const categoryRelations = allRelations.filter(rel =>
+          categoryPoints.some(p => p.id === rel.norm_point_id)
         );
         const categoryTotal = categoryRelations.reduce(
           (sum, rel) => sum + rel.compliance_percentage,
           0
         );
         by_category[category] =
-          categoryRelations.length > 0 ? categoryTotal / categoryRelations.length : 0;
+          categoryRelations.length > 0
+            ? categoryTotal / categoryRelations.length
+            : 0;
       });
 
       // By status
@@ -420,23 +443,25 @@ export class NormPointRelationService {
         no_aplica: 0,
       };
 
-      allRelations.forEach((rel) => {
+      allRelations.forEach(rel => {
         by_status[rel.compliance_status]++;
       });
 
       // Mandatory pending
-      const mandatoryPoints = allNormPoints.filter((p) => p.is_mandatory);
+      const mandatoryPoints = allNormPoints.filter(p => p.is_mandatory);
       const mandatory_pending = allRelations.filter(
-        (rel) =>
-          mandatoryPoints.some((p) => p.id === rel.norm_point_id) &&
+        rel =>
+          mandatoryPoints.some(p => p.id === rel.norm_point_id) &&
           rel.compliance_status === 'pendiente'
       ).length;
 
       // High priority pending
-      const highPriorityPoints = allNormPoints.filter((p) => p.priority === 'alta');
+      const highPriorityPoints = allNormPoints.filter(
+        p => p.priority === 'alta'
+      );
       const high_priority_pending = allRelations.filter(
-        (rel) =>
-          highPriorityPoints.some((p) => p.id === rel.norm_point_id) &&
+        rel =>
+          highPriorityPoints.some(p => p.id === rel.norm_point_id) &&
           rel.compliance_status === 'pendiente'
       ).length;
 
@@ -464,13 +489,15 @@ export class NormPointRelationService {
       const allRelations = await this.getAll();
 
       // Get unique processes
-      const processIds = [...new Set(allRelations.map((r) => r.process_id))];
-      
+      const processIds = [...new Set(allRelations.map(r => r.process_id))];
+
       // Fetch process names (assuming ProcessService exists)
       const processes = await Promise.all(
-        processIds.map(async (id) => {
+        processIds.map(async id => {
           try {
-            const { ProcessService } = await import('../procesos/ProcessService');
+            const { ProcessService } = await import(
+              '../procesos/ProcessService'
+            );
             const process = await ProcessService.getById(id);
             return { id, nombre: process?.nombre || 'Proceso desconocido' };
           } catch {
@@ -481,7 +508,7 @@ export class NormPointRelationService {
 
       // Build relations map
       const relations = new Map<string, ComplianceStatus>();
-      allRelations.forEach((rel) => {
+      allRelations.forEach(rel => {
         const key = `${rel.norm_point_id}_${rel.process_id}`;
         relations.set(key, rel.compliance_status);
       });
@@ -497,14 +524,16 @@ export class NormPointRelationService {
     }
   }
 
-  static async getUpcomingReviews(days: number = 30): Promise<NormPointRelation[]> {
+  static async getUpcomingReviews(
+    days: number = 30
+  ): Promise<NormPointRelation[]> {
     try {
       const allRelations = await this.getAll();
       const now = new Date();
       const futureDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
       return allRelations.filter(
-        (rel) =>
+        rel =>
           rel.next_review_date &&
           rel.next_review_date > now &&
           rel.next_review_date <= futureDate
@@ -526,10 +555,10 @@ export class NormPointRelationService {
       // Get mandatory pending relations
       const allRelations = await this.getAll();
       const allNormPoints = await NormPointService.getAll();
-      const mandatoryPoints = allNormPoints.filter((p) => p.is_mandatory);
+      const mandatoryPoints = allNormPoints.filter(p => p.is_mandatory);
       const mandatoryPending = allRelations.filter(
-        (rel) =>
-          mandatoryPoints.some((p) => p.id === rel.norm_point_id) &&
+        rel =>
+          mandatoryPoints.some(p => p.id === rel.norm_point_id) &&
           rel.compliance_status === 'pendiente'
       );
 

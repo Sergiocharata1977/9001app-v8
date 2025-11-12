@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { DepartmentFormData, departmentFormSchema } from '@/lib/validations/rrhh';
+import {
+  DepartmentFormData,
+  departmentFormSchema,
+} from '@/lib/validations/rrhh';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +24,7 @@ export function DepartmentForm({
   initialData,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: DepartmentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -90,7 +93,9 @@ export function DepartmentForm({
           className={errors.responsible_user_id ? 'border-red-500' : ''}
         />
         {errors.responsible_user_id && (
-          <p className="text-sm text-red-500">{errors.responsible_user_id.message}</p>
+          <p className="text-sm text-red-500">
+            {errors.responsible_user_id.message}
+          </p>
         )}
       </div>
 
@@ -98,7 +103,7 @@ export function DepartmentForm({
         <Checkbox
           id="is_active"
           checked={isActive}
-          onCheckedChange={(checked) => setValue('is_active', checked as boolean)}
+          onCheckedChange={checked => setValue('is_active', checked as boolean)}
         />
         <Label htmlFor="is_active">Departamento activo</Label>
       </div>

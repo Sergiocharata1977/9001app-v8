@@ -30,7 +30,9 @@ export function NormPointsList() {
   const [chapterFilter, setChapterFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingNormPoint, setEditingNormPoint] = useState<NormPoint | null>(null);
+  const [editingNormPoint, setEditingNormPoint] = useState<NormPoint | null>(
+    null
+  );
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
 
   useEffect(() => {
@@ -73,9 +75,10 @@ export function NormPointsList() {
     }
   };
 
-  const filteredNormPoints = normPoints.filter((np) =>
-    np.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    np.code.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredNormPoints = normPoints.filter(
+    np =>
+      np.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      np.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getPriorityBadge = (priority: 'alta' | 'media' | 'baja') => {
@@ -85,11 +88,7 @@ export function NormPointsList() {
       baja: 'secondary',
     };
 
-    return (
-      <Badge variant={variants[priority]}>
-        {priority}
-      </Badge>
-    );
+    return <Badge variant={variants[priority]}>{priority}</Badge>;
   };
 
   return (
@@ -101,7 +100,7 @@ export function NormPointsList() {
           <Input
             placeholder="Buscar puntos de norma..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="pl-10 border-0 shadow-sm shadow-green-100 focus:shadow-md focus:shadow-green-200"
           />
         </div>
@@ -154,11 +153,19 @@ export function NormPointsList() {
         <Button
           variant="outline"
           onClick={async () => {
-            if (confirm('¿Cargar todos los puntos de ISO 9001:2015? (Solo se crearán los que no existan)')) {
+            if (
+              confirm(
+                '¿Cargar todos los puntos de ISO 9001:2015? (Solo se crearán los que no existan)'
+              )
+            ) {
               try {
-                const response = await fetch('/api/seed/iso-9001', { method: 'POST' });
+                const response = await fetch('/api/seed/iso-9001', {
+                  method: 'POST',
+                });
                 const data = await response.json();
-                alert(`${data.message}\nCreados: ${data.created}\nOmitidos: ${data.skipped}`);
+                alert(
+                  `${data.message}\nCreados: ${data.created}\nOmitidos: ${data.skipped}`
+                );
                 fetchNormPoints();
               } catch {
                 alert('Error al cargar puntos ISO 9001');
@@ -169,10 +176,12 @@ export function NormPointsList() {
           📘 Cargar ISO 9001
         </Button>
 
-        <Button onClick={() => {
-          setEditingNormPoint(null);
-          setIsFormOpen(true);
-        }}>
+        <Button
+          onClick={() => {
+            setEditingNormPoint(null);
+            setIsFormOpen(true);
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Punto
         </Button>
@@ -188,7 +197,7 @@ export function NormPointsList() {
               No se encontraron puntos de norma
             </div>
           ) : (
-            filteredNormPoints.map((np) => (
+            filteredNormPoints.map(np => (
               <div
                 key={np.id}
                 className="bg-white rounded-lg shadow-md shadow-green-100 hover:shadow-lg hover:shadow-green-200 cursor-pointer transition-all duration-200 p-4"
@@ -201,18 +210,24 @@ export function NormPointsList() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-blue-600">{np.code}</span>
                       {np.is_mandatory && (
-                        <Badge variant="destructive" className="text-xs">Obligatorio</Badge>
+                        <Badge variant="destructive" className="text-xs">
+                          Obligatorio
+                        </Badge>
                       )}
                     </div>
                     <h3 className="font-semibold text-sm">{np.title}</h3>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 text-xs text-gray-600">
                   <div className="flex justify-between items-center">
-                    <span className="capitalize">{np.tipo_norma.replace('_', ' ')}</span>
+                    <span className="capitalize">
+                      {np.tipo_norma.replace('_', ' ')}
+                    </span>
                     {np.chapter && (
-                      <Badge variant="outline" className="text-xs">Cap. {np.chapter}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Cap. {np.chapter}
+                      </Badge>
                     )}
                   </div>
                   <div className="flex justify-between items-center">
@@ -221,7 +236,10 @@ export function NormPointsList() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-3 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex gap-2 mt-3 pt-3 border-t"
+                  onClick={e => e.stopPropagation()}
+                >
                   <Button
                     variant="ghost"
                     size="sm"
@@ -270,8 +288,8 @@ export function NormPointsList() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredNormPoints.map((np) => (
-                  <TableRow 
+                filteredNormPoints.map(np => (
+                  <TableRow
                     key={np.id}
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => {
@@ -280,7 +298,9 @@ export function NormPointsList() {
                   >
                     <TableCell className="font-medium">{np.code}</TableCell>
                     <TableCell>{np.title}</TableCell>
-                    <TableCell className="capitalize">{np.tipo_norma.replace('_', ' ')}</TableCell>
+                    <TableCell className="capitalize">
+                      {np.tipo_norma.replace('_', ' ')}
+                    </TableCell>
                     <TableCell>{np.chapter || '-'}</TableCell>
                     <TableCell>{getPriorityBadge(np.priority)}</TableCell>
                     <TableCell>
@@ -290,7 +310,10 @@ export function NormPointsList() {
                         <Badge variant="secondary">No</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className="text-right"
+                      onClick={e => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"

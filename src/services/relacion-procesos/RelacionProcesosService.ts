@@ -62,10 +62,11 @@ export class RelacionProcesosService {
       // Filtrar por búsqueda si se proporciona
       if (filters?.search) {
         const searchTerm = filters.search.toLowerCase();
-        relaciones = relaciones.filter(rel =>
-          rel.descripcion.toLowerCase().includes(searchTerm) ||
-          rel.proceso_origen_nombre?.toLowerCase().includes(searchTerm) ||
-          rel.proceso_destino_nombre?.toLowerCase().includes(searchTerm)
+        relaciones = relaciones.filter(
+          rel =>
+            rel.descripcion.toLowerCase().includes(searchTerm) ||
+            rel.proceso_origen_nombre?.toLowerCase().includes(searchTerm) ||
+            rel.proceso_destino_nombre?.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -101,7 +102,10 @@ export class RelacionProcesosService {
   /**
    * Crea una nueva relación entre procesos
    */
-  static async create(data: CreateRelacionProcesosData, userId: string): Promise<string> {
+  static async create(
+    data: CreateRelacionProcesosData,
+    userId: string
+  ): Promise<string> {
     try {
       const now = new Date();
 
@@ -111,13 +115,16 @@ export class RelacionProcesosService {
         proceso_destino_id: data.proceso_destino_id,
         tipo_relacion: data.tipo_relacion as RelacionProcesos['tipo_relacion'],
         descripcion: data.descripcion,
-        elemento_relacionado: data.elemento_relacionado as RelacionProcesos['elemento_relacionado'],
+        elemento_relacionado:
+          data.elemento_relacionado as RelacionProcesos['elemento_relacionado'],
         frecuencia: data.frecuencia as RelacionProcesos['frecuencia'],
         importancia: data.importancia as RelacionProcesos['importancia'],
         canales_comunicacion: data.canales_comunicacion || [],
         responsable_gestion: data.responsable_gestion,
-        indicadores_relacion: (data.indicadores_relacion || []) as RelacionProcesos['indicadores_relacion'],
-        riesgos_asociados: (data.riesgos_asociados || []) as RelacionProcesos['riesgos_asociados'],
+        indicadores_relacion: (data.indicadores_relacion ||
+          []) as RelacionProcesos['indicadores_relacion'],
+        riesgos_asociados: (data.riesgos_asociados ||
+          []) as RelacionProcesos['riesgos_asociados'],
         documentos_asociados: data.documentos_asociados || [],
         estado: (data.estado as RelacionProcesos['estado']) || 'activa',
         fecha_establecida: data.fecha_establecida || now.toISOString(),
@@ -127,7 +134,10 @@ export class RelacionProcesosService {
         isActive: true,
       };
 
-      const docRef = await addDoc(collection(db, this.COLLECTION), relacionData);
+      const docRef = await addDoc(
+        collection(db, this.COLLECTION),
+        relacionData
+      );
       return docRef.id;
     } catch (error) {
       console.error('Error creating relacion procesos:', error);
@@ -193,7 +203,10 @@ export class RelacionProcesosService {
   }> {
     try {
       const relaciones = await this.getAll({ organization_id: organizationId });
-      const nodosMap = new Map<string, { id: string; nombre: string; tipo: 'proceso' }>();
+      const nodosMap = new Map<
+        string,
+        { id: string; nombre: string; tipo: 'proceso' }
+      >();
 
       // Extraer nodos únicos
       for (const relacion of relaciones) {
@@ -248,7 +261,10 @@ export class RelacionProcesosService {
       }
 
       const procesos = Array.from(procesosSet);
-      const matriz: Record<string, Record<string, RelacionProcesos['tipo_relacion'][]>> = {};
+      const matriz: Record<
+        string,
+        Record<string, RelacionProcesos['tipo_relacion'][]>
+      > = {};
 
       // Inicializar matriz
       for (const origen of procesos) {
@@ -263,7 +279,9 @@ export class RelacionProcesosService {
         if (!matriz[relacion.proceso_origen_id][relacion.proceso_destino_id]) {
           matriz[relacion.proceso_origen_id][relacion.proceso_destino_id] = [];
         }
-        matriz[relacion.proceso_origen_id][relacion.proceso_destino_id].push(relacion.tipo_relacion);
+        matriz[relacion.proceso_origen_id][relacion.proceso_destino_id].push(
+          relacion.tipo_relacion
+        );
       }
 
       return { procesos, matriz };

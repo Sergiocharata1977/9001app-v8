@@ -51,6 +51,8 @@ export const ActionFormSchema = z.object({
   // Origen
   sourceType: ActionSourceTypeSchema,
   sourceName: z.string().min(1, 'El nombre del origen es requerido'),
+  findingId: z.string().optional(),
+  findingNumber: z.string().optional(),
 
   // Proceso
   processId: z.string().min(1, 'El proceso es requerido'),

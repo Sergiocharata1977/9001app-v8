@@ -5,7 +5,12 @@ import type { KanbanColumn } from '@/types/rrhh';
 interface UseKanbanDropProps {
   columnId: string;
   column: KanbanColumn;
-  onDrop: (itemId: string, sourceColumnId: string, targetColumnId: string, index?: number) => void;
+  onDrop: (
+    itemId: string,
+    sourceColumnId: string,
+    targetColumnId: string,
+    index?: number
+  ) => void;
   onDragOver?: (isOver: boolean) => void;
   disabled?: boolean;
 }
@@ -15,7 +20,7 @@ export const useKanbanDrop = ({
   column,
   onDrop,
   onDragOver,
-  disabled = false
+  disabled = false,
 }: UseKanbanDropProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
 
@@ -46,4 +51,3 @@ export const useKanbanDrop = ({
 
   return elementRef;
 };
-

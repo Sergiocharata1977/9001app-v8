@@ -1,15 +1,15 @@
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
   deleteDoc,
   query,
   where,
   orderBy,
-  limit
+  limit,
 } from 'firebase/firestore';
 import { db } from './config';
 
@@ -54,12 +54,14 @@ export const getDepartments = async () => {
   }
 };
 
-export const addDepartment = async (department: Omit<Department, 'id' | 'createdAt' | 'updatedAt'>) => {
+export const addDepartment = async (
+  department: Omit<Department, 'id' | 'createdAt' | 'updatedAt'>
+) => {
   try {
     const docRef = await addDoc(collection(db, 'departments'), {
       ...department,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -79,12 +81,14 @@ export const getPositions = async () => {
   }
 };
 
-export const addPosition = async (position: Omit<Position, 'id' | 'createdAt' | 'updatedAt'>) => {
+export const addPosition = async (
+  position: Omit<Position, 'id' | 'createdAt' | 'updatedAt'>
+) => {
   try {
     const docRef = await addDoc(collection(db, 'positions'), {
       ...position,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -104,12 +108,14 @@ export const getPersonnel = async () => {
   }
 };
 
-export const addPersonnel = async (personnel: Omit<Personnel, 'id' | 'createdAt' | 'updatedAt'>) => {
+export const addPersonnel = async (
+  personnel: Omit<Personnel, 'id' | 'createdAt' | 'updatedAt'>
+) => {
   try {
     const docRef = await addDoc(collection(db, 'personnel'), {
       ...personnel,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -117,4 +123,3 @@ export const addPersonnel = async (personnel: Omit<Personnel, 'id' | 'createdAt'
     return { success: false, error };
   }
 };
-

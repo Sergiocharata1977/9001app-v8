@@ -7,7 +7,7 @@ import { User } from '@/types/auth';
 import { UserContext } from '@/types/context';
 
 interface UseCurrentUserOptions {
-  includeContext?: boolean;  // Load full context (default: false)
+  includeContext?: boolean; // Load full context (default: false)
 }
 
 interface UseCurrentUserReturn {
@@ -32,17 +32,21 @@ export function useCurrentUser(
       setError(null);
 
       // Fetch user from users collection
-      const response = await fetch(`/api/ia/context?userId=${userId}&light=true`);
-      
+      const response = await fetch(
+        `/api/ia/context?userId=${userId}&light=true`
+      );
+
       if (!response.ok) {
         // User doesn't exist in Firestore, create it automatically
         if (response.status === 404 && email) {
-          console.log('[useCurrentUser] User not found in Firestore, creating...');
-          
+          console.log(
+            '[useCurrentUser] User not found in Firestore, creating...'
+          );
+
           const createResponse = await fetch('/api/users/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: userId, email })
+            body: JSON.stringify({ uid: userId, email }),
           });
 
           if (createResponse.ok) {
@@ -52,12 +56,12 @@ export function useCurrentUser(
             return;
           }
         }
-        
+
         throw new Error('Failed to load user');
       }
 
       const data = await response.json();
-      
+
       if (data.contexto) {
         setUsuario(data.contexto.user);
 
@@ -80,15 +84,18 @@ export function useCurrentUser(
 
   useEffect(() => {
     // Subscribe to Firebase Auth state changes
-    const unsubscribe = onAuthStateChanged(auth, async (authUser: FirebaseUser | null) => {
-      if (authUser) {
-        await loadUser(authUser.uid, authUser.email);
-      } else {
-        setUsuario(null);
-        setContexto(null);
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (authUser: FirebaseUser | null) => {
+        if (authUser) {
+          await loadUser(authUser.uid, authUser.email);
+        } else {
+          setUsuario(null);
+          setContexto(null);
+          setLoading(false);
+        }
       }
-    });
+    );
 
     return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,6 +113,6 @@ export function useCurrentUser(
     contexto,
     loading,
     error,
-    refresh
+    refresh,
   };
 }

@@ -1,25 +1,22 @@
 'use client';
 
-import { AuditCard } from '@/components/audits/AuditCard';
 import { AuditFormDialog } from '@/components/audits/AuditFormDialog';
 import { AuditKanban } from '@/components/audits/AuditKanban';
 import { AuditList } from '@/components/audits/AuditList';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { AuditFormInput } from '@/lib/validations/audits';
-import type { Audit } from '@/types/audits';
-import { Plus } from 'lucide-react';
+import type { Audit, AuditFormData } from '@/types/audits';
+import { LayoutGrid, List, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function AuditoriasPage() {
+type ViewMode = 'kanban' | 'list';
+
+export default function AuditsPage() {
   const router = useRouter();
   const [audits, setAudits] = useState<Audit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'card'>(
-    'kanban'
-  );
+  const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+  const [showFormDialog, setShowFormDialog] = useState(false);
 
   useEffect(() => {
     fetchAudits();
@@ -27,9 +24,10 @@ export default function AuditoriasPage() {
 
   const fetchAudits = async () => {
     try {
+      setLoading(true);
       const response = await fetch('/api/audits');
       const data = await response.json();
-      setAudits(data.audits);
+      setAudits(data.audits || []);
     } catch (error) {
       console.error('Error fetching audits:', error);
     } finally {
@@ -37,35 +35,24 @@ export default function AuditoriasPage() {
     }
   };
 
-  const handleCreate = async (data: AuditFormInput) => {
+  const handleCreateAudit = async (data: AuditFormData) => {
     try {
-      // Convertir la fecha a ISO string para serialización
-      const payload = {
-        ...data,
-        plannedDate: data.plannedDate.toISOString(),
-      };
-
       const response = await fetch('/api/audits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        console.error('Error response:', error);
-        alert(
-          `Error al crear auditoría: ${error.error || 'Error desconocido'}`
-        );
-        return;
+        throw new Error('Error al crear la auditoría');
       }
 
       const result = await response.json();
-      await fetchAudits(); // Refrescar la lista antes de navegar
+      await fetchAudits();
       router.push(`/auditorias/${result.id}`);
     } catch (error) {
       console.error('Error creating audit:', error);
-      alert('Error al crear auditoría. Por favor intenta de nuevo.');
+      throw error;
     }
   };
 
@@ -81,49 +68,88 @@ export default function AuditoriasPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Auditorías</h1>
-          <p className="text-muted-foreground">
-            Gestión de auditorías ISO 9001:2015
+          <h1 className="text-3xl font-bold text-gray-900">Auditorías</h1>
+          <p className="text-gray-600 mt-1">
+            Gestión de auditorías internas ISO 9001
           </p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva Auditoría
-        </Button>
+
+        <div className="flex items-center gap-2">
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('kanban')}
+              className={`p-2 rounded ${
+                viewMode === 'kanban'
+                  ? 'bg-white shadow-sm'
+                  : 'hover:bg-gray-200'
+              }`}
+              title="Vista Kanban"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded ${
+                viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+              }`}
+              title="Vista Lista"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
+
+          <Button onClick={() => setShowFormDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Auditoría
+          </Button>
+        </div>
       </div>
 
-      <Tabs
-        value={viewMode}
-        onValueChange={v => setViewMode(v as 'kanban' | 'list' | 'card')}
-        className="space-y-4"
-      >
-        <TabsList>
-          <TabsTrigger value="kanban">Kanban</TabsTrigger>
-          <TabsTrigger value="list">Lista</TabsTrigger>
-          <TabsTrigger value="card">Tarjetas</TabsTrigger>
-        </TabsList>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow p-4">
+          <p className="text-sm text-gray-600">Total</p>
+          <p className="text-2xl font-bold text-gray-900">{audits.length}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <p className="text-sm text-gray-600">Planificadas</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {audits.filter(a => a.status === 'planned').length}
+          </p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <p className="text-sm text-gray-600">En Progreso</p>
+          <p className="text-2xl font-bold text-blue-600">
+            {audits.filter(a => a.status === 'in_progress').length}
+          </p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <p className="text-sm text-gray-600">Completadas</p>
+          <p className="text-2xl font-bold text-green-600">
+            {audits.filter(a => a.status === 'completed').length}
+          </p>
+        </div>
+      </div>
 
-        <TabsContent value="kanban">
-          <AuditKanban audits={audits} onRefresh={fetchAudits} />
-        </TabsContent>
+      {/* Content */}
+      <div className="bg-white rounded-lg shadow p-6">
+        {viewMode === 'kanban' ? (
+          <AuditKanban audits={audits} />
+        ) : (
+          <AuditList audits={audits} />
+        )}
+      </div>
 
-        <TabsContent value="list">
-          <AuditList audits={audits} onRefresh={fetchAudits} />
-        </TabsContent>
-
-        <TabsContent value="card">
-          <AuditCard audits={audits} onRefresh={fetchAudits} />
-        </TabsContent>
-      </Tabs>
-
+      {/* Audit Form Dialog */}
       <AuditFormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSubmit={handleCreate}
-        mode="create"
+        open={showFormDialog}
+        onClose={() => setShowFormDialog(false)}
+        onSubmit={handleCreateAudit}
       />
     </div>
   );

@@ -1,60 +1,124 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDate } from '@/lib/utils';
 import type { Audit } from '@/types/audits';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { Calendar, User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { AUDIT_TYPE_LABELS, getAuditProgress } from '@/types/audits';
+import { Calendar, FileText, User } from 'lucide-react';
+import Link from 'next/link';
 import { AuditStatusBadge } from './AuditStatusBadge';
 
 interface AuditCardProps {
-  audits: Audit[];
-  onRefresh: () => void;
+  audit: Audit;
 }
 
-export function AuditCard({ audits }: AuditCardProps) {
-  const router = useRouter();
-
-  if (audits.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">No hay auditorías registradas</p>
-      </div>
-    );
+// Helper para convertir fechas de Firestore
+const toDate = (timestamp: unknown): Date => {
+  if (!timestamp) return new Date();
+  if (timestamp instanceof Date) return timestamp;
+  if (
+    typeof timestamp === 'object' &&
+    timestamp !== null &&
+    'toDate' in timestamp &&
+    typeof timestamp.toDate === 'function'
+  ) {
+    return timestamp.toDate();
   }
+  if (
+    typeof timestamp === 'object' &&
+    timestamp !== null &&
+    'seconds' in timestamp &&
+    typeof timestamp.seconds === 'number'
+  ) {
+    return new Date(timestamp.seconds * 1000);
+  }
+  if (typeof timestamp === 'string') {
+    return new Date(timestamp);
+  }
+  return new Date();
+};
+
+export function AuditCard({ audit }: AuditCardProps) {
+  const plannedDate = toDate(audit.plannedDate);
+  const progress = getAuditProgress(audit);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {audits.map(audit => (
-        <Card
-          key={audit.id}
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => router.push(`/auditorias/${audit.id}`)}
-        >
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-lg">{audit.title}</CardTitle>
-              <AuditStatusBadge status={audit.status} />
+    <Link href={`/auditorias/${audit.id}`}>
+      <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 border border-gray-200 cursor-pointer">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-mono text-gray-500">
+                {audit.auditNumber}
+              </span>
+              <span className="text-xs text-gray-400">•</span>
+              <span className="text-xs text-gray-600">
+                {AUDIT_TYPE_LABELS[audit.auditType]}
+              </span>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {audit.description || 'Sin descripción'}
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4 mr-2" />
-                {format(new Date(audit.plannedDate), 'PP', { locale: es })}
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <User className="h-4 w-4 mr-2" />
-                {audit.leadAuditor}
-              </div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">
+              {audit.title}
+            </h3>
+            <p className="text-xs text-gray-600 line-clamp-2">{audit.scope}</p>
+          </div>
+        </div>
+
+        {/* Badge de Estado */}
+        <div className="mb-3">
+          <AuditStatusBadge status={audit.status} />
+        </div>
+
+        {/* Barra de Progreso */}
+        {audit.status !== 'planned' && (
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-600">Progreso</span>
+              <span className="text-xs font-semibold text-gray-900">
+                {progress}%
+              </span>
             </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Info en Grid */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {/* Columna 1 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-gray-600">
+              <Calendar className="w-3 h-3 shrink-0" />
+              <span className="truncate">{formatDate(plannedDate)}</span>
+            </div>
+            {audit.status !== 'planned' &&
+              audit.normPointsVerification.length > 0 && (
+                <div className="flex items-center gap-1 text-gray-600">
+                  <FileText className="w-3 h-3 shrink-0" />
+                  <span className="truncate">
+                    {
+                      audit.normPointsVerification.filter(
+                        v => v.conformityStatus !== null
+                      ).length
+                    }
+                    /{audit.normPointsVerification.length} puntos
+                  </span>
+                </div>
+              )}
+          </div>
+
+          {/* Columna 2 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-gray-600">
+              <User className="w-3 h-3 shrink-0" />
+              <span className="truncate">{audit.leadAuditor}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }

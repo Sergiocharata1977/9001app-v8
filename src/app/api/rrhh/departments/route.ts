@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DepartmentService } from '@/services/rrhh/DepartmentService';
-import { departmentSchema, departmentFiltersSchema, paginationSchema } from '@/lib/validations/rrhh';
+import {
+  departmentSchema,
+  departmentFiltersSchema,
+  paginationSchema,
+} from '@/lib/validations/rrhh';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +13,12 @@ export async function GET(request: NextRequest) {
     // Parse filters
     const filters = departmentFiltersSchema.parse({
       search: searchParams.get('search') || undefined,
-      is_active: searchParams.get('is_active') === 'true' ? true : searchParams.get('is_active') === 'false' ? false : undefined,
+      is_active:
+        searchParams.get('is_active') === 'true'
+          ? true
+          : searchParams.get('is_active') === 'false'
+            ? false
+            : undefined,
       responsible_user_id: searchParams.get('responsible_user_id') || undefined,
     });
 
@@ -44,7 +53,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in departments POST:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }

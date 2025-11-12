@@ -28,6 +28,8 @@ export interface FindingRegistration {
   description: string;
   processId: string | null;
   processName: string | null;
+  source?: 'audit' | 'inspection' | 'complaint' | 'other';
+  sourceId?: string | null;
 }
 
 // Fase 2: Planificación de Acción Inmediata (Formulario 2)
@@ -102,6 +104,8 @@ export interface FindingFormData {
   description: string;
   processId: string;
   processName: string;
+  source?: 'audit' | 'inspection' | 'complaint' | 'other';
+  sourceId?: string;
 }
 
 // Formulario 2: Planificación de Acción Inmediata
@@ -131,6 +135,7 @@ export interface FindingRootCauseAnalysisFormData {
 export interface FindingFilters {
   status?: FindingStatus;
   processId?: string;
+  sourceId?: string;
   year?: number;
   search?: string;
   requiresAction?: boolean;

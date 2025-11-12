@@ -42,7 +42,12 @@ export async function PUT(
   } catch (error) {
     console.error('Error in measurement PUT:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }
@@ -85,16 +90,21 @@ export async function PATCH(
     const { action, validatedBy, notes } = body;
 
     if (action === 'validate') {
-      const measurement = await MeasurementService.validateMeasurement(id, validatedBy, notes);
+      const measurement = await MeasurementService.validateMeasurement(
+        id,
+        validatedBy,
+        notes
+      );
       return NextResponse.json(measurement);
     } else if (action === 'reject') {
-      const measurement = await MeasurementService.rejectMeasurement(id, validatedBy, notes);
+      const measurement = await MeasurementService.rejectMeasurement(
+        id,
+        validatedBy,
+        notes
+      );
       return NextResponse.json(measurement);
     } else {
-      return NextResponse.json(
-        { error: 'Acción no válida' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
     }
   } catch (error) {
     console.error('Error in measurement PATCH:', error);

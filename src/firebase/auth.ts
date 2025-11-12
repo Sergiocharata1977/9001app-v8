@@ -1,16 +1,20 @@
-import { 
-  signInWithEmailAndPassword, 
+import {
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User
+  User,
 } from 'firebase/auth';
 import { auth } from './config';
 
 // Función para iniciar sesión
 export const signIn = async (email: string, password: string) => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     return { success: true, user: userCredential.user };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -20,7 +24,11 @@ export const signIn = async (email: string, password: string) => {
 // Función para registrar usuario
 export const signUp = async (email: string, password: string) => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     return { success: true, user: userCredential.user };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -41,4 +49,3 @@ export const logout = async () => {
 export const onAuthChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
-

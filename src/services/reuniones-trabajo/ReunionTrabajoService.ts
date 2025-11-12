@@ -65,9 +65,10 @@ export class ReunionTrabajoService {
       // Filtrar por búsqueda si se proporciona
       if (filters?.search) {
         const searchTerm = filters.search.toLowerCase();
-        reuniones = reuniones.filter(reunion =>
-          reunion.titulo.toLowerCase().includes(searchTerm) ||
-          reunion.organizador_nombre?.toLowerCase().includes(searchTerm)
+        reuniones = reuniones.filter(
+          reunion =>
+            reunion.titulo.toLowerCase().includes(searchTerm) ||
+            reunion.organizador_nombre?.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -75,8 +76,16 @@ export class ReunionTrabajoService {
       if (filters?.fecha_desde || filters?.fecha_hasta) {
         reuniones = reuniones.filter(reunion => {
           const fechaReunion = new Date(reunion.fecha);
-          if (filters.fecha_desde && fechaReunion < new Date(filters.fecha_desde)) return false;
-          if (filters.fecha_hasta && fechaReunion > new Date(filters.fecha_hasta)) return false;
+          if (
+            filters.fecha_desde &&
+            fechaReunion < new Date(filters.fecha_desde)
+          )
+            return false;
+          if (
+            filters.fecha_hasta &&
+            fechaReunion > new Date(filters.fecha_hasta)
+          )
+            return false;
           return true;
         });
       }
@@ -113,7 +122,10 @@ export class ReunionTrabajoService {
   /**
    * Crea una nueva reunión
    */
-  static async create(data: CreateReunionData, userId: string): Promise<string> {
+  static async create(
+    data: CreateReunionData,
+    userId: string
+  ): Promise<string> {
     try {
       const now = new Date();
 
@@ -133,12 +145,13 @@ export class ReunionTrabajoService {
           rol: p.rol as ReunionTrabajo['participantes'][0]['rol'],
           asistio: false,
         })),
-        agenda: data.agenda?.map(a => ({
-          orden: a.orden,
-          tema: a.tema,
-          tiempo_estimado: a.tiempo_estimado,
-          estado: 'planificado' as const,
-        })) || [],
+        agenda:
+          data.agenda?.map(a => ({
+            orden: a.orden,
+            tema: a.tema,
+            tiempo_estimado: a.tiempo_estimado,
+            estado: 'planificado' as const,
+          })) || [],
         puntos_tratados: [],
         acuerdos: [],
         estado: 'planificada',

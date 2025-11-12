@@ -9,7 +9,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: 'Datos RRHH sembrados exitosamente'
+      message: 'Datos RRHH sembrados exitosamente',
     });
   } catch (error) {
     console.error('❌ Error en seed RRHH:', error);
@@ -17,7 +17,7 @@ export async function POST() {
       {
         success: false,
         error: 'Error al sembrar datos RRHH',
-        details: error instanceof Error ? error.message : 'Error desconocido'
+        details: error instanceof Error ? error.message : 'Error desconocido',
       },
       { status: 500 }
     );

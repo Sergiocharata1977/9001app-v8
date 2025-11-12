@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProcessRecordFormData, processRecordSchema } from '@/lib/validations/procesos';
+import {
+  ProcessRecordFormData,
+  processRecordSchema,
+} from '@/lib/validations/procesos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +27,7 @@ export function ProcessRecordForm({
   initialData,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: ProcessRecordFormProps) {
   const {
     register,
@@ -32,26 +35,28 @@ export function ProcessRecordForm({
     formState: { errors },
     reset,
     setValue,
-    watch
+    watch,
   } = useForm<ProcessRecordFormData>({
     resolver: zodResolver(processRecordSchema),
-    defaultValues: initialData ? {
-      processId: initialData.processId,
-      titulo: initialData.titulo,
-      descripcion: initialData.descripcion,
-      estado: initialData.estado,
-      responsable: initialData.responsable,
-      fecha_vencimiento: initialData.fecha_vencimiento,
-      prioridad: initialData.prioridad
-    } : {
-      processId: processId,
-      titulo: '',
-      descripcion: '',
-      estado: 'pendiente' as const,
-      responsable: '',
-      fecha_vencimiento: new Date(),
-      prioridad: 'media' as const
-    }
+    defaultValues: initialData
+      ? {
+          processId: initialData.processId,
+          titulo: initialData.titulo,
+          descripcion: initialData.descripcion,
+          estado: initialData.estado,
+          responsable: initialData.responsable,
+          fecha_vencimiento: initialData.fecha_vencimiento,
+          prioridad: initialData.prioridad,
+        }
+      : {
+          processId: processId,
+          titulo: '',
+          descripcion: '',
+          estado: 'pendiente' as const,
+          responsable: '',
+          fecha_vencimiento: new Date(),
+          prioridad: 'media' as const,
+        },
   });
 
   const handleFormSubmit = async (data: ProcessRecordFormData) => {
@@ -67,7 +72,9 @@ export function ProcessRecordForm({
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle>
-          {initialData ? 'Editar Registro de Proceso' : 'Nuevo Registro de Proceso'}
+          {initialData
+            ? 'Editar Registro de Proceso'
+            : 'Nuevo Registro de Proceso'}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -81,7 +88,9 @@ export function ProcessRecordForm({
               className={errors.titulo ? 'border-red-500' : ''}
             />
             {errors.titulo && (
-              <p className="text-red-500 text-sm mt-1">{errors.titulo.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.titulo.message}
+              </p>
             )}
           </div>
 
@@ -95,7 +104,9 @@ export function ProcessRecordForm({
               className={errors.descripcion ? 'border-red-500' : ''}
             />
             {errors.descripcion && (
-              <p className="text-red-500 text-sm mt-1">{errors.descripcion.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.descripcion.message}
+              </p>
             )}
           </div>
 
@@ -109,7 +120,9 @@ export function ProcessRecordForm({
                 className={errors.responsable ? 'border-red-500' : ''}
               />
               {errors.responsable && (
-                <p className="text-red-500 text-sm mt-1">{errors.responsable.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.responsable.message}
+                </p>
               )}
             </div>
 
@@ -147,12 +160,14 @@ export function ProcessRecordForm({
                 id="fecha_vencimiento"
                 type="date"
                 {...register('fecha_vencimiento', {
-                  valueAsDate: true
+                  valueAsDate: true,
                 })}
                 className={errors.fecha_vencimiento ? 'border-red-500' : ''}
               />
               {errors.fecha_vencimiento && (
-                <p className="text-red-500 text-sm mt-1">{errors.fecha_vencimiento.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.fecha_vencimiento.message}
+                </p>
               )}
             </div>
           </div>
@@ -166,11 +181,12 @@ export function ProcessRecordForm({
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Guardando...' : (initialData ? 'Actualizar' : 'Crear')}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading
+                ? 'Guardando...'
+                : initialData
+                  ? 'Actualizar'
+                  : 'Crear'}
             </Button>
           </div>
         </form>

@@ -20,7 +20,8 @@ export function PositionAssignmentsForm({
   onCancel,
   personnelCount = 0,
 }: PositionAssignmentsFormProps) {
-  const [selectedProcesses, setSelectedProcesses] = useState<string[]>(initialProcesses);
+  const [selectedProcesses, setSelectedProcesses] =
+    useState<string[]>(initialProcesses);
   const [allProcesses, setAllProcesses] = useState<ProcessDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -103,8 +104,8 @@ export function PositionAssignmentsForm({
             Asignar Procesos al Puesto
           </CardTitle>
           <p className="text-sm text-gray-600 mt-2">
-            Selecciona los procesos que están relacionados con este puesto. 
-            Los cambios se pueden propagar automáticamente al personal asignado.
+            Selecciona los procesos que están relacionados con este puesto. Los
+            cambios se pueden propagar automáticamente al personal asignado.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -115,7 +116,7 @@ export function PositionAssignmentsForm({
             </label>
             <select
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              onChange={(e) => {
+              onChange={e => {
                 if (e.target.value) {
                   addProcess(e.target.value);
                   e.target.value = '';
@@ -190,7 +191,8 @@ export function PositionAssignmentsForm({
                   Hay {personnelCount} persona(s) asignada(s) a este puesto
                 </p>
                 <p className="text-sm text-blue-700 mt-1">
-                  Al guardar, podrás elegir si propagar estos cambios al personal asignado.
+                  Al guardar, podrás elegir si propagar estos cambios al
+                  personal asignado.
                 </p>
               </div>
             </div>
@@ -198,11 +200,7 @@ export function PositionAssignmentsForm({
 
           {/* Botones de acción */}
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button
-              variant="outline"
-              onClick={onCancel}
-              disabled={saving}
-            >
+            <Button variant="outline" onClick={onCancel} disabled={saving}>
               Cancelar
             </Button>
             <Button
@@ -226,15 +224,17 @@ export function PositionAssignmentsForm({
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-700">
-                Hay <strong>{personnelCount} persona(s)</strong> asignada(s) a este puesto.
+                Hay <strong>{personnelCount} persona(s)</strong> asignada(s) a
+                este puesto.
               </p>
               <p className="text-gray-700">
-                ¿Deseas actualizar automáticamente los procesos asignados a estas personas?
+                ¿Deseas actualizar automáticamente los procesos asignados a
+                estas personas?
               </p>
               <div className="bg-yellow-50 p-3 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  <strong>Nota:</strong> Esto reemplazará los procesos actuales del personal 
-                  con los procesos del puesto.
+                  <strong>Nota:</strong> Esto reemplazará los procesos actuales
+                  del personal con los procesos del puesto.
                 </p>
               </div>
               <div className="flex gap-3 pt-4">

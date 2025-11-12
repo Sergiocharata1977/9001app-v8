@@ -24,14 +24,15 @@ export async function PUT(
       body.positionId,
       replaceAssignments
     );
-    
+
     return NextResponse.json({
       message: 'Puesto actualizado exitosamente',
       assignmentsReplaced: replaceAssignments,
     });
   } catch (error) {
     console.error('Error updating personnel position:', error);
-    const message = error instanceof Error ? error.message : 'Error al actualizar puesto';
+    const message =
+      error instanceof Error ? error.message : 'Error al actualizar puesto';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -42,7 +42,12 @@ export async function PUT(
   } catch (error) {
     console.error('Error in registro PUT:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }
@@ -64,7 +69,9 @@ export async function DELETE(
     const { recordId } = await params;
     await ProcessRecordService.delete(recordId);
 
-    return NextResponse.json({ message: 'Registro de proceso eliminado exitosamente' });
+    return NextResponse.json({
+      message: 'Registro de proceso eliminado exitosamente',
+    });
   } catch (error) {
     console.error('Error in registro DELETE:', error);
     return NextResponse.json(
@@ -84,21 +91,18 @@ export async function POST(
 
     if (body.action === 'move') {
       const { estado } = body;
-      if (!estado || !['pendiente', 'en-progreso', 'completado'].includes(estado)) {
-        return NextResponse.json(
-          { error: 'Estado inválido' },
-          { status: 400 }
-        );
+      if (
+        !estado ||
+        !['pendiente', 'en-progreso', 'completado'].includes(estado)
+      ) {
+        return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
       }
 
       const record = await ProcessRecordService.moveToState(recordId, estado);
       return NextResponse.json(record);
     }
 
-    return NextResponse.json(
-      { error: 'Acción no válida' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
   } catch (error) {
     console.error('Error in registro POST (move):', error);
     return NextResponse.json(

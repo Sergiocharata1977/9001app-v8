@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, addDoc, writeBatch, doc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  writeBatch,
+  doc,
+} from 'firebase/firestore';
 import { db } from '@/firebase/config';
 
 // POST - Poblar colecciones con datos de prueba
@@ -14,8 +20,8 @@ export async function POST(request: NextRequest) {
         success: true,
         message: 'Colecciones limpiadas exitosamente',
         data: {
-          cleared: true
-        }
+          cleared: true,
+        },
       });
     }
 
@@ -24,7 +30,7 @@ export async function POST(request: NextRequest) {
       await seedCollections();
       return NextResponse.json({
         success: true,
-        message: 'Datos de prueba creados exitosamente'
+        message: 'Datos de prueba creados exitosamente',
       });
     }
 
@@ -34,7 +40,7 @@ export async function POST(request: NextRequest) {
       await seedCollections();
       return NextResponse.json({
         success: true,
-        message: 'Colecciones recreadas con datos de prueba'
+        message: 'Colecciones recreadas con datos de prueba',
       });
     }
 
@@ -55,7 +61,9 @@ export async function POST(request: NextRequest) {
 async function clearCollections() {
   try {
     // Limpiar definiciones de procesos
-    const definitionsSnapshot = await getDocs(collection(db, 'processDefinitions'));
+    const definitionsSnapshot = await getDocs(
+      collection(db, 'processDefinitions')
+    );
     const definitionsBatch = writeBatch(db);
     definitionsSnapshot.docs.forEach(docSnapshot => {
       definitionsBatch.delete(doc(db, 'processDefinitions', docSnapshot.id));
@@ -93,7 +101,7 @@ async function seedCollections() {
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        isActive: true
+        isActive: true,
       },
       {
         name: 'Auditorías Internas',
@@ -106,7 +114,7 @@ async function seedCollections() {
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        isActive: true
+        isActive: true,
       },
       {
         name: 'Mejora Continua',
@@ -119,13 +127,16 @@ async function seedCollections() {
         createdBy: 'admin@empresa.com',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        isActive: true
-      }
+        isActive: true,
+      },
     ];
 
     const definitionsRefs = [];
     for (const definition of definitionsData) {
-      const docRef = await addDoc(collection(db, 'processDefinitions'), definition);
+      const docRef = await addDoc(
+        collection(db, 'processDefinitions'),
+        definition
+      );
       definitionsRefs.push({ id: docRef.id, ...definition });
     }
 
@@ -133,7 +144,8 @@ async function seedCollections() {
     const recordsData = [
       {
         name: 'Implementación ISO 9001 Q3',
-        description: 'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
+        description:
+          'Registro de proceso para implementación de ISO 9001 en el tercer trimestre',
         processDefinitionId: definitionsRefs[0].id,
         processDefinitionName: 'Gestión de Calidad',
         status: 'activo',
@@ -144,9 +156,9 @@ async function seedCollections() {
           totalCards: 12,
           pendingCards: 3,
           inProgressCards: 5,
-          completedCards: 4
+          completedCards: 4,
         },
-        isActive: true
+        isActive: true,
       },
       {
         name: 'Auditoría Interna 2024',
@@ -161,9 +173,9 @@ async function seedCollections() {
           totalCards: 8,
           pendingCards: 2,
           inProgressCards: 3,
-          completedCards: 3
+          completedCards: 3,
         },
-        isActive: true
+        isActive: true,
       },
       {
         name: 'Mejora Continua',
@@ -178,10 +190,10 @@ async function seedCollections() {
           totalCards: 15,
           pendingCards: 0,
           inProgressCards: 0,
-          completedCards: 15
+          completedCards: 15,
         },
-        isActive: true
-      }
+        isActive: true,
+      },
     ];
 
     const recordsRefs = [];
@@ -193,7 +205,7 @@ async function seedCollections() {
     // Crear listas Kanban para el primer registro
     if (recordsRefs.length > 0) {
       const firstRecordId = recordsRefs[0].id;
-      
+
       const listsData = [
         {
           title: 'Pendiente',
@@ -201,7 +213,7 @@ async function seedCollections() {
           color: 'bg-gray-100',
           position: 0,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         },
         {
           title: 'En Progreso',
@@ -209,7 +221,7 @@ async function seedCollections() {
           color: 'bg-blue-100',
           position: 1,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         },
         {
           title: 'Completado',
@@ -217,12 +229,15 @@ async function seedCollections() {
           color: 'bg-green-100',
           position: 2,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
+          updatedAt: new Date().toISOString(),
+        },
       ];
 
       for (const list of listsData) {
-        await addDoc(collection(db, 'processRecords', firstRecordId, 'kanbanLists'), list);
+        await addDoc(
+          collection(db, 'processRecords', firstRecordId, 'kanbanLists'),
+          list
+        );
       }
     }
 

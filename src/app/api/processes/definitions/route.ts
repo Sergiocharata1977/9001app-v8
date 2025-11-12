@@ -7,16 +7,16 @@ export async function GET() {
   try {
     const definitionsRef = collection(db, 'processDefinitions');
     const snapshot = await getDocs(definitionsRef);
-    
+
     const definitions = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     return NextResponse.json({
       success: true,
       data: definitions,
-      count: definitions.length
+      count: definitions.length,
     });
   } catch (error) {
     console.error('Error fetching process definitions:', error);
@@ -31,7 +31,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     const {
       name,
       description,
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       department,
       version,
       status = 'activo',
-      createdBy
+      createdBy,
     } = body;
 
     // Validaciones básicas
@@ -62,18 +62,21 @@ export async function POST(request: NextRequest) {
       createdBy,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isActive: true
+      isActive: true,
     };
 
-    const docRef = await addDoc(collection(db, 'processDefinitions'), definitionData);
+    const docRef = await addDoc(
+      collection(db, 'processDefinitions'),
+      definitionData
+    );
 
     return NextResponse.json({
       success: true,
       data: {
         id: docRef.id,
-        ...definitionData
+        ...definitionData,
       },
-      message: 'Definición de proceso creada exitosamente'
+      message: 'Definición de proceso creada exitosamente',
     });
   } catch (error) {
     console.error('Error creating process definition:', error);

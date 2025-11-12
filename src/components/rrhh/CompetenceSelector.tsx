@@ -31,7 +31,9 @@ export function CompetenceSelector({
   organizationId,
 }: Props) {
   const [competences, setCompetences] = useState<Competence[]>([]);
-  const [filteredCompetences, setFilteredCompetences] = useState<Competence[]>([]);
+  const [filteredCompetences, setFilteredCompetences] = useState<Competence[]>(
+    []
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -49,7 +51,9 @@ export function CompetenceSelector({
   const loadCompetences = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/rrhh/competencias?organization_id=${organizationId}`);
+      const response = await fetch(
+        `/api/rrhh/competencias?organization_id=${organizationId}`
+      );
       const data = await response.json();
       setCompetences(data);
     } catch (error) {
@@ -65,9 +69,10 @@ export function CompetenceSelector({
       return;
     }
 
-    const filtered = competences.filter(comp =>
-      comp.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comp.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = competences.filter(
+      comp =>
+        comp.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        comp.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCompetences(filtered);
   };
@@ -86,43 +91,54 @@ export function CompetenceSelector({
 
   const getCategoryColor = (categoria: string) => {
     switch (categoria) {
-      case 'tecnica': return 'bg-blue-500';
-      case 'blanda': return 'bg-green-500';
-      case 'seguridad': return 'bg-red-500';
-      case 'iso_9001': return 'bg-purple-500';
-      case 'otra': return 'bg-gray-500';
-      default: return 'bg-gray-500';
+      case 'tecnica':
+        return 'bg-blue-500';
+      case 'blanda':
+        return 'bg-green-500';
+      case 'seguridad':
+        return 'bg-red-500';
+      case 'iso_9001':
+        return 'bg-purple-500';
+      case 'otra':
+        return 'bg-gray-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getCategoryLabel = (categoria: string) => {
     switch (categoria) {
-      case 'tecnica': return 'Técnica';
-      case 'blanda': return 'Blanda';
-      case 'seguridad': return 'Seguridad';
-      case 'iso_9001': return 'ISO 9001';
-      case 'otra': return 'Otra';
-      default: return categoria;
+      case 'tecnica':
+        return 'Técnica';
+      case 'blanda':
+        return 'Blanda';
+      case 'seguridad':
+        return 'Seguridad';
+      case 'iso_9001':
+        return 'ISO 9001';
+      case 'otra':
+        return 'Otra';
+      default:
+        return categoria;
     }
   };
 
-  const selectedCompetences = competences.filter(comp => selectedIds.includes(comp.id));
+  const selectedCompetences = competences.filter(comp =>
+    selectedIds.includes(comp.id)
+  );
 
   const defaultTrigger = (
     <Button variant="outline" className="w-full justify-start">
       <Plus className="h-4 w-4 mr-2" />
       {selectedIds.length === 0
         ? 'Seleccionar competencias...'
-        : `${selectedIds.length} competencia(s) seleccionada(s)`
-      }
+        : `${selectedIds.length} competencia(s) seleccionada(s)`}
     </Button>
   );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>
@@ -142,7 +158,7 @@ export function CompetenceSelector({
             <Input
               placeholder="Buscar competencias..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -153,23 +169,31 @@ export function CompetenceSelector({
               <div className="text-center py-4">Cargando competencias...</div>
             ) : filteredCompetences.length === 0 ? (
               <div className="text-center py-4 text-gray-500">
-                {searchTerm ? 'No se encontraron competencias' : 'No hay competencias disponibles'}
+                {searchTerm
+                  ? 'No se encontraron competencias'
+                  : 'No hay competencias disponibles'}
               </div>
             ) : (
-              filteredCompetences.map((competence) => (
+              filteredCompetences.map(competence => (
                 <div
                   key={competence.id}
                   className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50"
                 >
                   <Checkbox
                     checked={selectedIds.includes(competence.id)}
-                    onCheckedChange={() => handleCompetenceToggle(competence.id)}
+                    onCheckedChange={() =>
+                      handleCompetenceToggle(competence.id)
+                    }
                     className="mt-1"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-sm">{competence.nombre}</h4>
-                      <Badge className={`${getCategoryColor(competence.categoria)} text-white text-xs`}>
+                      <h4 className="font-medium text-sm">
+                        {competence.nombre}
+                      </h4>
+                      <Badge
+                        className={`${getCategoryColor(competence.categoria)} text-white text-xs`}
+                      >
                         {getCategoryLabel(competence.categoria)}
                       </Badge>
                     </div>
@@ -195,7 +219,7 @@ export function CompetenceSelector({
             <div className="border-t pt-4">
               <h4 className="font-medium text-sm mb-2">Seleccionadas:</h4>
               <div className="flex flex-wrap gap-1">
-                {selectedCompetences.map((comp) => (
+                {selectedCompetences.map(comp => (
                   <Badge key={comp.id} variant="secondary" className="text-xs">
                     {comp.nombre}
                   </Badge>
@@ -210,9 +234,7 @@ export function CompetenceSelector({
               Cerrar
             </Button>
             {!multiple && selectedIds.length > 0 && (
-              <Button onClick={() => setOpen(false)}>
-                Seleccionar
-              </Button>
+              <Button onClick={() => setOpen(false)}>Seleccionar</Button>
             )}
           </div>
         </div>

@@ -5,7 +5,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({ value, color }: ProgressBarProps) {
   const clampedValue = Math.min(Math.max(value, 0), 100);
-  
+
   const colorClasses = {
     green: 'bg-green-500',
     yellow: 'bg-yellow-500',

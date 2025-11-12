@@ -2,15 +2,15 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Building2, 
-  Users, 
-  UserCheck, 
-  DollarSign, 
-  Edit, 
-  Trash2, 
+import {
+  Building2,
+  Users,
+  UserCheck,
+  DollarSign,
+  Edit,
+  Trash2,
   Eye,
-  Target
+  Target,
 } from 'lucide-react';
 import { Department } from '@/types/rrhh';
 
@@ -22,16 +22,29 @@ interface DepartmentCardProps {
   onCardClick?: (department: Department) => void;
 }
 
-export function DepartmentCard({ department, onView, onEdit, onDelete, onCardClick }: DepartmentCardProps) {
+export function DepartmentCard({
+  department,
+  onView,
+  onEdit,
+  onDelete,
+  onCardClick,
+}: DepartmentCardProps) {
   // Función para obtener iniciales del departamento
   const getInitials = (nombre: string) => {
     if (!nombre) return 'DP';
-    return nombre.split(' ').map(word => word.charAt(0)).join('').toUpperCase().substring(0, 2);
+    return nombre
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   // Función para obtener color del estado
   const getEstadoColor = (isActive: boolean) => {
-    return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+    return isActive
+      ? 'bg-green-100 text-green-800'
+      : 'bg-gray-100 text-gray-800';
   };
 
   const handleCardClick = () => {
@@ -44,7 +57,7 @@ export function DepartmentCard({ department, onView, onEdit, onDelete, onCardCli
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleCardClick();
@@ -60,13 +73,19 @@ export function DepartmentCard({ department, onView, onEdit, onDelete, onCardCli
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">{department.name}</h3>
-            <p className="text-sm text-gray-600">{department.responsible_user_id || 'Sin responsable asignado'}</p>
-            <p className="text-xs text-gray-500 font-mono">ID: {department.id}</p>
+            <p className="text-sm text-gray-600">
+              {department.responsible_user_id || 'Sin responsable asignado'}
+            </p>
+            <p className="text-xs text-gray-500 font-mono">
+              ID: {department.id}
+            </p>
           </div>
         </div>
       </div>
 
-      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{department.description || 'Sin descripción'}</p>
+      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+        {department.description || 'Sin descripción'}
+      </p>
 
       <div className="space-y-2 text-sm text-gray-500 mb-4">
         <div className="flex items-center gap-2">
@@ -75,7 +94,9 @@ export function DepartmentCard({ department, onView, onEdit, onDelete, onCardCli
         </div>
         <div className="flex items-center gap-2">
           <UserCheck className="h-4 w-4" />
-          <span>Responsable: {department.responsible_user_id || 'Sin asignar'}</span>
+          <span>
+            Responsable: {department.responsible_user_id || 'Sin asignar'}
+          </span>
         </div>
       </div>
 
@@ -83,13 +104,11 @@ export function DepartmentCard({ department, onView, onEdit, onDelete, onCardCli
         <Badge className={getEstadoColor(department.is_active)}>
           {department.is_active ? 'Activo' : 'Inactivo'}
         </Badge>
-        <Badge variant="outline">
-          0 empleados
-        </Badge>
+        <Badge variant="outline">0 empleados</Badge>
       </div>
 
       <div className="mt-4 pt-4">
-        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-2" onClick={e => e.stopPropagation()}>
           <Button
             size="sm"
             className="flex-1 flex items-center justify-center gap-2"
@@ -120,4 +139,3 @@ export function DepartmentCard({ department, onView, onEdit, onDelete, onCardCli
     </Card>
   );
 }
-

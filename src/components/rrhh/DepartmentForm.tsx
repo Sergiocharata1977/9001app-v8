@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { DepartmentFormData, departmentFormSchema } from '@/lib/validations/rrhh';
+import {
+  DepartmentFormData,
+  departmentFormSchema,
+} from '@/lib/validations/rrhh';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,30 +21,32 @@ interface DepartmentFormProps {
   isLoading?: boolean;
 }
 
-export function DepartmentForm({ 
-  initialData, 
-  onSubmit, 
-  onCancel, 
-  isLoading = false 
+export function DepartmentForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  isLoading = false,
 }: DepartmentFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm<DepartmentFormData>({
     resolver: zodResolver(departmentFormSchema),
-    defaultValues: initialData ? {
-      name: initialData.name,
-      description: initialData.description || '',
-      responsible_user_id: initialData.responsible_user_id || '',
-      is_active: initialData.is_active
-    } : {
-      name: '',
-      description: '',
-      responsible_user_id: '',
-      is_active: true
-    }
+    defaultValues: initialData
+      ? {
+          name: initialData.name,
+          description: initialData.description || '',
+          responsible_user_id: initialData.responsible_user_id || '',
+          is_active: initialData.is_active,
+        }
+      : {
+          name: '',
+          description: '',
+          responsible_user_id: '',
+          is_active: true,
+        },
   });
 
   const handleFormSubmit = async (data: DepartmentFormData) => {
@@ -72,12 +77,16 @@ export function DepartmentForm({
                 className={errors.name ? 'border-red-500' : ''}
               />
               {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="responsible_user_id">ID Usuario Responsable</Label>
+              <Label htmlFor="responsible_user_id">
+                ID Usuario Responsable
+              </Label>
               <Input
                 id="responsible_user_id"
                 {...register('responsible_user_id')}
@@ -95,7 +104,6 @@ export function DepartmentForm({
               rows={3}
             />
           </div>
-
 
           <div className="flex items-center space-x-2">
             <input
@@ -116,11 +124,12 @@ export function DepartmentForm({
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Guardando...' : (initialData ? 'Actualizar' : 'Crear')}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading
+                ? 'Guardando...'
+                : initialData
+                  ? 'Actualizar'
+                  : 'Crear'}
             </Button>
           </div>
         </form>

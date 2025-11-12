@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     // Obtener el registro de proceso
     const recordRef = doc(db, 'processRecords', id);
     const recordDoc = await getDoc(recordRef);
@@ -27,23 +27,30 @@ export async function GET(
 
     const lists = listsSnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     // Obtener las tarjetas de cada lista
     const listsWithCards = await Promise.all(
-      lists.map(async (list) => {
-        const cardsRef = collection(db, 'processRecords', id, 'kanbanLists', list.id, 'cards');
+      lists.map(async list => {
+        const cardsRef = collection(
+          db,
+          'processRecords',
+          id,
+          'kanbanLists',
+          list.id,
+          'cards'
+        );
         const cardsSnapshot = await getDocs(cardsRef);
 
         const cards = cardsSnapshot.docs.map(cardDoc => ({
           id: cardDoc.id,
-          ...cardDoc.data()
+          ...cardDoc.data(),
         }));
 
         return {
           ...list,
-          cards
+          cards,
         };
       })
     );
@@ -53,10 +60,10 @@ export async function GET(
       data: {
         record: {
           id: recordDoc.id,
-          ...recordDoc.data()
+          ...recordDoc.data(),
         },
-        lists: listsWithCards
-      }
+        lists: listsWithCards,
+      },
     });
   } catch (error) {
     console.error('Error fetching kanban board:', error);
@@ -75,13 +82,8 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await request.json();
-    
-    const {
-      title,
-      description,
-      color = 'bg-gray-100',
-      position
-    } = body;
+
+    const { title, description, color = 'bg-gray-100', position } = body;
 
     if (!title) {
       return NextResponse.json(
@@ -96,18 +98,21 @@ export async function POST(
       color,
       position: position || 0,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
-    const listRef = await addDoc(collection(db, 'processRecords', id, 'kanbanLists'), listData);
+    const listRef = await addDoc(
+      collection(db, 'processRecords', id, 'kanbanLists'),
+      listData
+    );
 
     return NextResponse.json({
       success: true,
       data: {
         id: listRef.id,
-        ...listData
+        ...listData,
       },
-      message: 'Lista creada exitosamente'
+      message: 'Lista creada exitosamente',
     });
   } catch (error) {
     console.error('Error creating kanban list:', error);
@@ -117,18 +122,3 @@ export async function POST(
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -42,7 +42,12 @@ export async function PUT(
   } catch (error) {
     console.error('Error in quality objective PUT:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }
@@ -64,7 +69,9 @@ export async function DELETE(
     const { id } = await params;
     await QualityObjectiveService.delete(id);
 
-    return NextResponse.json({ message: 'Objetivo de calidad eliminado exitosamente' });
+    return NextResponse.json({
+      message: 'Objetivo de calidad eliminado exitosamente',
+    });
   } catch (error) {
     console.error('Error in quality objective DELETE:', error);
     return NextResponse.json(

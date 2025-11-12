@@ -76,11 +76,13 @@ export default function UserProfilePage() {
   const [context, setContext] = useState<UserContextData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [recentDocuments, setRecentDocuments] = useState<Array<{
-    id: string;
-    title: string;
-    code: string;
-  }>>([]);
+  const [recentDocuments, setRecentDocuments] = useState<
+    Array<{
+      id: string;
+      title: string;
+      code: string;
+    }>
+  >([]);
 
   useEffect(() => {
     fetchUserContext();
@@ -348,7 +350,7 @@ export default function UserProfilePage() {
             <Badge variant="outline">{context.procesos.length}</Badge>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {context.procesos.map((proceso) => (
+            {context.procesos.map(proceso => (
               <div
                 key={proceso.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -375,7 +377,7 @@ export default function UserProfilePage() {
             <Badge variant="outline">{context.objetivos.length}</Badge>
           </h3>
           <div className="space-y-3">
-            {context.objetivos.map((objetivo) => (
+            {context.objetivos.map(objetivo => (
               <div
                 key={objetivo.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -416,7 +418,7 @@ export default function UserProfilePage() {
             <Badge variant="outline">{context.indicadores.length}</Badge>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {context.indicadores.map((indicador) => (
+            {context.indicadores.map(indicador => (
               <div
                 key={indicador.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"

@@ -31,7 +31,9 @@ interface ProcessRecord {
 
 export default function ProcessRecordsPage() {
   const [processRecords, setProcessRecords] = useState<ProcessRecord[]>([]);
-  const [processDefinitions, setProcessDefinitions] = useState<{ id: string; nombre: string; etapas_default: string[]; }[]>([]);
+  const [processDefinitions, setProcessDefinitions] = useState<
+    { id: string; nombre: string; etapas_default: string[] }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
@@ -336,7 +338,15 @@ export default function ProcessRecordsPage() {
               <div className="flex gap-2">
                 <select
                   value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value as 'all' | 'activo' | 'pausado' | 'completado')}
+                  onChange={e =>
+                    setFilterStatus(
+                      e.target.value as
+                        | 'all'
+                        | 'activo'
+                        | 'pausado'
+                        | 'completado'
+                    )
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="all">Todos los estados</option>

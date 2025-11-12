@@ -62,12 +62,16 @@ export function DocumentsList() {
 
     try {
       console.log('[Component] Eliminando documento:', id);
-      
+
       const response = await fetch(`/api/documents/${id}`, {
         method: 'DELETE',
       });
 
-      console.log('[Component] Respuesta:', response.status, response.statusText);
+      console.log(
+        '[Component] Respuesta:',
+        response.status,
+        response.statusText
+      );
 
       if (response.ok) {
         console.log('[Component] Documento eliminado, actualizando lista...');
@@ -86,7 +90,9 @@ export function DocumentsList() {
 
   const handleDownload = async (id: string) => {
     try {
-      const response = await fetch(`/api/documents/${id}/file?userId=current-user`);
+      const response = await fetch(
+        `/api/documents/${id}/file?userId=current-user`
+      );
       if (response.ok) {
         const data = await response.json();
         window.open(data.url, '_blank');
@@ -96,13 +102,17 @@ export function DocumentsList() {
     }
   };
 
-  const filteredDocuments = documents.filter((doc) =>
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.code.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDocuments = documents.filter(
+    doc =>
+      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status: DocumentStatus) => {
-    const variants: Record<DocumentStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    const variants: Record<
+      DocumentStatus,
+      'default' | 'secondary' | 'destructive' | 'outline'
+    > = {
       borrador: 'secondary',
       en_revision: 'outline',
       aprobado: 'default',
@@ -110,11 +120,7 @@ export function DocumentsList() {
       obsoleto: 'destructive',
     };
 
-    return (
-      <Badge variant={variants[status]}>
-        {status.replace('_', ' ')}
-      </Badge>
-    );
+    return <Badge variant={variants[status]}>{status.replace('_', ' ')}</Badge>;
   };
 
   return (
@@ -126,7 +132,7 @@ export function DocumentsList() {
           <Input
             placeholder="Buscar documentos..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="pl-10 border-0 shadow-sm shadow-green-100 focus:shadow-md focus:shadow-green-200"
           />
         </div>
@@ -178,10 +184,12 @@ export function DocumentsList() {
           </Button>
         </div>
 
-        <Button onClick={() => {
-          setEditingDocument(null);
-          setIsFormOpen(true);
-        }}>
+        <Button
+          onClick={() => {
+            setEditingDocument(null);
+            setIsFormOpen(true);
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Documento
         </Button>
@@ -197,7 +205,7 @@ export function DocumentsList() {
               No se encontraron documentos
             </div>
           ) : (
-            filteredDocuments.map((doc) => (
+            filteredDocuments.map(doc => (
               <div
                 key={doc.id}
                 className="bg-white rounded-lg shadow-md shadow-green-100 hover:shadow-lg hover:shadow-green-200 cursor-pointer transition-all duration-200 p-4"
@@ -210,11 +218,11 @@ export function DocumentsList() {
                     <h3 className="font-semibold text-sm mb-1">{doc.title}</h3>
                     <p className="text-xs text-gray-500">{doc.code}</p>
                   </div>
-                  <div onClick={(e) => e.stopPropagation()}>
+                  <div onClick={e => e.stopPropagation()}>
                     {getStatusBadge(doc.status)}
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 text-xs text-gray-600">
                   <div className="flex justify-between">
                     <span className="capitalize">{doc.type}</span>
@@ -225,7 +233,10 @@ export function DocumentsList() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-3 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex gap-2 mt-3 pt-3 border-t"
+                  onClick={e => e.stopPropagation()}
+                >
                   {doc.file_path && (
                     <Button
                       variant="ghost"
@@ -285,8 +296,8 @@ export function DocumentsList() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredDocuments.map((doc) => (
-                  <TableRow 
+                filteredDocuments.map(doc => (
+                  <TableRow
                     key={doc.id}
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => {
@@ -299,7 +310,10 @@ export function DocumentsList() {
                     <TableCell>{getStatusBadge(doc.status)}</TableCell>
                     <TableCell>{doc.version}</TableCell>
                     <TableCell>{doc.download_count}</TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      className="text-right"
+                      onClick={e => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-2">
                         {doc.file_path && (
                           <Button

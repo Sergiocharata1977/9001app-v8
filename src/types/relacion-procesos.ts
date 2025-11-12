@@ -5,7 +5,14 @@ export interface RelacionProcesos {
   proceso_origen_nombre?: string;
   proceso_destino_id: string;
   proceso_destino_nombre?: string;
-  tipo_relacion: 'entrada' | 'salida' | 'proveedor' | 'cliente' | 'interaccion' | 'dependencia' | 'colaboracion';
+  tipo_relacion:
+    | 'entrada'
+    | 'salida'
+    | 'proveedor'
+    | 'cliente'
+    | 'interaccion'
+    | 'dependencia'
+    | 'colaboracion';
   descripcion: string;
   elemento_relacionado?: {
     tipo: 'documento' | 'informacion' | 'producto' | 'servicio' | 'recurso';
@@ -13,7 +20,14 @@ export interface RelacionProcesos {
     descripcion?: string;
     codigo_referencia?: string;
   };
-  frecuencia?: 'continua' | 'diaria' | 'semanal' | 'mensual' | 'trimestral' | 'anual' | 'evento';
+  frecuencia?:
+    | 'continua'
+    | 'diaria'
+    | 'semanal'
+    | 'mensual'
+    | 'trimestral'
+    | 'anual'
+    | 'evento';
   importancia: 'baja' | 'media' | 'alta' | 'critica';
   canales_comunicacion?: string[]; // Ej: ["Email", "Sistema ERP", "Reuniones"]
   responsable_gestion?: string; // ID usuario
@@ -82,14 +96,34 @@ export interface CreateRelacionProcesosData {
   fecha_establecida?: string;
 }
 
-export interface UpdateRelacionProcesosData extends Partial<CreateRelacionProcesosData> {
+export interface UpdateRelacionProcesosData
+  extends Partial<CreateRelacionProcesosData> {
   id: string;
   fecha_ultima_revision?: string;
 }
 
-export type TipoRelacion = 'entrada' | 'salida' | 'proveedor' | 'cliente' | 'interaccion' | 'dependencia' | 'colaboracion';
-export type TipoElementoRelacionado = 'documento' | 'informacion' | 'producto' | 'servicio' | 'recurso';
-export type FrecuenciaRelacion = 'continua' | 'diaria' | 'semanal' | 'mensual' | 'trimestral' | 'anual' | 'evento';
+export type TipoRelacion =
+  | 'entrada'
+  | 'salida'
+  | 'proveedor'
+  | 'cliente'
+  | 'interaccion'
+  | 'dependencia'
+  | 'colaboracion';
+export type TipoElementoRelacionado =
+  | 'documento'
+  | 'informacion'
+  | 'producto'
+  | 'servicio'
+  | 'recurso';
+export type FrecuenciaRelacion =
+  | 'continua'
+  | 'diaria'
+  | 'semanal'
+  | 'mensual'
+  | 'trimestral'
+  | 'anual'
+  | 'evento';
 export type ImportanciaRelacion = 'baja' | 'media' | 'alta' | 'critica';
 export type TipoIndicador = 'tiempo' | 'calidad' | 'cantidad' | 'costo';
 export type ProbabilidadRiesgo = 'baja' | 'media' | 'alta';

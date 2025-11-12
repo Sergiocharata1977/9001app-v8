@@ -23,18 +23,30 @@ interface Props {
 export function CompetenceComparisonTable({
   competenceEvaluations,
   showActions = false,
-  onCompetenceClick
+  onCompetenceClick,
 }: Props) {
   const getGapSeverity = (brecha: number) => {
-    if (brecha >= 3) return { level: 'critica', color: 'text-red-600', bgColor: 'bg-red-50' };
-    if (brecha >= 2) return { level: 'media', color: 'text-yellow-600', bgColor: 'bg-yellow-50' };
-    if (brecha >= 1) return { level: 'baja', color: 'text-green-600', bgColor: 'bg-green-50' };
-    return { level: 'ninguna', color: 'text-green-600', bgColor: 'bg-green-50' };
+    if (brecha >= 3)
+      return { level: 'critica', color: 'text-red-600', bgColor: 'bg-red-50' };
+    if (brecha >= 2)
+      return {
+        level: 'media',
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-50',
+      };
+    if (brecha >= 1)
+      return { level: 'baja', color: 'text-green-600', bgColor: 'bg-green-50' };
+    return {
+      level: 'ninguna',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+    };
   };
 
   const getGapIcon = (brecha: number) => {
     if (brecha >= 3) return <XCircle className="h-4 w-4 text-red-500" />;
-    if (brecha >= 2) return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+    if (brecha >= 2)
+      return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
     return <CheckCircle className="h-4 w-4 text-green-500" />;
   };
 
@@ -47,15 +59,23 @@ export function CompetenceComparisonTable({
   const calculateOverallScore = () => {
     if (competenceEvaluations.length === 0) return 0;
 
-    const totalEvaluated = competenceEvaluations.reduce((sum, comp) => sum + comp.nivelEvaluado, 0);
-    const totalRequired = competenceEvaluations.reduce((sum, comp) => sum + comp.nivelRequerido, 0);
+    const totalEvaluated = competenceEvaluations.reduce(
+      (sum, comp) => sum + comp.nivelEvaluado,
+      0
+    );
+    const totalRequired = competenceEvaluations.reduce(
+      (sum, comp) => sum + comp.nivelRequerido,
+      0
+    );
     const score = (totalEvaluated / totalRequired) * 100;
 
     return Math.max(0, Math.min(100, score));
   };
 
   const overallScore = calculateOverallScore();
-  const gapsCount = competenceEvaluations.filter(comp => comp.brecha > 0).length;
+  const gapsCount = competenceEvaluations.filter(
+    comp => comp.brecha > 0
+  ).length;
 
   return (
     <Card>
@@ -69,7 +89,7 @@ export function CompetenceComparisonTable({
             </div>
             <div className="flex items-center gap-2">
               <span>Brechas:</span>
-              <Badge variant={gapsCount > 0 ? "destructive" : "secondary"}>
+              <Badge variant={gapsCount > 0 ? 'destructive' : 'secondary'}>
                 {gapsCount}
               </Badge>
             </div>
@@ -107,11 +127,12 @@ export function CompetenceComparisonTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {competenceEvaluations.map((comp) => {
+              {competenceEvaluations.map(comp => {
                 const severity = getGapSeverity(comp.brecha);
-                const progressValue = comp.nivelRequerido > 0
-                  ? (comp.nivelEvaluado / comp.nivelRequerido) * 100
-                  : 0;
+                const progressValue =
+                  comp.nivelRequerido > 0
+                    ? (comp.nivelEvaluado / comp.nivelRequerido) * 100
+                    : 0;
 
                 return (
                   <TableRow
@@ -151,7 +172,9 @@ export function CompetenceComparisonTable({
                               : severity.color
                           }`}
                         >
-                          {comp.brecha === 0 ? 'Cumple' : severity.level.toUpperCase()}
+                          {comp.brecha === 0
+                            ? 'Cumple'
+                            : severity.level.toUpperCase()}
                         </Badge>
                         <div className="w-full bg-gray-200 rounded-full h-1.5">
                           <div
@@ -173,7 +196,7 @@ export function CompetenceComparisonTable({
                         <div className="flex gap-1">
                           <button
                             className="text-blue-600 hover:text-blue-800 text-sm"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               // Acción para ver historial
                             }}
@@ -201,9 +224,15 @@ export function CompetenceComparisonTable({
                 </div>
                 <div className="p-3 bg-yellow-50 rounded-lg">
                   <div className="text-2xl font-bold text-yellow-600">
-                    {competenceEvaluations.filter(c => c.brecha > 0 && c.brecha < 3).length}
+                    {
+                      competenceEvaluations.filter(
+                        c => c.brecha > 0 && c.brecha < 3
+                      ).length
+                    }
                   </div>
-                  <div className="text-sm text-yellow-700">Con brechas menores</div>
+                  <div className="text-sm text-yellow-700">
+                    Con brechas menores
+                  </div>
                 </div>
                 <div className="p-3 bg-red-50 rounded-lg">
                   <div className="text-2xl font-bold text-red-600">

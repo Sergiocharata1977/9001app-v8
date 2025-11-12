@@ -43,8 +43,27 @@ export function ActionFormDialog({
   findingId,
   findingNumber,
 }: ActionFormDialogProps) {
-  const [formData, setFormData] = useState<Partial<ActionFormData>>(
-    initialData || {
+  const [formData, setFormData] = useState<ActionFormData>(() => {
+    if (initialData) {
+      return {
+        title: initialData.title || '',
+        description: initialData.description || '',
+        actionType: initialData.actionType || 'correctiva',
+        priority: initialData.priority || 'media',
+        sourceType:
+          initialData.sourceType || (findingId ? 'hallazgo' : 'manual'),
+        sourceName: initialData.sourceName || findingNumber || '',
+        processId: initialData.processId || '',
+        processName: initialData.processName || '',
+        implementationResponsibleId:
+          initialData.implementationResponsibleId || '',
+        implementationResponsibleName:
+          initialData.implementationResponsibleName || '',
+        plannedExecutionDate: initialData.plannedExecutionDate || new Date(),
+        planningObservations: initialData.planningObservations || '',
+      };
+    }
+    return {
       title: '',
       description: '',
       actionType: 'correctiva',
@@ -57,8 +76,8 @@ export function ActionFormDialog({
       implementationResponsibleName: '',
       plannedExecutionDate: new Date(),
       planningObservations: '',
-    }
-  );
+    };
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,23 +87,8 @@ export function ActionFormDialog({
     setError(null);
 
     try {
-      await onSubmit(formData as ActionFormData);
+      await onSubmit(formData);
       onClose();
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        actionType: 'correctiva',
-        priority: 'media',
-        sourceType: 'manual',
-        sourceName: '',
-        processId: '',
-        processName: '',
-        implementationResponsibleId: '',
-        implementationResponsibleName: '',
-        plannedExecutionDate: new Date(),
-        planningObservations: '',
-      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Error al guardar la acción'
@@ -96,10 +100,17 @@ export function ActionFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-3xl max-h-[90vh] overflow-y-auto"
+        aria-describedby="action-form-description"
+      >
         <DialogHeader>
           <DialogTitle>Nueva Acción - Planificación</DialogTitle>
         </DialogHeader>
+        <p id="action-form-description" className="sr-only">
+          Formulario para crear una nueva acción correctiva, preventiva o de
+          mejora
+        </p>
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">

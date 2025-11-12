@@ -522,8 +522,12 @@ export default function ProcessDefinitionsPage() {
                               ? definition.created_at instanceof Date
                                 ? definition.created_at.toLocaleDateString()
                                 : new Date(
-                                    (definition.created_at as { seconds: number; nanoseconds: number }).seconds *
-                                      1000
+                                    (
+                                      definition.created_at as {
+                                        seconds: number;
+                                        nanoseconds: number;
+                                      }
+                                    ).seconds * 1000
                                   ).toLocaleDateString()
                               : 'N/A'}
                           </td>

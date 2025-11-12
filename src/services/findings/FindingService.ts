@@ -56,6 +56,8 @@ export class FindingService {
           description: data.description,
           processId: data.processId,
           processName: data.processName,
+          source: data.source,
+          sourceId: data.sourceId,
         },
 
         // Fase 2: Planificación de Acción Inmediata (null inicialmente)
@@ -131,6 +133,12 @@ export class FindingService {
       if (filters?.processId) {
         constraints.push(
           where('registration.processId', '==', filters.processId)
+        );
+      }
+
+      if (filters?.sourceId) {
+        constraints.push(
+          where('registration.sourceId', '==', filters.sourceId)
         );
       }
 

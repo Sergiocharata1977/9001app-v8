@@ -94,7 +94,9 @@ export class QualityIndicatorService {
     }
   }
 
-  static async getByObjective(objectiveId: string): Promise<QualityIndicator[]> {
+  static async getByObjective(
+    objectiveId: string
+  ): Promise<QualityIndicator[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
@@ -118,7 +120,9 @@ export class QualityIndicatorService {
     }
   }
 
-  static async create(data: QualityIndicatorFormData): Promise<QualityIndicator> {
+  static async create(
+    data: QualityIndicatorFormData
+  ): Promise<QualityIndicator> {
     try {
       const now = Timestamp.now();
       const docData = {
@@ -146,7 +150,10 @@ export class QualityIndicatorService {
     }
   }
 
-  static async update(id: string, data: Partial<QualityIndicatorFormData>): Promise<QualityIndicator> {
+  static async update(
+    id: string,
+    data: Partial<QualityIndicatorFormData>
+  ): Promise<QualityIndicator> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
@@ -159,7 +166,9 @@ export class QualityIndicatorService {
 
       const updated = await this.getById(id);
       if (!updated) {
-        throw new Error('Indicador de calidad no encontrado después de actualizar');
+        throw new Error(
+          'Indicador de calidad no encontrado después de actualizar'
+        );
       }
 
       return updated;
@@ -210,7 +219,10 @@ export class QualityIndicatorService {
       const older = values.slice(0, -3); // Previous values
 
       const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
-      const olderAvg = older.length > 0 ? older.reduce((a, b) => a + b, 0) / older.length : recentAvg;
+      const olderAvg =
+        older.length > 0
+          ? older.reduce((a, b) => a + b, 0) / older.length
+          : recentAvg;
 
       const change = ((recentAvg - olderAvg) / Math.abs(olderAvg)) * 100;
 
@@ -241,7 +253,10 @@ export class QualityIndicatorService {
     }
   }
 
-  static async updateCurrentValue(id: string, value: number): Promise<QualityIndicator> {
+  static async updateCurrentValue(
+    id: string,
+    value: number
+  ): Promise<QualityIndicator> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       await updateDoc(docRef, {

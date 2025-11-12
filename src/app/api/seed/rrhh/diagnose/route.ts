@@ -8,7 +8,7 @@ export async function GET() {
 
     // Verificar conexión a Firestore
     console.log('📡 Verificando conexión a Firestore...');
-    
+
     // Intentar leer las colecciones
     const collections = ['departments', 'positions', 'personnel'];
     const results: any = {};
@@ -18,22 +18,22 @@ export async function GET() {
         console.log(`📁 Verificando colección: ${collectionName}`);
         const collectionRef = collection(db, collectionName);
         const snapshot = await getDocs(collectionRef);
-        
+
         results[collectionName] = {
           exists: true,
           count: snapshot.size,
           docs: snapshot.docs.map(doc => ({
             id: doc.id,
-            data: doc.data()
-          }))
+            data: doc.data(),
+          })),
         };
-        
+
         console.log(`✅ ${collectionName}: ${snapshot.size} documentos`);
       } catch (error) {
         console.error(`❌ Error en colección ${collectionName}:`, error);
         results[collectionName] = {
           exists: false,
-          error: error instanceof Error ? error.message : 'Error desconocido'
+          error: error instanceof Error ? error.message : 'Error desconocido',
         };
       }
     }
@@ -44,13 +44,16 @@ export async function GET() {
       firebase: {
         projectId: 'app-4b05c',
         databaseType: 'Firestore',
-        collections: results
+        collections: results,
       },
       instructions: {
-        firebaseConsole: 'Ve a Firebase Console > Firestore Database (no Realtime Database)',
-        createDatabase: 'Si no tienes Firestore creado, haz clic en "Crear base de datos"',
-        checkCollections: 'Busca las colecciones: departments, positions, personnel'
-      }
+        firebaseConsole:
+          'Ve a Firebase Console > Firestore Database (no Realtime Database)',
+        createDatabase:
+          'Si no tienes Firestore creado, haz clic en "Crear base de datos"',
+        checkCollections:
+          'Busca las colecciones: departments, positions, personnel',
+      },
     });
   } catch (error) {
     console.error('❌ Error en diagnóstico:', error);
@@ -62,30 +65,10 @@ export async function GET() {
         firebase: {
           projectId: 'app-4b05c',
           databaseType: 'Firestore',
-          issue: 'Posible problema de conexión o configuración'
-        }
+          issue: 'Posible problema de conexión o configuración',
+        },
       },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

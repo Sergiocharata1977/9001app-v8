@@ -324,7 +324,9 @@ Estoy aquí para ayudarte con:
                       {session.modulo || 'General'}
                     </span>
                     <span className="text-xs text-gray-500">
-                      {new Date(session.updated_at || session.created_at).toLocaleDateString('es-ES')}
+                      {new Date(
+                        session.updated_at || session.created_at
+                      ).toLocaleDateString('es-ES')}
                     </span>
                   </div>
                   <p className="text-xs text-gray-600 truncate">

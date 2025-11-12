@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  MoreHorizontal, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Calendar, 
+import {
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Trash2,
+  Calendar,
   User,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import type { KanbanItem, KanbanColumn } from '@/types/rrhh';
 
@@ -33,13 +33,13 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
   onDelete,
   readOnly = false,
   showActions = true,
-  customRenderer
+  customRenderer,
 }) => {
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -84,7 +84,7 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onEdit?.(item);
                 }}
@@ -95,7 +95,7 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onDelete?.(item);
                 }}
@@ -107,19 +107,22 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         <div className="space-y-2">
           {/* Prioridad y Tags */}
           <div className="flex gap-1 flex-wrap">
             {item.priority && (
-              <Badge 
-                variant="secondary" 
+              <Badge
+                variant="secondary"
                 className={`text-xs ${
-                  item.priority === 'critical' ? 'bg-red-100 text-red-800' :
-                  item.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                  item.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
+                  item.priority === 'critical'
+                    ? 'bg-red-100 text-red-800'
+                    : item.priority === 'high'
+                      ? 'bg-orange-100 text-orange-800'
+                      : item.priority === 'medium'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-800'
                 }`}
               >
                 {item.priority}
@@ -144,19 +147,25 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
           {item.dueDate && (
             <div className="flex items-center gap-1 text-xs">
               <Calendar className="h-3 w-3" />
-              <span className={`${
-                daysUntilDue !== null && daysUntilDue < 0 
-                  ? 'text-red-600 font-medium' 
-                  : daysUntilDue !== null && daysUntilDue <= 3
-                  ? 'text-orange-600 font-medium'
-                  : 'text-gray-600'
-              }`}>
+              <span
+                className={`${
+                  daysUntilDue !== null && daysUntilDue < 0
+                    ? 'text-red-600 font-medium'
+                    : daysUntilDue !== null && daysUntilDue <= 3
+                      ? 'text-orange-600 font-medium'
+                      : 'text-gray-600'
+                }`}
+              >
                 {formatDate(item.dueDate)}
                 {daysUntilDue !== null && (
                   <span className="ml-1">
-                    ({daysUntilDue < 0 ? `${Math.abs(daysUntilDue)} días vencida` : 
-                      daysUntilDue === 0 ? 'Vence hoy' : 
-                      `${daysUntilDue} días`})
+                    (
+                    {daysUntilDue < 0
+                      ? `${Math.abs(daysUntilDue)} días vencida`
+                      : daysUntilDue === 0
+                        ? 'Vence hoy'
+                        : `${daysUntilDue} días`}
+                    )
                   </span>
                 )}
               </span>
@@ -171,7 +180,7 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
                 <span>{item.progress}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div 
+                <div
                   className="bg-blue-600 h-1.5 rounded-full transition-all"
                   style={{ width: `${item.progress}%` }}
                 />
@@ -204,7 +213,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onItemDelete,
   onDropItem,
   readOnly = false,
-  showActions = true
+  showActions = true,
 }) => {
   const [isOver, setIsOver] = useState(false);
 
@@ -213,7 +222,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   return (
     <div className="bg-gray-50 rounded-lg p-4 min-h-96">
       <div className="flex items-center gap-2 mb-4">
-        <div 
+        <div
           className="w-3 h-3 rounded-full"
           style={{ backgroundColor: column.color || '#6B7280' }}
         />
@@ -223,17 +232,17 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           {column.maxItems && ` / ${column.maxItems}`}
         </Badge>
       </div>
-      
+
       <div
         className={`min-h-32 transition-all rounded-lg ${
           isOver && canAcceptMore
-            ? 'bg-blue-50 border-2 border-blue-300 border-dashed' 
+            ? 'bg-blue-50 border-2 border-blue-300 border-dashed'
             : isOver && !canAcceptMore
-            ? 'bg-red-50 border-2 border-red-300 border-dashed'
-            : ''
+              ? 'bg-red-50 border-2 border-red-300 border-dashed'
+              : ''
         }`}
       >
-        {items.map((item) => (
+        {items.map(item => (
           <KanbanCard
             key={item.id}
             item={item}
@@ -244,7 +253,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             showActions={showActions}
           />
         ))}
-        
+
         {/* Indicador de límite alcanzado */}
         {column.maxItems && items.length >= column.maxItems && (
           <div className="text-center py-4 text-sm text-gray-500">
@@ -252,7 +261,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             Límite máximo alcanzado
           </div>
         )}
-        
+
         {/* Placeholder cuando está vacío */}
         {items.length === 0 && (
           <div className="text-center py-8 text-sm text-gray-400">
@@ -268,7 +277,12 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
 interface UnifiedKanbanProps {
   columns: KanbanColumn[];
   items: KanbanItem[];
-  onItemMove?: (itemId: string, sourceColumnId: string, targetColumnId: string, newIndex: number) => void;
+  onItemMove?: (
+    itemId: string,
+    sourceColumnId: string,
+    targetColumnId: string,
+    newIndex: number
+  ) => void;
   onItemClick?: (item: KanbanItem) => void;
   onItemEdit?: (item: KanbanItem) => void;
   onItemDelete?: (item: KanbanItem) => void;
@@ -290,7 +304,7 @@ const UnifiedKanban: React.FC<UnifiedKanbanProps> = ({
   error,
   readOnly = false,
   showActions = true,
-  customCardRenderer
+  customCardRenderer,
 }) => {
   // Agrupar items por columna
   const itemsByColumn = useMemo(() => {
@@ -332,10 +346,13 @@ const UnifiedKanban: React.FC<UnifiedKanbanProps> = ({
   }
 
   return (
-    <div className="grid gap-4" style={{ 
-      gridTemplateColumns: `repeat(${columns.length}, minmax(280px, 1fr))` 
-    }}>
-      {columns.map((column) => (
+    <div
+      className="grid gap-4"
+      style={{
+        gridTemplateColumns: `repeat(${columns.length}, minmax(280px, 1fr))`,
+      }}
+    >
+      {columns.map(column => (
         <KanbanColumn
           key={column.id}
           column={column}
@@ -355,4 +372,3 @@ const UnifiedKanban: React.FC<UnifiedKanbanProps> = ({
 export default UnifiedKanban;
 export { KanbanCard, KanbanColumn };
 export type { KanbanCardProps, KanbanColumnProps };
-

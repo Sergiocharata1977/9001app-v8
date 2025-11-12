@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, AlertCircle, CheckCircle, Link as LinkIcon, Unlink } from 'lucide-react';
+import {
+  User,
+  AlertCircle,
+  CheckCircle,
+  Link as LinkIcon,
+  Unlink,
+} from 'lucide-react';
 import { Personnel } from '@/types/rrhh';
 
 interface UserPersonnelSelectorProps {
@@ -19,7 +25,9 @@ export function UserPersonnelSelector({
   onUpdate,
 }: UserPersonnelSelectorProps) {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
-  const [currentPersonnel, setCurrentPersonnel] = useState<Personnel | null>(null);
+  const [currentPersonnel, setCurrentPersonnel] = useState<Personnel | null>(
+    null
+  );
   const [selectedPersonnelId, setSelectedPersonnelId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -174,7 +182,12 @@ export function UserPersonnelSelector({
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => window.open(`/dashboard/rrhh/personal/${currentPersonnel.id}`, '_blank')}
+                onClick={() =>
+                  window.open(
+                    `/dashboard/rrhh/personal/${currentPersonnel.id}`,
+                    '_blank'
+                  )
+                }
                 className="flex-1"
               >
                 Ver Detalle
@@ -200,8 +213,8 @@ export function UserPersonnelSelector({
                   No hay personal vinculado
                 </p>
                 <p className="text-sm text-yellow-700 mt-1">
-                  Este usuario no tiene un empleado asignado. Vincúlalo para que Don Cándido 
-                  pueda obtener su contexto de trabajo.
+                  Este usuario no tiene un empleado asignado. Vincúlalo para que
+                  Don Cándido pueda obtener su contexto de trabajo.
                 </p>
               </div>
             </div>
@@ -222,12 +235,12 @@ export function UserPersonnelSelector({
                   </label>
                   <select
                     value={selectedPersonnelId}
-                    onChange={(e) => setSelectedPersonnelId(e.target.value)}
+                    onChange={e => setSelectedPersonnelId(e.target.value)}
                     disabled={saving}
                     className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="">Seleccionar...</option>
-                    {availablePersonnel.map((p) => (
+                    {availablePersonnel.map(p => (
                       <option key={p.id} value={p.id}>
                         {p.nombres} {p.apellidos} - {p.puesto || 'Sin puesto'}
                       </option>

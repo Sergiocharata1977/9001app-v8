@@ -10,12 +10,19 @@ interface PositionsListProps {
   onDelete: (id: string) => void;
 }
 
-export function PositionsList({ positions, onView, onEdit, onDelete }: PositionsListProps) {
+export function PositionsList({
+  positions,
+  onView,
+  onEdit,
+  onDelete,
+}: PositionsListProps) {
   if (positions.length === 0) {
     return (
       <div className="text-center py-12">
         <Briefcase className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No hay puestos</h3>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">
+          No hay puestos
+        </h3>
         <p className="mt-1 text-sm text-gray-500">
           Comienza creando un nuevo puesto.
         </p>
@@ -46,7 +53,7 @@ export function PositionsList({ positions, onView, onEdit, onDelete }: Positions
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {positions.map((position) => (
+          {positions.map(position => (
             <tr
               key={position.id}
               className="hover:bg-gray-50 cursor-pointer transition-colors"
@@ -103,13 +110,15 @@ export function PositionsList({ positions, onView, onEdit, onDelete }: Positions
                   {(position.procesos_asignados?.length || 0) === 0 &&
                     (position.objetivos_asignados?.length || 0) === 0 &&
                     (position.indicadores_asignados?.length || 0) === 0 && (
-                      <span className="text-sm text-gray-400">Sin asignaciones</span>
+                      <span className="text-sm text-gray-400">
+                        Sin asignaciones
+                      </span>
                     )}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onView(position.id);
                   }}
@@ -118,7 +127,7 @@ export function PositionsList({ positions, onView, onEdit, onDelete }: Positions
                   Ver
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onEdit(position.id);
                   }}
@@ -127,7 +136,7 @@ export function PositionsList({ positions, onView, onEdit, onDelete }: Positions
                   Editar
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onDelete(position.id);
                   }}

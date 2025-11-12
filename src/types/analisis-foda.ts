@@ -64,13 +64,22 @@ export interface CreateAnalisisFODAData {
   responsable_id: string;
   participantes?: Array<{ usuario_id: string; rol?: string }>;
   fortalezas?: Array<{ descripcion: string; impacto: string }>;
-  oportunidades?: Array<{ descripcion: string; impacto: string; probabilidad: string }>;
+  oportunidades?: Array<{
+    descripcion: string;
+    impacto: string;
+    probabilidad: string;
+  }>;
   debilidades?: Array<{ descripcion: string; impacto: string }>;
-  amenazas?: Array<{ descripcion: string; impacto: string; probabilidad: string }>;
+  amenazas?: Array<{
+    descripcion: string;
+    impacto: string;
+    probabilidad: string;
+  }>;
   estado?: string;
 }
 
-export interface UpdateAnalisisFODAData extends Partial<CreateAnalisisFODAData> {
+export interface UpdateAnalisisFODAData
+  extends Partial<CreateAnalisisFODAData> {
   id: string;
   matriz_priorizacion?: Array<{
     categoria: string;
@@ -82,7 +91,11 @@ export interface UpdateAnalisisFODAData extends Partial<CreateAnalisisFODAData> 
   adjuntos?: { nombre: string; url: string }[];
 }
 
-export type TipoAnalisisFODA = 'organizacional' | 'proceso' | 'departamento' | 'proyecto';
+export type TipoAnalisisFODA =
+  | 'organizacional'
+  | 'proceso'
+  | 'departamento'
+  | 'proyecto';
 export type ImpactoFODA = 'bajo' | 'medio' | 'alto';
 export type ProbabilidadFODA = 'baja' | 'media' | 'alta';
 export type CategoriaMatriz = 'FO' | 'DO' | 'FA' | 'DA';

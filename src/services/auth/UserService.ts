@@ -9,7 +9,7 @@ import {
   updateDoc,
   query,
   where,
-  serverTimestamp
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { User, TIPO_PERSONAL_TO_ROL } from '@/types/auth';
@@ -23,15 +23,18 @@ export class UserService {
    * @param authUser Firebase Auth user object
    * @returns Created user
    */
-  static async createUser(authUser: { uid: string; email: string }): Promise<User> {
+  static async createUser(authUser: {
+    uid: string;
+    email: string;
+  }): Promise<User> {
     try {
       const userData = {
         email: authUser.email,
-        personnel_id: '',  // Will be assigned later by admin
-        rol: 'operario' as const,  // Default role
+        personnel_id: '', // Will be assigned later by admin
+        rol: 'operario' as const, // Default role
         activo: true,
         created_at: serverTimestamp(),
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       };
 
       // Use setDoc with UID as document ID
@@ -42,7 +45,7 @@ export class UserService {
         id: authUser.uid,
         ...userData,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       } as User;
     } catch (error) {
       console.error('Error creating user:', error);
@@ -74,7 +77,7 @@ export class UserService {
         rol: data.rol,
         activo: data.activo,
         created_at: data.created_at?.toDate() || new Date(),
-        updated_at: data.updated_at?.toDate() || new Date()
+        updated_at: data.updated_at?.toDate() || new Date(),
       } as User;
     } catch (error) {
       console.error('Error getting user by ID:', error);
@@ -109,7 +112,7 @@ export class UserService {
         rol: data.rol,
         activo: data.activo,
         created_at: data.created_at?.toDate() || new Date(),
-        updated_at: data.updated_at?.toDate() || new Date()
+        updated_at: data.updated_at?.toDate() || new Date(),
       } as User;
     } catch (error) {
       console.error('Error getting user by email:', error);
@@ -122,7 +125,10 @@ export class UserService {
    * @param userId Firebase Auth UID
    * @param personnelId Personnel ID
    */
-  static async assignPersonnel(userId: string, personnelId: string): Promise<void> {
+  static async assignPersonnel(
+    userId: string,
+    personnelId: string
+  ): Promise<void> {
     try {
       // Validate personnel exists
       const personnel = await PersonnelService.getById(personnelId);
@@ -145,7 +151,7 @@ export class UserService {
       await updateDoc(userRef, {
         personnel_id: personnelId,
         rol: rol,
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error assigning personnel:', error);
@@ -169,7 +175,7 @@ export class UserService {
 
       await updateDoc(userRef, {
         rol: rol,
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error updating role:', error);
@@ -193,7 +199,7 @@ export class UserService {
 
       await updateDoc(userRef, {
         activo: activo,
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error setting active status:', error);
@@ -216,13 +222,13 @@ export class UserService {
       return querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          id: doc.id,  // Usar doc.id en lugar de data.id
+          id: doc.id, // Usar doc.id en lugar de data.id
           email: data.email,
           personnel_id: data.personnel_id || null,
           rol: data.rol,
           activo: data.activo,
           created_at: data.created_at?.toDate() || new Date(),
-          updated_at: data.updated_at?.toDate() || new Date()
+          updated_at: data.updated_at?.toDate() || new Date(),
         } as User;
       });
     } catch (error) {
@@ -248,7 +254,7 @@ export class UserService {
           rol: data.rol,
           activo: data.activo,
           created_at: data.created_at?.toDate() || new Date(),
-          updated_at: data.updated_at?.toDate() || new Date()
+          updated_at: data.updated_at?.toDate() || new Date(),
         } as User;
       });
     } catch (error) {

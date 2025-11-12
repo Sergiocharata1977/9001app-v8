@@ -12,10 +12,15 @@ import {
   limit,
   startAfter,
   Timestamp,
-  DocumentSnapshot
+  DocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/firebase/config';
-import { Department, DepartmentFilters, PaginationParams, PaginatedResponse } from '@/types/rrhh';
+import {
+  Department,
+  DepartmentFilters,
+  PaginationParams,
+  PaginatedResponse,
+} from '@/types/rrhh';
 
 const COLLECTION_NAME = 'departments';
 
@@ -64,7 +69,11 @@ export class DepartmentService {
 
       // Apply filters
       if (filters.search) {
-        q = query(q, where('name', '>=', filters.search), where('name', '<=', filters.search + '\uf8ff'));
+        q = query(
+          q,
+          where('name', '>=', filters.search),
+          where('name', '<=', filters.search + '\uf8ff')
+        );
       }
 
       if (filters.is_active !== undefined) {
@@ -72,7 +81,10 @@ export class DepartmentService {
       }
 
       if (filters.responsible_user_id) {
-        q = query(q, where('responsible_user_id', '==', filters.responsible_user_id));
+        q = query(
+          q,
+          where('responsible_user_id', '==', filters.responsible_user_id)
+        );
       }
 
       // Apply sorting
@@ -136,7 +148,9 @@ export class DepartmentService {
     }
   }
 
-  static async create(data: Omit<Department, 'id' | 'created_at' | 'updated_at'>): Promise<Department> {
+  static async create(
+    data: Omit<Department, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Department> {
     try {
       const now = Timestamp.now();
       const docData = {
@@ -159,7 +173,10 @@ export class DepartmentService {
     }
   }
 
-  static async update(id: string, data: Partial<Omit<Department, 'id' | 'created_at'>>): Promise<Department> {
+  static async update(
+    id: string,
+    data: Partial<Omit<Department, 'id' | 'created_at'>>
+  ): Promise<Department> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {

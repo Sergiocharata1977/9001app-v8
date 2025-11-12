@@ -1,58 +1,58 @@
 // Types for Documents module
 
-export type DocumentType = 
-  | 'manual' 
-  | 'procedimiento' 
-  | 'instruccion' 
-  | 'formato' 
-  | 'registro' 
-  | 'politica' 
+export type DocumentType =
+  | 'manual'
+  | 'procedimiento'
+  | 'instruccion'
+  | 'formato'
+  | 'registro'
+  | 'politica'
   | 'otro';
 
-export type DocumentStatus = 
-  | 'borrador' 
-  | 'en_revision' 
-  | 'aprobado' 
-  | 'publicado' 
+export type DocumentStatus =
+  | 'borrador'
+  | 'en_revision'
+  | 'aprobado'
+  | 'publicado'
   | 'obsoleto';
 
 export interface Document {
   id: string;
-  
+
   // Identificación
   code: string;
   title: string;
   description?: string;
   keywords?: string[];
-  
+
   // Clasificación
   type: DocumentType;
   category?: string;
-  
+
   // Estado y versión
   status: DocumentStatus;
   version: string;
-  
+
   // Responsabilidad
   responsible_user_id: string;
   distribution_list?: string[];
-  
+
   // Relaciones
   iso_clause?: string;
   process_id?: string;
   norm_point_ids?: string[];
-  
+
   // Archivo
   file_path?: string;
   file_size?: number;
   mime_type?: string;
-  
+
   // Fechas
   effective_date?: Date;
   review_date?: Date;
   approved_at?: Date;
   approved_by?: string;
-  
+
   // Auditoría
   download_count: number;
   is_archived: boolean;
@@ -72,9 +72,15 @@ export interface DocumentVersion {
   snapshot: Partial<Document>;
 }
 
-export type DocumentFormData = Omit<Document, 'id' | 'created_at' | 'updated_at' | 'download_count' | 'is_archived'>;
+export type DocumentFormData = Omit<
+  Document,
+  'id' | 'created_at' | 'updated_at' | 'download_count' | 'is_archived'
+>;
 
-export type DocumentCreateData = Omit<Document, 'id' | 'code' | 'created_at' | 'updated_at' | 'download_count' | 'is_archived'>;
+export type DocumentCreateData = Omit<
+  Document,
+  'id' | 'code' | 'created_at' | 'updated_at' | 'download_count' | 'is_archived'
+>;
 
 export interface DocumentFilters {
   search?: string;

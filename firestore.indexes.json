@@ -237,19 +237,13 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "status",
+          "fieldPath": "isActive",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "audits",
-      "queryScope": "COLLECTION",
-      "fields": [
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
         {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
@@ -363,6 +357,24 @@
       ]
     },
     {
+      "collectionGroup": "findings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "registration.sourceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "actions",
       "queryScope": "COLLECTION",
       "fields": [
@@ -420,6 +432,38 @@
     },
     {
       "collectionGroup": "actions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "actions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "findingId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "audits",
       "queryScope": "COLLECTION",
       "fields": [
         {

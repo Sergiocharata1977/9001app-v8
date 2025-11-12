@@ -1,5 +1,11 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -29,7 +35,13 @@ interface PositionCardProps {
   onCardClick?: (position: Position) => void;
 }
 
-export function PositionCard({ position, onEdit, onDelete, onView, onCardClick }: PositionCardProps) {
+export function PositionCard({
+  position,
+  onEdit,
+  onDelete,
+  onView,
+  onCardClick,
+}: PositionCardProps) {
   const formatDate = (date: any) => {
     if (!date) return 'N/A';
     if (date.seconds) {
@@ -48,7 +60,7 @@ export function PositionCard({ position, onEdit, onDelete, onView, onCardClick }
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleCardClick();
@@ -63,9 +75,7 @@ export function PositionCard({ position, onEdit, onDelete, onView, onCardClick }
               <Briefcase className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <CardTitle className="text-lg">
-                {position.nombre}
-              </CardTitle>
+              <CardTitle className="text-lg">{position.nombre}</CardTitle>
               <CardDescription className="flex items-center gap-2 mt-1">
                 <Badge variant="outline" className="text-xs">
                   {position.id}
@@ -78,7 +88,7 @@ export function PositionCard({ position, onEdit, onDelete, onView, onCardClick }
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
                 aria-label={`Opciones para ${position.nombre}`}
               >
                 <MoreHorizontal className="w-4 h-4" />
@@ -93,7 +103,10 @@ export function PositionCard({ position, onEdit, onDelete, onView, onCardClick }
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete?.(position)} className="text-red-600">
+              <DropdownMenuItem
+                onClick={() => onDelete?.(position)}
+                className="text-red-600"
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Eliminar
               </DropdownMenuItem>
@@ -113,24 +126,28 @@ export function PositionCard({ position, onEdit, onDelete, onView, onCardClick }
           {position.departamento_id && (
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Departamento: {position.departamento_id}</span>
+              <span className="text-sm text-gray-600">
+                Departamento: {position.departamento_id}
+              </span>
             </div>
           )}
 
           {position.reporta_a_id && (
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Reporta a: {position.reporta_a_id}</span>
+              <span className="text-sm text-gray-600">
+                Reporta a: {position.reporta_a_id}
+              </span>
             </div>
           )}
 
           <div className="flex items-center justify-between pt-2">
-            <Badge className="bg-emerald-100 text-emerald-800">
-              Activo
-            </Badge>
+            <Badge className="bg-emerald-100 text-emerald-800">Activo</Badge>
             <div className="text-right">
               <p className="text-xs text-gray-500">Creado</p>
-              <p className="text-sm font-medium">{formatDate(position.created_at)}</p>
+              <p className="text-sm font-medium">
+                {formatDate(position.created_at)}
+              </p>
             </div>
           </div>
 

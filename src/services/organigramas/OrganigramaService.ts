@@ -58,9 +58,10 @@ export class OrganigramaService {
       // Filtrar por búsqueda si se proporciona
       if (filters?.search) {
         const searchTerm = filters.search.toLowerCase();
-        organigramas = organigramas.filter(org =>
-          org.nombre.toLowerCase().includes(searchTerm) ||
-          org.descripcion?.toLowerCase().includes(searchTerm)
+        organigramas = organigramas.filter(
+          org =>
+            org.nombre.toLowerCase().includes(searchTerm) ||
+            org.descripcion?.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -96,7 +97,10 @@ export class OrganigramaService {
   /**
    * Crea un nuevo organigrama
    */
-  static async create(data: CreateOrganigramaData, userId: string): Promise<string> {
+  static async create(
+    data: CreateOrganigramaData,
+    userId: string
+  ): Promise<string> {
     try {
       const now = new Date();
       const year = now.getFullYear();
@@ -114,7 +118,8 @@ export class OrganigramaService {
         fecha_vigencia_hasta: data.fecha_vigencia_hasta,
         estado: (data.estado as Organigrama['estado']) || 'borrador',
         estructura: (data.estructura || []) as Organigrama['estructura'],
-        configuracion_visual: data.configuracion_visual as Organigrama['configuracion_visual'],
+        configuracion_visual:
+          data.configuracion_visual as Organigrama['configuracion_visual'],
         aprobador_id: data.aprobador_id,
         fecha_aprobacion: data.fecha_aprobacion,
         documento_url: data.documento_url,
@@ -125,7 +130,10 @@ export class OrganigramaService {
         isActive: true,
       };
 
-      const docRef = await addDoc(collection(db, this.COLLECTION), organigramaData);
+      const docRef = await addDoc(
+        collection(db, this.COLLECTION),
+        organigramaData
+      );
       return docRef.id;
     } catch (error) {
       console.error('Error creating organigrama:', error);

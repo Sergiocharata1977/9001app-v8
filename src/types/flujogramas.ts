@@ -12,7 +12,15 @@ export interface Flujograma {
   estado: 'borrador' | 'aprobado' | 'vigente' | 'obsoleto';
   elementos: Array<{
     elemento_id: string; // ID único del elemento
-    tipo: 'inicio' | 'proceso' | 'decisión' | 'documento' | 'conector' | 'fin' | 'subproceso' | 'nota';
+    tipo:
+      | 'inicio'
+      | 'proceso'
+      | 'decisión'
+      | 'documento'
+      | 'conector'
+      | 'fin'
+      | 'subproceso'
+      | 'nota';
     etiqueta: string;
     posicion_x: number;
     posicion_y: number;
@@ -99,6 +107,14 @@ export interface UpdateFlujogramaData extends Partial<CreateFlujogramaData> {
 }
 
 export type FlujogramaEstado = 'borrador' | 'aprobado' | 'vigente' | 'obsoleto';
-export type ElementoTipo = 'inicio' | 'proceso' | 'decisión' | 'documento' | 'conector' | 'fin' | 'subproceso' | 'nota';
+export type ElementoTipo =
+  | 'inicio'
+  | 'proceso'
+  | 'decisión'
+  | 'documento'
+  | 'conector'
+  | 'fin'
+  | 'subproceso'
+  | 'nota';
 export type TipoLinea = 'recta' | 'curva' | 'elbow';
 export type OrientacionFlujograma = 'vertical' | 'horizontal';

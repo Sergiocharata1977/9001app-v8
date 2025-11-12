@@ -34,16 +34,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       user,
-      message: 'Usuario creado exitosamente'
+      message: 'Usuario creado exitosamente',
     });
-
   } catch (error) {
     console.error('[API /users/create] Error:', error);
 
     return NextResponse.json(
       {
         error: 'Error al crear usuario',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

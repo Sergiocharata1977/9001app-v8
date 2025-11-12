@@ -7,10 +7,10 @@ export interface KnowledgeArticle {
   categoria: KnowledgeCategory;
   subcategoria?: string;
   tags: string[];
-  clausula_iso?: string;  // e.g., "4.1", "7.5.3"
+  clausula_iso?: string; // e.g., "4.1", "7.5.3"
   nivel_implementacion?: ImplementationLevel;
   enlaces_externos?: ExternalLink[];
-  documentos_relacionados?: string[];  // IDs de documentos
+  documentos_relacionados?: string[]; // IDs de documentos
   created_at: Date;
   updated_at: Date;
   autor?: string;
@@ -18,24 +18,24 @@ export interface KnowledgeArticle {
   activo: boolean;
 }
 
-export type KnowledgeCategory = 
-  | 'norma_iso'           // Explicación de cláusulas ISO 9001
-  | 'implementacion'      // Guías de implementación
-  | 'auditoria'          // Guías de auditoría
-  | 'mejora_continua'    // Metodologías de mejora
-  | 'documentacion'      // Cómo documentar
-  | 'capacitacion'       // Material de capacitación
-  | 'faq'                // Preguntas frecuentes
-  | 'casos_estudio';     // Casos de estudio
+export type KnowledgeCategory =
+  | 'norma_iso' // Explicación de cláusulas ISO 9001
+  | 'implementacion' // Guías de implementación
+  | 'auditoria' // Guías de auditoría
+  | 'mejora_continua' // Metodologías de mejora
+  | 'documentacion' // Cómo documentar
+  | 'capacitacion' // Material de capacitación
+  | 'faq' // Preguntas frecuentes
+  | 'casos_estudio'; // Casos de estudio
 
-export type ImplementationLevel = 
-  | 'diagnostico'        // Etapa 1: Diagnóstico inicial
-  | 'planificacion'      // Etapa 2: Planificación
-  | 'documentacion'      // Etapa 3: Documentación
-  | 'implementacion'     // Etapa 4: Implementación
-  | 'auditoria_interna'  // Etapa 5: Auditoría interna
-  | 'certificacion'      // Etapa 6: Certificación
-  | 'mantenimiento';     // Etapa 7: Mantenimiento
+export type ImplementationLevel =
+  | 'diagnostico' // Etapa 1: Diagnóstico inicial
+  | 'planificacion' // Etapa 2: Planificación
+  | 'documentacion' // Etapa 3: Documentación
+  | 'implementacion' // Etapa 4: Implementación
+  | 'auditoria_interna' // Etapa 5: Auditoría interna
+  | 'certificacion' // Etapa 6: Certificación
+  | 'mantenimiento'; // Etapa 7: Mantenimiento
 
 export interface ExternalLink {
   titulo: string;
@@ -49,12 +49,12 @@ export interface ImplementationPhase {
   nivel: ImplementationLevel;
   nombre: string;
   descripcion: string;
-  duracion_estimada: string;  // e.g., "2-4 semanas"
+  duracion_estimada: string; // e.g., "2-4 semanas"
   objetivos: string[];
   actividades: string[];
   entregables: string[];
   recursos_necesarios: string[];
-  articulos_relacionados: string[];  // IDs de KnowledgeArticle
+  articulos_relacionados: string[]; // IDs de KnowledgeArticle
   orden: number;
 }
 

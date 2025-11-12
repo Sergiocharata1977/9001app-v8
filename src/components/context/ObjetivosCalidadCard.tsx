@@ -26,7 +26,9 @@ export function ObjetivosCalidadCard({ objetivos }: ObjetivosCalidadCardProps) {
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl">🎯</span>
-          <h2 className="text-xl font-bold text-gray-900">Objetivos de Calidad</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            Objetivos de Calidad
+          </h2>
         </div>
         <EmptyState
           icon="🎯"
@@ -46,16 +48,24 @@ export function ObjetivosCalidadCard({ objetivos }: ObjetivosCalidadCardProps) {
       </div>
 
       <div className="space-y-4">
-        {objetivos.map((objetivo) => {
+        {objetivos.map(objetivo => {
           const estado = getEstado(objetivo);
-          const progreso = (objetivo.current_value / objetivo.target_value) * 100;
+          const progreso =
+            (objetivo.current_value / objetivo.target_value) * 100;
 
           return (
-            <div key={objetivo.id} className="border border-gray-200 rounded-lg p-4">
+            <div
+              key={objetivo.id}
+              className="border border-gray-200 rounded-lg p-4"
+            >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h4 className="font-semibold text-gray-900">{objetivo.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{objetivo.description}</p>
+                  <h4 className="font-semibold text-gray-900">
+                    {objetivo.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {objetivo.description}
+                  </p>
                 </div>
                 <Badge variant={estado.color}>{estado.label}</Badge>
               </div>
@@ -75,7 +85,9 @@ export function ObjetivosCalidadCard({ objetivos }: ObjetivosCalidadCardProps) {
                 </div>
                 <div>
                   <span className="text-gray-600">Progreso:</span>
-                  <span className="font-medium ml-1">{progreso.toFixed(0)}%</span>
+                  <span className="font-medium ml-1">
+                    {progreso.toFixed(0)}%
+                  </span>
                 </div>
               </div>
 

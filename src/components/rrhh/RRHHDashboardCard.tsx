@@ -39,14 +39,16 @@ export function RRHHDashboardCard({
   ruta,
   color,
   habilitado,
-  estadisticas
+  estadisticas,
 }: RRHHDashboardCardProps) {
   const cardContent = (
-    <Card className={`h-full transition-all duration-300 border-0 ${
-      habilitado
-        ? 'hover:shadow-xl hover:scale-105 cursor-pointer shadow-md'
-        : 'opacity-60 cursor-not-allowed shadow-md'
-    }`}>
+    <Card
+      className={`h-full transition-all duration-300 border-0 ${
+        habilitado
+          ? 'hover:shadow-xl hover:scale-105 cursor-pointer shadow-md'
+          : 'opacity-60 cursor-not-allowed shadow-md'
+      }`}
+    >
       <CardContent className="p-6">
         {/* Badge de estado */}
         {!habilitado && (
@@ -57,21 +59,19 @@ export function RRHHDashboardCard({
         )}
 
         {/* Icono con gradiente */}
-        <div className={`
+        <div
+          className={`
           w-14 h-14 rounded-xl bg-gradient-to-br ${colorMap[color as keyof typeof colorMap] || 'from-blue-500 to-blue-600'}
           flex items-center justify-center mb-4 shadow-lg
           ${!habilitado && 'grayscale'}
-        `}>
+        `}
+        >
           <Icon className="w-7 h-7 text-white" />
         </div>
 
         {/* Contenido */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-          {titulo}
-        </h3>
-        <p className="text-gray-600 text-sm mb-4">
-          {descripcion}
-        </p>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{titulo}</h3>
+        <p className="text-gray-600 text-sm mb-4">{descripcion}</p>
 
         {/* Estadísticas */}
         {habilitado && estadisticas && (
@@ -111,10 +111,5 @@ export function RRHHDashboardCard({
     );
   }
 
-  return (
-    <div className="h-full">
-      {cardContent}
-    </div>
-  );
+  return <div className="h-full">{cardContent}</div>;
 }
-

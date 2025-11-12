@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const docRef = doc(db, 'processRecords', id);
     const docSnap = await getDoc(docRef);
 
@@ -24,8 +24,8 @@ export async function GET(
       success: true,
       data: {
         id: docSnap.id,
-        ...docSnap.data()
-      }
+        ...docSnap.data(),
+      },
     });
   } catch (error) {
     console.error('Error fetching process record:', error);
@@ -44,10 +44,10 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     const updateData = {
       ...body,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     const docRef = doc(db, 'processRecords', id);
@@ -55,7 +55,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      message: 'Registro de proceso actualizado exitosamente'
+      message: 'Registro de proceso actualizado exitosamente',
     });
   } catch (error) {
     console.error('Error updating process record:', error);
@@ -73,13 +73,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    
+
     const docRef = doc(db, 'processRecords', id);
     await deleteDoc(docRef);
 
     return NextResponse.json({
       success: true,
-      message: 'Registro de proceso eliminado exitosamente'
+      message: 'Registro de proceso eliminado exitosamente',
     });
   } catch (error) {
     console.error('Error deleting process record:', error);
@@ -89,18 +89,3 @@ export async function DELETE(
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

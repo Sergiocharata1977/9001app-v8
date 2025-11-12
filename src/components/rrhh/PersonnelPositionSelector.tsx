@@ -93,12 +93,12 @@ export function PersonnelPositionSelector({
         <select
           id="position"
           value={selectedPosition}
-          onChange={(e) => handlePositionChange(e.target.value)}
+          onChange={e => handlePositionChange(e.target.value)}
           disabled={disabled}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           <option value="">Seleccionar puesto...</option>
-          {positions.map((position) => (
+          {positions.map(position => (
             <option key={position.id} value={position.id}>
               {position.nombre}
             </option>
@@ -123,15 +123,18 @@ export function PersonnelPositionSelector({
                     ¿Cambiar puesto?
                   </h3>
                   <p className="text-gray-700 mb-4">
-                    Estás cambiando el puesto de este empleado. ¿Deseas reemplazar las asignaciones 
-                    actuales de contexto (procesos, objetivos, indicadores) con las del nuevo puesto?
+                    Estás cambiando el puesto de este empleado. ¿Deseas
+                    reemplazar las asignaciones actuales de contexto (procesos,
+                    objetivos, indicadores) con las del nuevo puesto?
                   </p>
                   <div className="bg-yellow-50 p-3 rounded-lg mb-4">
                     <p className="text-sm text-yellow-800">
-                      <strong>Mantener actuales:</strong> Conserva las asignaciones personalizadas del empleado
+                      <strong>Mantener actuales:</strong> Conserva las
+                      asignaciones personalizadas del empleado
                     </p>
                     <p className="text-sm text-yellow-800 mt-2">
-                      <strong>Reemplazar:</strong> Adopta las asignaciones estándar del nuevo puesto
+                      <strong>Reemplazar:</strong> Adopta las asignaciones
+                      estándar del nuevo puesto
                     </p>
                   </div>
                 </div>

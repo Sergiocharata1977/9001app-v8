@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Personnel } from '@/types/rrhh';
@@ -52,8 +57,8 @@ export function AssignPersonnelDialog({
   };
 
   const handleToggle = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
 
@@ -81,8 +86,8 @@ export function AssignPersonnelDialog({
 
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            Selecciona el personal que deseas asignar a este puesto. Heredarán automáticamente
-            los procesos, objetivos e indicadores del puesto.
+            Selecciona el personal que deseas asignar a este puesto. Heredarán
+            automáticamente los procesos, objetivos e indicadores del puesto.
           </p>
 
           {loading ? (
@@ -91,13 +96,15 @@ export function AssignPersonnelDialog({
             </div>
           ) : personnel.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">No hay personal disponible para asignar</p>
+              <p className="text-gray-500">
+                No hay personal disponible para asignar
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
               <Label>Personal Disponible ({personnel.length})</Label>
               <div className="border rounded-lg divide-y max-h-96 overflow-y-auto">
-                {personnel.map((person) => (
+                {personnel.map(person => (
                   <label
                     key={person.id}
                     className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
@@ -144,7 +151,9 @@ export function AssignPersonnelDialog({
               disabled={selectedIds.length === 0 || saving}
               className="bg-green-600 hover:bg-green-700"
             >
-              {saving ? 'Asignando...' : `Asignar ${selectedIds.length || ''} Persona(s)`}
+              {saving
+                ? 'Asignando...'
+                : `Asignar ${selectedIds.length || ''} Persona(s)`}
             </Button>
           </div>
         </div>

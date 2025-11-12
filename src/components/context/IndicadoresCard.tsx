@@ -46,7 +46,9 @@ export function IndicadoresCard({ indicadores }: IndicadoresCardProps) {
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl">📊</span>
-          <h2 className="text-xl font-bold text-gray-900">Indicadores a Monitorear</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            Indicadores a Monitorear
+          </h2>
         </div>
         <EmptyState
           icon="📊"
@@ -66,7 +68,7 @@ export function IndicadoresCard({ indicadores }: IndicadoresCardProps) {
       </div>
 
       <div className="space-y-3">
-        {indicadores.map((indicador) => {
+        {indicadores.map(indicador => {
           const estado = getEstado(indicador);
 
           return (
@@ -76,10 +78,15 @@ export function IndicadoresCard({ indicadores }: IndicadoresCardProps) {
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{indicador.name}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{indicador.description}</p>
+                  <h4 className="font-semibold text-gray-900">
+                    {indicador.name}
+                  </h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {indicador.description}
+                  </p>
                   <div className="text-sm text-gray-600 mt-2">
-                    <span className="font-medium">Umbral:</span> {formatThreshold(indicador)}
+                    <span className="font-medium">Umbral:</span>{' '}
+                    {formatThreshold(indicador)}
                     <span className="mx-2">|</span>
                     <span className="font-medium">Actual:</span>{' '}
                     <span className="font-semibold">

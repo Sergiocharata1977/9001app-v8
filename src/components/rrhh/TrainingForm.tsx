@@ -201,7 +201,9 @@ export function TrainingForm({
         <Checkbox
           id="evaluacionPosterior"
           checked={formData.evaluacionPosterior}
-          onCheckedChange={(checked) => handleChange('evaluacionPosterior', checked)}
+          onCheckedChange={checked =>
+            handleChange('evaluacionPosterior', checked)
+          }
         />
         <Label htmlFor="evaluacionPosterior" className="cursor-pointer">
           Requiere evaluación posterior a la capacitación

@@ -30,7 +30,9 @@ export function TrainingCompetencesList({
   const loadCompetences = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/rrhh/trainings/${trainingId}/competencias`);
+      const response = await fetch(
+        `/api/rrhh/trainings/${trainingId}/competencias`
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -45,23 +47,35 @@ export function TrainingCompetencesList({
 
   const getCategoryColor = (categoria: string) => {
     switch (categoria) {
-      case 'tecnica': return 'bg-blue-100 text-blue-800';
-      case 'blanda': return 'bg-green-100 text-green-800';
-      case 'seguridad': return 'bg-red-100 text-red-800';
-      case 'iso_9001': return 'bg-purple-100 text-purple-800';
-      case 'otra': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'tecnica':
+        return 'bg-blue-100 text-blue-800';
+      case 'blanda':
+        return 'bg-green-100 text-green-800';
+      case 'seguridad':
+        return 'bg-red-100 text-red-800';
+      case 'iso_9001':
+        return 'bg-purple-100 text-purple-800';
+      case 'otra':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getCategoryLabel = (categoria: string) => {
     switch (categoria) {
-      case 'tecnica': return 'Técnica';
-      case 'blanda': return 'Blanda';
-      case 'seguridad': return 'Seguridad';
-      case 'iso_9001': return 'ISO 9001';
-      case 'otra': return 'Otra';
-      default: return categoria;
+      case 'tecnica':
+        return 'Técnica';
+      case 'blanda':
+        return 'Blanda';
+      case 'seguridad':
+        return 'Seguridad';
+      case 'iso_9001':
+        return 'ISO 9001';
+      case 'otra':
+        return 'Otra';
+      default:
+        return categoria;
     }
   };
 
@@ -111,7 +125,7 @@ export function TrainingCompetencesList({
           </div>
         ) : (
           <div className="space-y-3">
-            {competences.map((competence) => (
+            {competences.map(competence => (
               <div
                 key={competence.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"

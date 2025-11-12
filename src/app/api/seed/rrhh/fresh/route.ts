@@ -12,7 +12,7 @@ export async function POST() {
 
     // Limpiar datos existentes
     console.log('🧹 Limpiando datos existentes...');
-    
+
     const departments = await DepartmentService.getAll();
     const personnel = await PersonnelService.getAll();
     const positions = await PositionService.getAll();
@@ -51,7 +51,7 @@ export async function POST() {
         personnel: personnel.length,
         trainings: trainings.length,
         evaluations: evaluations.length,
-      }
+      },
     });
   } catch (error) {
     console.error('❌ Error en limpieza y seed RRHH:', error);
@@ -59,29 +59,9 @@ export async function POST() {
       {
         success: false,
         error: 'Error al limpiar y sembrar datos RRHH',
-        details: error instanceof Error ? error.message : 'Error desconocido'
+        details: error instanceof Error ? error.message : 'Error desconocido',
       },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -32,7 +32,7 @@ export class NormPointService {
   static async getAll(): Promise<NormPoint[]> {
     try {
       const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -93,7 +93,10 @@ export class NormPointService {
       }
 
       if (filters.process_id) {
-        q = query(q, where('related_process_ids', 'array-contains', filters.process_id));
+        q = query(
+          q,
+          where('related_process_ids', 'array-contains', filters.process_id)
+        );
       }
 
       // Apply sorting
@@ -109,7 +112,7 @@ export class NormPointService {
       const offset = (pagination.page - 1) * pagination.limit;
       const docs = querySnapshot.docs.slice(offset, offset + pagination.limit);
 
-      const data = docs.map((doc) => ({
+      const data = docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -163,16 +166,24 @@ export class NormPointService {
   ): Promise<NormPoint> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
-      
-      const updateData: Record<string, Timestamp | string | number | boolean | string[] | null> = {
+
+      const updateData: Record<
+        string,
+        Timestamp | string | number | boolean | string[] | null
+      > = {
         updated_at: Timestamp.now(),
       };
 
       // Copy fields
-      Object.keys(data).forEach((key) => {
+      Object.keys(data).forEach(key => {
         const value = (data as Record<string, unknown>)[key];
         if (value !== undefined) {
-          updateData[key] = value as string | number | boolean | string[] | null;
+          updateData[key] = value as
+            | string
+            | number
+            | boolean
+            | string[]
+            | null;
         }
       });
 
@@ -200,7 +211,6 @@ export class NormPointService {
     }
   }
 
-
   // ============================================
   // SEARCH AND FILTER
   // ============================================
@@ -211,7 +221,7 @@ export class NormPointService {
       const term = searchTerm.toLowerCase();
 
       return allPoints.filter(
-        (point) =>
+        point =>
           point.title.toLowerCase().includes(term) ||
           point.description.toLowerCase().includes(term) ||
           point.code.toLowerCase().includes(term) ||
@@ -230,7 +240,7 @@ export class NormPointService {
         where('chapter', '==', chapter)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -249,7 +259,7 @@ export class NormPointService {
         where('category', '==', category)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -268,7 +278,7 @@ export class NormPointService {
         where('tipo_norma', '==', tipo)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -287,7 +297,7 @@ export class NormPointService {
         where('is_mandatory', '==', true)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -308,7 +318,7 @@ export class NormPointService {
         where('priority', '==', priority)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -331,7 +341,7 @@ export class NormPointService {
         where('related_process_ids', 'array-contains', processId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -350,7 +360,7 @@ export class NormPointService {
         where('related_document_ids', 'array-contains', documentId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),
@@ -369,7 +379,7 @@ export class NormPointService {
         where('related_objective_ids', 'array-contains', objectiveId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((doc) => ({
+      return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate() || new Date(),

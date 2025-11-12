@@ -33,11 +33,5 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return null;
   }
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
-
-

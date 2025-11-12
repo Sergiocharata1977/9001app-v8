@@ -2,11 +2,23 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Grid, List, Plus, Search, Filter, FileText, Edit, Trash2, Eye, ToggleLeft, ToggleRight } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Grid,
+  List,
+  Plus,
+  Search,
+  Filter,
+  FileText,
+  Edit,
+  Trash2,
+  Eye,
+  ToggleLeft,
+  ToggleRight,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ProcessDefinition } from '@/types/procesos';
 import { ProcessService } from '@/services/procesos/ProcessService';
 
@@ -19,17 +31,20 @@ interface ProcessListingProps {
 export const ProcessListing: React.FC<ProcessListingProps> = ({
   onViewProcess,
   onEditProcess,
-  onNewProcess
+  onNewProcess,
 }) => {
   const router = useRouter();
   const [processes, setProcesses] = useState<ProcessDefinition[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState<'activo' | 'inactivo' | ''>('');
+  const [estadoFilter, setEstadoFilter] = useState<'activo' | 'inactivo' | ''>(
+    ''
+  );
   const [loadingData, setLoadingData] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [processToDelete, setProcessToDelete] = useState<ProcessDefinition | null>(null);
+  const [processToDelete, setProcessToDelete] =
+    useState<ProcessDefinition | null>(null);
 
   // Cargar datos
   const fetchData = useCallback(async () => {
@@ -38,12 +53,17 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
 
     try {
       console.log('Cargando datos de procesos...');
-      const data = await ProcessService.getFiltered(searchTerm, estadoFilter || undefined);
+      const data = await ProcessService.getFiltered(
+        searchTerm,
+        estadoFilter || undefined
+      );
       console.log('Datos de procesos cargados:', data);
       setProcesses(data || []);
     } catch (err) {
       console.error('Error al cargar datos:', err);
-      setLocalError('Error al cargar los datos. Por favor, intenta de nuevo más tarde.');
+      setLocalError(
+        'Error al cargar los datos. Por favor, intenta de nuevo más tarde.'
+      );
       setProcesses([]);
     } finally {
       setLoadingData(false);
@@ -62,10 +82,11 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
 
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(proc =>
-        proc.nombre?.toLowerCase().includes(searchLower) ||
-        proc.codigo?.toLowerCase().includes(searchLower) ||
-        proc.responsable?.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(
+        proc =>
+          proc.nombre?.toLowerCase().includes(searchLower) ||
+          proc.codigo?.toLowerCase().includes(searchLower) ||
+          proc.responsable?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -77,17 +98,26 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
   }, [processes, searchTerm, estadoFilter]);
 
   // Handlers
-  const handleView = useCallback((proc: ProcessDefinition) => {
-    router.push(`/dashboard/procesos/definiciones/${proc.id}`);
-  }, [router]);
+  const handleView = useCallback(
+    (proc: ProcessDefinition) => {
+      router.push(`/dashboard/procesos/definiciones/${proc.id}`);
+    },
+    [router]
+  );
 
-  const handleCardClick = useCallback((proc: ProcessDefinition) => {
-    router.push(`/dashboard/procesos/definiciones/${proc.id}`);
-  }, [router]);
+  const handleCardClick = useCallback(
+    (proc: ProcessDefinition) => {
+      router.push(`/dashboard/procesos/definiciones/${proc.id}`);
+    },
+    [router]
+  );
 
-  const handleEdit = useCallback((proc: ProcessDefinition) => {
-    router.push(`/dashboard/procesos/${proc.id}?edit=true`);
-  }, [router]);
+  const handleEdit = useCallback(
+    (proc: ProcessDefinition) => {
+      router.push(`/dashboard/procesos/${proc.id}?edit=true`);
+    },
+    [router]
+  );
 
   const handleDelete = useCallback((proc: ProcessDefinition) => {
     setProcessToDelete(proc);
@@ -112,18 +142,23 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
     router.push('/dashboard/procesos/new');
   }, [router]);
 
-  const handleToggleEstado = useCallback(async (proc: ProcessDefinition) => {
-    try {
-      await ProcessService.toggleEstado(proc.id);
-      fetchData(); // Recargar datos
-    } catch (error) {
-      console.error('Error al cambiar estado del proceso:', error);
-    }
-  }, [fetchData]);
+  const handleToggleEstado = useCallback(
+    async (proc: ProcessDefinition) => {
+      try {
+        await ProcessService.toggleEstado(proc.id);
+        fetchData(); // Recargar datos
+      } catch (error) {
+        console.error('Error al cambiar estado del proceso:', error);
+      }
+    },
+    [fetchData]
+  );
 
   // Función para obtener color del estado
   const getEstadoColor = (estado: string) => {
-    return estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+    return estado === 'activo'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-gray-100 text-gray-800';
   };
 
   // Renderizar contenido
@@ -155,17 +190,21 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">
-            {searchTerm || estadoFilter ? 'No se encontraron procesos' : 'No hay procesos registrados'}
+            {searchTerm || estadoFilter
+              ? 'No se encontraron procesos'
+              : 'No hay procesos registrados'}
           </h3>
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm || estadoFilter
               ? 'No se encontraron resultados que coincidan con tu búsqueda.'
-              : 'Comienza agregando la primera definición de proceso.'
-            }
+              : 'Comienza agregando la primera definición de proceso.'}
           </p>
           {!searchTerm && !estadoFilter && (
             <div className="mt-6">
-              <Button onClick={handleNewProcess} className="bg-blue-600 hover:bg-blue-700">
+              <Button
+                onClick={handleNewProcess}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Nuevo Proceso
               </Button>
@@ -210,7 +249,7 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handleView(proc);
                     }}
@@ -222,7 +261,7 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleToggleEstado(proc);
                       }}
@@ -237,7 +276,7 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleEdit(proc);
                       }}
@@ -248,7 +287,7 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleDelete(proc);
                       }}
@@ -302,7 +341,7 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                     onClick={() => handleCardClick(proc)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         handleCardClick(proc);
@@ -336,7 +375,10 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex justify-end space-x-2"
+                        onClick={e => e.stopPropagation()}
+                      >
                         <Button
                           size="sm"
                           variant="ghost"
@@ -384,17 +426,36 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
         </CardContent>
       </Card>
     );
-  }, [loadingData, filteredProcesses, viewMode, searchTerm, estadoFilter, handleNewProcess, handleView, handleEdit, handleDelete, handleCardClick, handleToggleEstado]);
+  }, [
+    loadingData,
+    filteredProcesses,
+    viewMode,
+    searchTerm,
+    estadoFilter,
+    handleNewProcess,
+    handleView,
+    handleEdit,
+    handleDelete,
+    handleCardClick,
+    handleToggleEstado,
+  ]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestión de Procesos</h2>
-          <p className="text-gray-600">Administra las definiciones de procesos ISO 9001</p>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Gestión de Procesos
+          </h2>
+          <p className="text-gray-600">
+            Administra las definiciones de procesos ISO 9001
+          </p>
         </div>
-        <Button onClick={handleNewProcess} className="bg-blue-600 hover:bg-blue-700">
+        <Button
+          onClick={handleNewProcess}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Proceso
         </Button>
@@ -410,13 +471,15 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
                 type="text"
                 placeholder="Buscar procesos..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
             <select
               value={estadoFilter}
-              onChange={(e) => setEstadoFilter(e.target.value as 'activo' | 'inactivo' | '')}
+              onChange={e =>
+                setEstadoFilter(e.target.value as 'activo' | 'inactivo' | '')
+              }
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Todos los estados</option>
@@ -431,17 +494,17 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
 
           <div className="flex items-center space-x-2">
             <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("grid")}
+              onClick={() => setViewMode('grid')}
             >
               <Grid className="mr-2 h-4 w-4" />
               Tarjetas
             </Button>
             <Button
-              variant={viewMode === "list" ? "default" : "outline"}
+              variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("list")}
+              onClick={() => setViewMode('list')}
             >
               <List className="mr-2 h-4 w-4" />
               Tabla
@@ -451,23 +514,25 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
       </div>
 
       {/* Content */}
-      <div className="min-h-96">
-        {renderContent}
-      </div>
+      <div className="min-h-96">{renderContent}</div>
 
       {/* Dialog de confirmación para eliminar */}
       {deleteDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium mb-4">¿Estás completamente seguro?</h3>
+            <h3 className="text-lg font-medium mb-4">
+              ¿Estás completamente seguro?
+            </h3>
             <p className="text-gray-600 mb-6">
-              Esta acción no se puede deshacer. Se eliminará permanentemente la definición de proceso{' '}
-              <span className="font-semibold">
-                {processToDelete?.nombre}
-              </span>.
+              Esta acción no se puede deshacer. Se eliminará permanentemente la
+              definición de proceso{' '}
+              <span className="font-semibold">{processToDelete?.nombre}</span>.
             </p>
             <div className="flex justify-end gap-4">
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
                 Cancelar
               </Button>
               <Button

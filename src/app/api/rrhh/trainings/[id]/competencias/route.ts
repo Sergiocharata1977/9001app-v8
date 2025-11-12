@@ -2,31 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TrainingService } from '@/services/rrhh/TrainingService';
 
 export async function POST(
-   request: NextRequest,
-   { params }: { params: Promise<{ id: string }> }
- ) {
-   try {
-     const { id } = await params;
-     const { competenceIds } = await request.json();
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const { competenceIds } = await request.json();
 
-     if (!Array.isArray(competenceIds)) {
-       return NextResponse.json(
-         { error: 'competenceIds debe ser un array' },
-         { status: 400 }
-       );
-     }
+    if (!Array.isArray(competenceIds)) {
+      return NextResponse.json(
+        { error: 'competenceIds debe ser un array' },
+        { status: 400 }
+      );
+    }
 
-     await TrainingService.linkCompetences(id, competenceIds);
+    await TrainingService.linkCompetences(id, competenceIds);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error en POST /api/rrhh/trainings/[id]/competencias:', error);
+    console.error(
+      'Error en POST /api/rrhh/trainings/[id]/competencias:',
+      error
+    );
 
     if (error instanceof Error && error.message.includes('no encontrada')) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -37,12 +37,12 @@ export async function POST(
 }
 
 export async function GET(
-   request: NextRequest,
-   { params }: { params: Promise<{ id: string }> }
- ) {
-   try {
-     const { id } = await params;
-     const training = await TrainingService.getById(id);
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const training = await TrainingService.getById(id);
 
     if (!training) {
       return NextResponse.json(
@@ -59,7 +59,9 @@ export async function GET(
     }
 
     // Obtener detalles de cada competencia
-    const { competenceService } = await import('@/services/rrhh/CompetenceService');
+    const { competenceService } = await import(
+      '@/services/rrhh/CompetenceService'
+    );
     const competences = await Promise.all(
       competenceIds.map(async (competenceId: string) => {
         try {

@@ -8,7 +8,7 @@ import {
   where,
   orderBy,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { UsoClaude, UsageSummary, LimitStatus } from '@/types/chat';
@@ -29,7 +29,10 @@ export class UsageTrackingService {
     metadata: Record<string, any>;
   }): Promise<void> {
     try {
-      const costoEstimado = this.calcularCosto(data.tokens.input, data.tokens.output);
+      const costoEstimado = this.calcularCosto(
+        data.tokens.input,
+        data.tokens.output
+      );
 
       const usoData = {
         user_id: data.userId,
@@ -39,7 +42,7 @@ export class UsageTrackingService {
         tokens_output: data.tokens.output,
         costo_estimado: costoEstimado,
         fecha: serverTimestamp(),
-        metadata: data.metadata
+        metadata: data.metadata,
       };
 
       await addDoc(collection(db, COLLECTION_NAME), usoData);
@@ -47,7 +50,7 @@ export class UsageTrackingService {
       console.log('[UsageTrackingService] Registered usage:', {
         userId: data.userId,
         tokens: data.tokens,
-        cost: costoEstimado
+        cost: costoEstimado,
       });
     } catch (error) {
       console.error('[UsageTrackingService] Error registering usage:', error);
@@ -62,9 +65,11 @@ export class UsageTrackingService {
    * @returns Estimated cost in USD
    */
   static calcularCosto(tokensInput: number, tokensOutput: number): number {
-    const inputCost = (tokensInput / 1000000) * CLAUDE_PRICING.INPUT_PER_MILLION;
-    const outputCost = (tokensOutput / 1000000) * CLAUDE_PRICING.OUTPUT_PER_MILLION;
-    
+    const inputCost =
+      (tokensInput / 1000000) * CLAUDE_PRICING.INPUT_PER_MILLION;
+    const outputCost =
+      (tokensOutput / 1000000) * CLAUDE_PRICING.OUTPUT_PER_MILLION;
+
     return inputCost + outputCost;
   }
 
@@ -108,11 +113,14 @@ export class UsageTrackingService {
           tokens_output: data.tokens_output,
           costo_estimado: data.costo_estimado,
           fecha: data.fecha?.toDate() || new Date(),
-          metadata: data.metadata
+          metadata: data.metadata,
         } as UsoClaude;
       });
     } catch (error) {
-      console.error('[UsageTrackingService] Error getting usage by user:', error);
+      console.error(
+        '[UsageTrackingService] Error getting usage by user:',
+        error
+      );
       throw new Error('Failed to get usage by user');
     }
   }
@@ -133,7 +141,11 @@ export class UsageTrackingService {
 
       switch (period) {
         case 'day':
-          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+          );
           break;
         case 'week':
           startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -150,17 +162,23 @@ export class UsageTrackingService {
         total_tokens_input: usage.reduce((sum, u) => sum + u.tokens_input, 0),
         total_tokens_output: usage.reduce((sum, u) => sum + u.tokens_output, 0),
         costo_total: usage.reduce((sum, u) => sum + u.costo_estimado, 0),
-        promedio_tokens_por_consulta: 0
+        promedio_tokens_por_consulta: 0,
       };
 
       if (summary.total_consultas > 0) {
-        const totalTokens = summary.total_tokens_input + summary.total_tokens_output;
-        summary.promedio_tokens_por_consulta = Math.round(totalTokens / summary.total_consultas);
+        const totalTokens =
+          summary.total_tokens_input + summary.total_tokens_output;
+        summary.promedio_tokens_por_consulta = Math.round(
+          totalTokens / summary.total_consultas
+        );
       }
 
       return summary;
     } catch (error) {
-      console.error('[UsageTrackingService] Error getting usage summary:', error);
+      console.error(
+        '[UsageTrackingService] Error getting usage summary:',
+        error
+      );
       throw new Error('Failed to get usage summary');
     }
   }
@@ -181,7 +199,8 @@ export class UsageTrackingService {
 
       // Check monthly tokens
       const monthSummary = await this.getUsageSummary(userId, 'month');
-      const totalTokensMonth = monthSummary.total_tokens_input + monthSummary.total_tokens_output;
+      const totalTokensMonth =
+        monthSummary.total_tokens_input + monthSummary.total_tokens_output;
       const tokensRestantes = Math.max(
         0,
         CLAUDE_LIMITS.TOKENS_POR_MES - totalTokensMonth
@@ -193,7 +212,7 @@ export class UsageTrackingService {
         CLAUDE_LIMITS.COSTO_MAXIMO_MENSUAL - monthSummary.costo_total
       );
 
-      const exceeded = 
+      const exceeded =
         consultasRestantes === 0 ||
         tokensRestantes === 0 ||
         costoRestante === 0;
@@ -202,7 +221,7 @@ export class UsageTrackingService {
         exceeded,
         consultas_restantes: consultasRestantes,
         tokens_restantes: tokensRestantes,
-        costo_restante: costoRestante
+        costo_restante: costoRestante,
       };
     } catch (error) {
       console.error('[UsageTrackingService] Error checking limits:', error);
@@ -211,7 +230,7 @@ export class UsageTrackingService {
         exceeded: false,
         consultas_restantes: CLAUDE_LIMITS.CONSULTAS_POR_DIA,
         tokens_restantes: CLAUDE_LIMITS.TOKENS_POR_MES,
-        costo_restante: CLAUDE_LIMITS.COSTO_MAXIMO_MENSUAL
+        costo_restante: CLAUDE_LIMITS.COSTO_MAXIMO_MENSUAL,
       };
     }
   }
@@ -258,11 +277,14 @@ export class UsageTrackingService {
           tokens_output: data.tokens_output,
           costo_estimado: data.costo_estimado,
           fecha: data.fecha?.toDate() || new Date(),
-          metadata: data.metadata
+          metadata: data.metadata,
         } as UsoClaude;
       });
     } catch (error) {
-      console.error('[UsageTrackingService] Error getting usage by type:', error);
+      console.error(
+        '[UsageTrackingService] Error getting usage by type:',
+        error
+      );
       throw new Error('Failed to get usage by type');
     }
   }
@@ -278,10 +300,7 @@ export class UsageTrackingService {
     endDate?: Date
   ): Promise<UsoClaude[]> {
     try {
-      let q = query(
-        collection(db, COLLECTION_NAME),
-        orderBy('fecha', 'desc')
-      );
+      let q = query(collection(db, COLLECTION_NAME), orderBy('fecha', 'desc'));
 
       if (startDate) {
         q = query(q, where('fecha', '>=', Timestamp.fromDate(startDate)));
@@ -303,7 +322,7 @@ export class UsageTrackingService {
           tokens_output: data.tokens_output,
           costo_estimado: data.costo_estimado,
           fecha: data.fecha?.toDate() || new Date(),
-          metadata: data.metadata
+          metadata: data.metadata,
         } as UsoClaude;
       });
     } catch (error) {

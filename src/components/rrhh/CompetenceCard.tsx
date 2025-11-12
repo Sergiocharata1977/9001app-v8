@@ -15,34 +15,52 @@ interface Props {
 export function CompetenceCard({ competence, onEdit, onDelete }: Props) {
   const getCategoryColor = (categoria: CompetenceCategory) => {
     switch (categoria) {
-      case 'tecnica': return 'bg-blue-500';
-      case 'blanda': return 'bg-green-500';
-      case 'seguridad': return 'bg-red-500';
-      case 'iso_9001': return 'bg-purple-500';
-      case 'otra': return 'bg-gray-500';
-      default: return 'bg-gray-500';
+      case 'tecnica':
+        return 'bg-blue-500';
+      case 'blanda':
+        return 'bg-green-500';
+      case 'seguridad':
+        return 'bg-red-500';
+      case 'iso_9001':
+        return 'bg-purple-500';
+      case 'otra':
+        return 'bg-gray-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getCategoryLabel = (categoria: CompetenceCategory) => {
     switch (categoria) {
-      case 'tecnica': return 'Técnica';
-      case 'blanda': return 'Blanda';
-      case 'seguridad': return 'Seguridad';
-      case 'iso_9001': return 'ISO 9001';
-      case 'otra': return 'Otra';
-      default: return categoria;
+      case 'tecnica':
+        return 'Técnica';
+      case 'blanda':
+        return 'Blanda';
+      case 'seguridad':
+        return 'Seguridad';
+      case 'iso_9001':
+        return 'ISO 9001';
+      case 'otra':
+        return 'Otra';
+      default:
+        return categoria;
     }
   };
 
   const getLevelLabel = (level: number) => {
     switch (level) {
-      case 1: return 'Básico';
-      case 2: return 'Intermedio';
-      case 3: return 'Avanzado';
-      case 4: return 'Experto';
-      case 5: return 'Maestro';
-      default: return level.toString();
+      case 1:
+        return 'Básico';
+      case 2:
+        return 'Intermedio';
+      case 3:
+        return 'Avanzado';
+      case 4:
+        return 'Experto';
+      case 5:
+        return 'Maestro';
+      default:
+        return level.toString();
     }
   };
 
@@ -76,12 +94,8 @@ export function CompetenceCard({ competence, onEdit, onDelete }: Props) {
           <Badge className={getCategoryColor(competence.categoria)}>
             {getCategoryLabel(competence.categoria)}
           </Badge>
-          <Badge variant="outline">
-            Nivel 3 - Avanzado
-          </Badge>
-          {!competence.activo && (
-            <Badge variant="secondary">Inactiva</Badge>
-          )}
+          <Badge variant="outline">Nivel 3 - Avanzado</Badge>
+          {!competence.activo && <Badge variant="secondary">Inactiva</Badge>}
         </div>
       </CardHeader>
 
@@ -96,7 +110,8 @@ export function CompetenceCard({ competence, onEdit, onDelete }: Props) {
           </div>
           {competence.referenciaNorma && (
             <div>
-              <span className="font-medium">Referencia:</span> {competence.referenciaNorma}
+              <span className="font-medium">Referencia:</span>{' '}
+              {competence.referenciaNorma}
             </div>
           )}
         </div>

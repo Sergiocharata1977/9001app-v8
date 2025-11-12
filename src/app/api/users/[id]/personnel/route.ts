@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 // PUT /api/users/[id]/personnel - Vincular/desvincular personnel
@@ -15,7 +23,7 @@ export async function PUT(
     // Validar que el usuario existe
     const userRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userRef);
-    
+
     if (!userDoc.exists()) {
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
@@ -27,7 +35,7 @@ export async function PUT(
     if (personnel_id) {
       const personnelRef = doc(db, 'personnel', personnel_id);
       const personnelDoc = await getDoc(personnelRef);
-      
+
       if (!personnelDoc.exists()) {
         return NextResponse.json(
           { error: 'Personal no encontrado' },
@@ -43,9 +51,9 @@ export async function PUT(
       if (!existingUsers.empty && existingUsers.docs[0].id !== userId) {
         const existingUserData = existingUsers.docs[0].data();
         return NextResponse.json(
-          { 
+          {
             error: 'Este personal ya está vinculado a otro usuario',
-            existingUser: existingUserData.email 
+            existingUser: existingUserData.email,
           },
           { status: 400 }
         );
@@ -55,16 +63,15 @@ export async function PUT(
     // Actualizar el usuario
     await updateDoc(userRef, {
       personnel_id: personnel_id || null,
-      updated_at: new Date()
+      updated_at: new Date(),
     });
 
     return NextResponse.json({
       success: true,
-      message: personnel_id 
-        ? 'Personal vinculado exitosamente' 
-        : 'Personal desvinculado exitosamente'
+      message: personnel_id
+        ? 'Personal vinculado exitosamente'
+        : 'Personal desvinculado exitosamente',
     });
-
   } catch (error) {
     console.error('Error updating user personnel:', error);
     return NextResponse.json(
@@ -85,7 +92,7 @@ export async function GET(
     // Obtener usuario
     const userRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userRef);
-    
+
     if (!userDoc.exists()) {
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
@@ -103,18 +110,17 @@ export async function GET(
     // Obtener personnel vinculado
     const personnelRef = doc(db, 'personnel', personnelId);
     const personnelDoc = await getDoc(personnelRef);
-    
+
     if (!personnelDoc.exists()) {
       return NextResponse.json({ personnel: null });
     }
 
     const personnelData = {
       id: personnelDoc.id,
-      ...personnelDoc.data()
+      ...personnelDoc.data(),
     };
 
     return NextResponse.json({ personnel: personnelData });
-
   } catch (error) {
     console.error('Error fetching user personnel:', error);
     return NextResponse.json(

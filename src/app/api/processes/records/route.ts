@@ -7,16 +7,16 @@ export async function GET() {
   try {
     const recordsRef = collection(db, 'processRecords');
     const snapshot = await getDocs(recordsRef);
-    
+
     const records = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     return NextResponse.json({
       success: true,
       data: records,
-      count: records.length
+      count: records.length,
     });
   } catch (error) {
     console.error('Error fetching process records:', error);
@@ -31,14 +31,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     const {
       name,
       description,
       processDefinitionId,
       processDefinitionName,
       status = 'activo',
-      createdBy
+      createdBy,
     } = body;
 
     // Validaciones básicas
@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
         totalCards: 0,
         pendingCards: 0,
         inProgressCards: 0,
-        completedCards: 0
+        completedCards: 0,
       },
-      isActive: true
+      isActive: true,
     };
 
     const docRef = await addDoc(collection(db, 'processRecords'), recordData);
@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         id: docRef.id,
-        ...recordData
+        ...recordData,
       },
-      message: 'Registro de proceso creado exitosamente'
+      message: 'Registro de proceso creado exitosamente',
     });
   } catch (error) {
     console.error('Error creating process record:', error);

@@ -10,7 +10,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     const assignments: PositionAssignmentsFormData = {
       procesos_asignados: body.procesos_asignados || [],
       objetivos_asignados: body.objetivos_asignados || [],
@@ -19,11 +19,12 @@ export async function PUT(
 
     // Actualizar asignaciones del puesto
     await PositionService.updateAssignments(id, assignments);
-    
+
     // Si se solicita propagar, actualizar todo el personal
     let personnelUpdated = 0;
     if (body.propagate === true) {
-      personnelUpdated = await PositionService.propagateAssignmentsToPersonnel(id);
+      personnelUpdated =
+        await PositionService.propagateAssignmentsToPersonnel(id);
     }
 
     return NextResponse.json({
@@ -32,7 +33,10 @@ export async function PUT(
     });
   } catch (error) {
     console.error('Error updating position assignments:', error);
-    const message = error instanceof Error ? error.message : 'Error al actualizar asignaciones';
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Error al actualizar asignaciones';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

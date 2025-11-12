@@ -42,7 +42,12 @@ export async function PUT(
   } catch (error) {
     console.error('Error in evaluation PUT:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }
@@ -88,10 +93,7 @@ export async function PATCH(
       return NextResponse.json(evaluation);
     }
 
-    return NextResponse.json(
-      { error: 'Acción no válida' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
   } catch (error) {
     console.error('Error in evaluation PATCH:', error);
     return NextResponse.json(

@@ -5,7 +5,9 @@ interface InformacionPersonalCardProps {
   contexto: UserContext;
 }
 
-export function InformacionPersonalCard({ contexto }: InformacionPersonalCardProps) {
+export function InformacionPersonalCard({
+  contexto,
+}: InformacionPersonalCardProps) {
   const { personnel, position, department, supervisor } = contexto;
 
   if (!personnel) {
@@ -21,7 +23,9 @@ export function InformacionPersonalCard({ contexto }: InformacionPersonalCardPro
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center gap-2 mb-4">
         <span className="text-2xl">👤</span>
-        <h2 className="text-xl font-bold text-gray-900">Información Personal</h2>
+        <h2 className="text-xl font-bold text-gray-900">
+          Información Personal
+        </h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

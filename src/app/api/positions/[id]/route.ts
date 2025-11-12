@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { id } = await params;
     const position = await PositionService.getByIdWithAssignments(id);
-    
+
     if (!position) {
       return NextResponse.json(
         { error: 'Puesto no encontrado' },
@@ -36,7 +36,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     const data: Partial<PositionFormData> = {
       nombre: body.nombre,
       descripcion_responsabilidades: body.descripcion_responsabilidades,
@@ -47,11 +47,12 @@ export async function PUT(
     };
 
     await PositionService.update(id, data);
-    
+
     return NextResponse.json({ message: 'Puesto actualizado exitosamente' });
   } catch (error) {
     console.error('Error updating position:', error);
-    const message = error instanceof Error ? error.message : 'Error al actualizar puesto';
+    const message =
+      error instanceof Error ? error.message : 'Error al actualizar puesto';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -64,11 +65,12 @@ export async function DELETE(
   try {
     const { id } = await params;
     await PositionService.delete(id);
-    
+
     return NextResponse.json({ message: 'Puesto eliminado exitosamente' });
   } catch (error) {
     console.error('Error deleting position:', error);
-    const message = error instanceof Error ? error.message : 'Error al eliminar puesto';
+    const message =
+      error instanceof Error ? error.message : 'Error al eliminar puesto';
     const status = message.includes('persona(s) activa(s)') ? 400 : 500;
     return NextResponse.json({ error: message }, { status });
   }

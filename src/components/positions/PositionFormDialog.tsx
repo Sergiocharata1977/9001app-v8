@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,7 +44,8 @@ export function PositionFormDialog({
     if (position && mode === 'edit') {
       setFormData({
         nombre: position.nombre || '',
-        descripcion_responsabilidades: position.descripcion_responsabilidades || '',
+        descripcion_responsabilidades:
+          position.descripcion_responsabilidades || '',
         departamento_id: position.departamento_id || '',
         reporta_a_id: position.reporta_a_id || '',
         requisitos_experiencia: position.requisitos_experiencia || '',
@@ -60,7 +66,7 @@ export function PositionFormDialog({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es requerido';
     }
@@ -71,7 +77,7 @@ export function PositionFormDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
@@ -123,7 +129,7 @@ export function PositionFormDialog({
             <Input
               id="nombre"
               value={formData.nombre}
-              onChange={(e) => handleChange('nombre', e.target.value)}
+              onChange={e => handleChange('nombre', e.target.value)}
               placeholder="Ej: Gerente de Calidad"
               className={errors.nombre ? 'border-red-500' : ''}
               disabled={saving}
@@ -141,7 +147,9 @@ export function PositionFormDialog({
             <Textarea
               id="descripcion"
               value={formData.descripcion_responsabilidades}
-              onChange={(e) => handleChange('descripcion_responsabilidades', e.target.value)}
+              onChange={e =>
+                handleChange('descripcion_responsabilidades', e.target.value)
+              }
               placeholder="Describe las principales responsabilidades del puesto..."
               rows={4}
               disabled={saving}
@@ -156,7 +164,7 @@ export function PositionFormDialog({
             <Input
               id="departamento"
               value={formData.departamento_id}
-              onChange={(e) => handleChange('departamento_id', e.target.value)}
+              onChange={e => handleChange('departamento_id', e.target.value)}
               placeholder="Ej: Calidad"
               disabled={saving}
             />
@@ -170,7 +178,7 @@ export function PositionFormDialog({
             <Input
               id="reporta_a"
               value={formData.reporta_a_id}
-              onChange={(e) => handleChange('reporta_a_id', e.target.value)}
+              onChange={e => handleChange('reporta_a_id', e.target.value)}
               placeholder="Ej: Director General"
               disabled={saving}
             />
@@ -184,7 +192,9 @@ export function PositionFormDialog({
             <Textarea
               id="experiencia"
               value={formData.requisitos_experiencia}
-              onChange={(e) => handleChange('requisitos_experiencia', e.target.value)}
+              onChange={e =>
+                handleChange('requisitos_experiencia', e.target.value)
+              }
               placeholder="Ej: Mínimo 5 años en gestión de calidad..."
               rows={3}
               disabled={saving}
@@ -199,7 +209,9 @@ export function PositionFormDialog({
             <Textarea
               id="formacion"
               value={formData.requisitos_formacion}
-              onChange={(e) => handleChange('requisitos_formacion', e.target.value)}
+              onChange={e =>
+                handleChange('requisitos_formacion', e.target.value)
+              }
               placeholder="Ej: Título universitario en Ingeniería Industrial..."
               rows={3}
               disabled={saving}
@@ -221,7 +233,11 @@ export function PositionFormDialog({
               disabled={saving}
               className="bg-green-600 hover:bg-green-700"
             >
-              {saving ? 'Guardando...' : mode === 'create' ? 'Crear Puesto' : 'Guardar Cambios'}
+              {saving
+                ? 'Guardando...'
+                : mode === 'create'
+                  ? 'Crear Puesto'
+                  : 'Guardar Cambios'}
             </Button>
           </div>
         </form>

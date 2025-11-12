@@ -522,7 +522,9 @@ export class EvaluationService {
   /**
    * Calcular fecha de próxima evaluación desde posición
    */
-  private static calculateNextEvaluationDateFromPosition(position: Record<string, unknown>): Date {
+  private static calculateNextEvaluationDateFromPosition(
+    position: Record<string, unknown>
+  ): Date {
     const frecuencia = position?.frecuenciaEvaluacion || 12; // meses por defecto
     const now = new Date();
     return new Date(

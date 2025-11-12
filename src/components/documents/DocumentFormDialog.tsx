@@ -100,9 +100,7 @@ export function DocumentFormDialog({
 
     try {
       // 1. Crear o actualizar el documento
-      const url = document
-        ? `/api/documents/${document.id}`
-        : '/api/documents';
+      const url = document ? `/api/documents/${document.id}` : '/api/documents';
       const method = document ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -118,18 +116,21 @@ export function DocumentFormDialog({
       }
 
       const savedDocument = await response.json();
-      
+
       console.log('Documento guardado:', savedDocument);
-      
+
       // Verificar que tenemos el ID del documento
       const documentId = savedDocument.id || document?.id;
-      
+
       if (!documentId) {
-        console.error('No se pudo obtener ID del documento. Respuesta:', savedDocument);
+        console.error(
+          'No se pudo obtener ID del documento. Respuesta:',
+          savedDocument
+        );
         alert('Error: No se pudo obtener el ID del documento');
         return;
       }
-      
+
       console.log('ID del documento para subir archivo:', documentId);
 
       // 2. Si hay archivo, subirlo
@@ -139,18 +140,17 @@ export function DocumentFormDialog({
         fileFormData.append('file', selectedFile);
         fileFormData.append('userId', 'current-user');
 
-        const fileResponse = await fetch(
-          `/api/documents/${documentId}/file`,
-          {
-            method: 'POST',
-            body: fileFormData,
-          }
-        );
+        const fileResponse = await fetch(`/api/documents/${documentId}/file`, {
+          method: 'POST',
+          body: fileFormData,
+        });
 
         if (!fileResponse.ok) {
           const errorData = await fileResponse.json();
           console.error('Error uploading file:', errorData);
-          alert(`Documento guardado pero error al subir archivo: ${errorData.error || 'Error desconocido'}`);
+          alert(
+            `Documento guardado pero error al subir archivo: ${errorData.error || 'Error desconocido'}`
+          );
         }
       }
 
@@ -193,13 +193,16 @@ export function DocumentFormDialog({
 
         <form onSubmit={handleSubmit} className="space-y-5 p-6">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="title"
+              className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
               Título *
             </Label>
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) =>
+              onChange={e =>
                 setFormData({ ...formData, title: e.target.value })
               }
               required
@@ -209,13 +212,16 @@ export function DocumentFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="description"
+              className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
               Descripción
             </Label>
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) =>
+              onChange={e =>
                 setFormData({ ...formData, description: e.target.value })
               }
               rows={3}
@@ -226,13 +232,19 @@ export function DocumentFormDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="type" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="type"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+              >
                 Tipo *
               </Label>
               <Select
                 value={formData.type}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, type: value as typeof formData.type })
+                onValueChange={value =>
+                  setFormData({
+                    ...formData,
+                    type: value as typeof formData.type,
+                  })
                 }
               >
                 <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
@@ -240,7 +252,9 @@ export function DocumentFormDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="manual">📘 Manual</SelectItem>
-                  <SelectItem value="procedimiento">📋 Procedimiento</SelectItem>
+                  <SelectItem value="procedimiento">
+                    📋 Procedimiento
+                  </SelectItem>
                   <SelectItem value="instruccion">📝 Instrucción</SelectItem>
                   <SelectItem value="formato">📄 Formato</SelectItem>
                   <SelectItem value="registro">📊 Registro</SelectItem>
@@ -251,13 +265,19 @@ export function DocumentFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="status"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+              >
                 Estado *
               </Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, status: value as typeof formData.status })
+                onValueChange={value =>
+                  setFormData({
+                    ...formData,
+                    status: value as typeof formData.status,
+                  })
                 }
               >
                 <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
@@ -275,13 +295,16 @@ export function DocumentFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="version" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="version"
+              className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
               Versión *
             </Label>
             <Input
               id="version"
               value={formData.version}
-              onChange={(e) =>
+              onChange={e =>
                 setFormData({ ...formData, version: e.target.value })
               }
               placeholder="1.0"
@@ -349,10 +372,10 @@ export function DocumentFormDialog({
               {uploadingFile
                 ? 'Subiendo archivo...'
                 : loading
-                ? 'Guardando...'
-                : document
-                ? 'Actualizar'
-                : 'Crear Documento'}
+                  ? 'Guardando...'
+                  : document
+                    ? 'Actualizar'
+                    : 'Crear Documento'}
             </Button>
           </div>
         </form>

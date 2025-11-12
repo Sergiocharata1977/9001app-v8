@@ -604,7 +604,9 @@ export class TrainingService {
   /**
    * Método auxiliar para crear evaluación (debe importarse de EvaluationService)
    */
-  private static async createEvaluation(data: Omit<PerformanceEvaluation, "id" | "created_at" | "updated_at">): Promise<unknown> {
+  private static async createEvaluation(
+    data: Omit<PerformanceEvaluation, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<unknown> {
     // Importar dinámicamente para evitar dependencias circulares
     const { EvaluationService } = await import('./EvaluationService');
     return await EvaluationService.create(data);

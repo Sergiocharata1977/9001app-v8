@@ -2,9 +2,8 @@
 
 import type { Finding } from '@/types/findings';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { FindingCard } from './FindingCard';
+import { FindingCardCompact } from './FindingCardCompact';
 
 interface FindingListProps {
   filters?: {
@@ -17,7 +16,6 @@ interface FindingListProps {
 }
 
 export function FindingList({ filters }: FindingListProps) {
-  const router = useRouter();
   const [findings, setFindings] = useState<Finding[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,10 +54,6 @@ export function FindingList({ filters }: FindingListProps) {
     loadFindings();
   }, [filters]);
 
-  const handleViewFinding = (finding: Finding) => {
-    router.push(`/hallazgos/${finding.id}`);
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -77,9 +71,9 @@ export function FindingList({ filters }: FindingListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {findings.map(finding => (
-        <FindingCard key={finding.id} finding={finding} />
+        <FindingCardCompact key={finding.id} finding={finding} />
       ))}
     </div>
   );

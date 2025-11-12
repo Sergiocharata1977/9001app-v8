@@ -1,67 +1,54 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Audit } from '@/types/audits';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { useRouter } from 'next/navigation';
-import { AuditStatusBadge } from './AuditStatusBadge';
+import type { Audit, AuditStatus } from '@/types/audits';
+import { AUDIT_STATUS_LABELS } from '@/types/audits';
+import { AuditCard } from './AuditCard';
 
 interface AuditKanbanProps {
   audits: Audit[];
-  onRefresh: () => void;
 }
 
+const COLUMNS: AuditStatus[] = ['planned', 'in_progress', 'completed'];
+
 export function AuditKanban({ audits }: AuditKanbanProps) {
-  const router = useRouter();
-
-  const plannedAudits = audits.filter(a => a.status === 'planned');
-  const inProgressAudits = audits.filter(a => a.status === 'in_progress');
-  const completedAudits = audits.filter(a => a.status === 'completed');
-
-  const renderColumn = (title: string, columnAudits: Audit[]) => (
-    <div className="flex-1 min-w-[300px]">
-      <h3 className="font-semibold mb-4 text-lg">{title}</h3>
-      <div className="space-y-3">
-        {columnAudits.map(audit => (
-          <Card
-            key={audit.id}
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => router.push(`/auditorias/${audit.id}`)}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{audit.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {audit.description}
-              </p>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">
-                  {format(new Date(audit.plannedDate), 'PP', { locale: es })}
-                </span>
-                <AuditStatusBadge status={audit.status} />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Auditor: {audit.leadAuditor}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-        {columnAudits.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No hay auditorías
-          </p>
-        )}
-      </div>
-    </div>
+  const auditsByStatus = COLUMNS.reduce(
+    (acc, status) => {
+      acc[status] = audits.filter(audit => audit.status === status);
+      return acc;
+    },
+    {} as Record<AuditStatus, Audit[]>
   );
 
   return (
-    <div className="flex gap-6 overflow-x-auto pb-4">
-      {renderColumn('Planificadas', plannedAudits)}
-      {renderColumn('En Progreso', inProgressAudits)}
-      {renderColumn('Completadas', completedAudits)}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {COLUMNS.map(status => (
+        <div key={status} className="flex flex-col">
+          {/* Column Header */}
+          <div className="bg-gray-50 rounded-t-lg p-3 border-b-2 border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900">
+                {AUDIT_STATUS_LABELS[status]}
+              </h3>
+              <span className="bg-gray-200 text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
+                {auditsByStatus[status].length}
+              </span>
+            </div>
+          </div>
+
+          {/* Column Content */}
+          <div className="flex-1 bg-gray-50 rounded-b-lg p-3 space-y-3 min-h-[200px]">
+            {auditsByStatus[status].length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">
+                No hay auditorías
+              </p>
+            ) : (
+              auditsByStatus[status].map(audit => (
+                <AuditCard key={audit.id} audit={audit} />
+              ))
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

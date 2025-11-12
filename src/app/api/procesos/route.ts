@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProcessService } from '@/services/procesos/ProcessService';
-import { processDefinitionSchema, processDefinitionFiltersSchema } from '@/lib/validations/procesos';
+import {
+  processDefinitionSchema,
+  processDefinitionFiltersSchema,
+} from '@/lib/validations/procesos';
 import { ProcessDefinition } from '@/types/procesos';
 
 export async function GET(request: NextRequest) {
@@ -10,7 +13,8 @@ export async function GET(request: NextRequest) {
     // Parse filters
     const filters = processDefinitionFiltersSchema.parse({
       search: searchParams.get('search') || undefined,
-      estado: searchParams.get('estado') as 'activo' | 'inactivo' || undefined,
+      estado:
+        (searchParams.get('estado') as 'activo' | 'inactivo') || undefined,
       responsable: searchParams.get('responsable') || undefined,
     });
 
@@ -35,13 +39,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = processDefinitionSchema.parse(body);
 
-    const processData: Omit<ProcessDefinition, 'id' | 'createdAt' | 'updatedAt'> = {
+    const processData: Omit<
+      ProcessDefinition,
+      'id' | 'createdAt' | 'updatedAt'
+    > = {
       ...validatedData,
-      entradas: validatedData.entradas.map(e => typeof e === 'string' ? e : e.value),
-      salidas: validatedData.salidas.map(s => typeof s === 'string' ? s : s.value),
-      controles: validatedData.controles.map(c => typeof c === 'string' ? c : c.value),
-      indicadores: validatedData.indicadores.map(i => typeof i === 'string' ? i : i.value),
-      documentos: validatedData.documentos.map(d => typeof d === 'string' ? d : d.value),
+      entradas: validatedData.entradas.map(e =>
+        typeof e === 'string' ? e : e.value
+      ),
+      salidas: validatedData.salidas.map(s =>
+        typeof s === 'string' ? s : s.value
+      ),
+      controles: validatedData.controles.map(c =>
+        typeof c === 'string' ? c : c.value
+      ),
+      indicadores: validatedData.indicadores.map(i =>
+        typeof i === 'string' ? i : i.value
+      ),
+      documentos: validatedData.documentos.map(d =>
+        typeof d === 'string' ? d : d.value
+      ),
     };
 
     const process = await ProcessService.create(processData);
@@ -50,7 +67,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in procesos POST:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }

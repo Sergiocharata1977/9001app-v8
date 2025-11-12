@@ -39,32 +39,32 @@ export function FindingCard({ finding }: FindingCardProps) {
 
   return (
     <Link href={`/hallazgos/${finding.id}`}>
-      <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6 border border-gray-200 cursor-pointer">
+      <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 border border-gray-200 cursor-pointer">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-mono text-gray-500">
+              <span className="text-xs font-mono text-gray-500">
                 {finding.findingNumber}
               </span>
               {requiresAction && (
-                <span className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                <span className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
                   <AlertCircle className="w-3 h-3" />
                   Requiere Acción
                 </span>
               )}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">
               {finding.registration?.name || 'Sin nombre'}
             </h3>
-            <p className="text-sm text-gray-600 line-clamp-2">
+            <p className="text-xs text-gray-600 line-clamp-2">
               {finding.registration?.description || 'Sin descripción'}
             </p>
           </div>
         </div>
 
-        {/* Badges */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* Badge de Estado */}
+        <div className="mb-3">
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${FINDING_STATUS_COLORS[finding.status]}`}
           >
@@ -72,8 +72,8 @@ export function FindingCard({ finding }: FindingCardProps) {
           </span>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-4">
+        {/* Barra de Progreso */}
+        <div className="mb-3">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs text-gray-600">Progreso</span>
             <span className="text-xs font-semibold text-gray-900">
@@ -88,32 +88,33 @@ export function FindingCard({ finding }: FindingCardProps) {
           </div>
         </div>
 
-        {/* Info */}
-        <div className="space-y-2 text-sm">
-          {finding.registration?.origin && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <FileText className="w-4 h-4" />
-              <span>{finding.registration.origin}</span>
+        {/* Info en Grid de 2 columnas */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {/* Columna 1 */}
+          <div className="space-y-2">
+            {finding.registration?.origin && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <FileText className="w-3 h-3 shrink-0" />
+                <span className="truncate">{finding.registration.origin}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1 text-gray-600">
+              <Calendar className="w-3 h-3 shrink-0" />
+              <span className="truncate">{formatDate(createdDate)}</span>
             </div>
-          )}
-          {finding.immediateActionPlanning?.responsiblePersonName && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-4 h-4" />
-              <span>
-                {finding.immediateActionPlanning.responsiblePersonName}
-              </span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 text-gray-600">
-            <Calendar className="w-4 h-4" />
-            <span>Creado: {formatDate(createdDate)}</span>
           </div>
-          {finding.registration?.processName && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <span className="font-medium">Proceso:</span>
-              <span>{finding.registration.processName}</span>
-            </div>
-          )}
+
+          {/* Columna 2 */}
+          <div className="space-y-2">
+            {finding.immediateActionPlanning?.responsiblePersonName && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <User className="w-3 h-3 shrink-0" />
+                <span className="truncate">
+                  {finding.immediateActionPlanning.responsiblePersonName}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Link>

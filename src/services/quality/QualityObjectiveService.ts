@@ -105,7 +105,9 @@ export class QualityObjectiveService {
     }
   }
 
-  static async create(data: QualityObjectiveFormData): Promise<QualityObjective> {
+  static async create(
+    data: QualityObjectiveFormData
+  ): Promise<QualityObjective> {
     try {
       const now = Timestamp.now();
       const docData = {
@@ -136,7 +138,10 @@ export class QualityObjectiveService {
     }
   }
 
-  static async update(id: string, data: Partial<QualityObjectiveFormData>): Promise<QualityObjective> {
+  static async update(
+    id: string,
+    data: Partial<QualityObjectiveFormData>
+  ): Promise<QualityObjective> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
@@ -149,7 +154,9 @@ export class QualityObjectiveService {
 
       const updated = await this.getById(id);
       if (!updated) {
-        throw new Error('Objetivo de calidad no encontrado después de actualizar');
+        throw new Error(
+          'Objetivo de calidad no encontrado después de actualizar'
+        );
       }
 
       return updated;
@@ -189,7 +196,8 @@ export class QualityObjectiveService {
         return currentValue >= targetValue ? 100 : 0;
       }
 
-      const progress = ((currentValue - baselineValue) / (targetValue - baselineValue)) * 100;
+      const progress =
+        ((currentValue - baselineValue) / (targetValue - baselineValue)) * 100;
       return Math.min(Math.max(progress, 0), 100);
     } catch (error) {
       console.error('Error calculating progress:', error);
@@ -200,7 +208,8 @@ export class QualityObjectiveService {
   static async updateProgress(id: string): Promise<QualityObjective> {
     try {
       const progress = await this.calculateProgress(id);
-      const status = progress >= 100 ? 'completado' as const : 'activo' as const;
+      const status =
+        progress >= 100 ? ('completado' as const) : ('activo' as const);
 
       const updateData: any = {
         progress_percentage: progress,

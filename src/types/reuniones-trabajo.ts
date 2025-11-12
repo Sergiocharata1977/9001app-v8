@@ -1,7 +1,12 @@
 export interface ReunionTrabajo {
   id: string;
   organization_id: string;
-  tipo: 'management_review' | 'proceso' | 'departamental' | 'general' | 'auditoria';
+  tipo:
+    | 'management_review'
+    | 'proceso'
+    | 'departamental'
+    | 'general'
+    | 'auditoria';
   titulo: string;
   fecha: string; // Fecha y hora de la reunión
   duracion_minutos?: number;
@@ -83,9 +88,22 @@ export interface UpdateReunionData extends Partial<CreateReunionData> {
   estado?: string;
 }
 
-export type ReunionTipo = 'management_review' | 'proceso' | 'departamental' | 'general' | 'auditoria';
+export type ReunionTipo =
+  | 'management_review'
+  | 'proceso'
+  | 'departamental'
+  | 'general'
+  | 'auditoria';
 export type ReunionModalidad = 'presencial' | 'virtual' | 'hibrida';
-export type ReunionEstado = 'planificada' | 'realizada' | 'cancelada' | 'aplazada';
+export type ReunionEstado =
+  | 'planificada'
+  | 'realizada'
+  | 'cancelada'
+  | 'aplazada';
 export type ParticipanteRol = 'asistente' | 'invitado' | 'observador';
 export type AgendaEstado = 'planificado' | 'tratado' | 'aplazado';
-export type AcuerdoEstado = 'pendiente' | 'en_proceso' | 'cumplido' | 'cancelado';
+export type AcuerdoEstado =
+  | 'pendiente'
+  | 'en_proceso'
+  | 'cumplido'
+  | 'cancelado';

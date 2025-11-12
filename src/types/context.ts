@@ -14,8 +14,8 @@ export interface UserContext {
   objetivos: QualityObjective[];
   indicadores: QualityIndicator[];
   supervisor?: Personnel;
-  processRecords?: ProcessRecord[];  // Trello-like records
-  
+  processRecords?: ProcessRecord[]; // Trello-like records
+
   // FUTURE (when specific registros are implemented):
   // auditorias?: {
   //   pendientes: Auditoria[];

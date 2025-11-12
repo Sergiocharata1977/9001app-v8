@@ -17,7 +17,7 @@ export const useKanbanDrag = ({
   columnId,
   item,
   onDragStart,
-  onDragEnd
+  onDragEnd,
 }: UseKanbanDragProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export const useKanbanDrag = ({
           itemId,
           columnId,
           item,
-          type: 'kanban-item'
+          type: 'kanban-item',
         }),
         onGenerateDragPreview: ({ nativeSetDragImage }) => {
           setCustomNativeDragPreview({
@@ -60,7 +60,8 @@ export const useKanbanDrag = ({
 // Función auxiliar para crear el preview del drag
 const createDragPreview = (item: KanbanItem): HTMLElement => {
   const preview = document.createElement('div');
-  preview.className = 'bg-white border border-gray-300 rounded-lg p-3 shadow-lg max-w-xs';
+  preview.className =
+    'bg-white border border-gray-300 rounded-lg p-3 shadow-lg max-w-xs';
   preview.innerHTML = `
     <div class="font-medium text-sm text-gray-900 truncate">
       ${item.title}
@@ -73,11 +74,15 @@ const createDragPreview = (item: KanbanItem): HTMLElement => {
 
 const getPriorityColor = (priority: string): string => {
   switch (priority) {
-    case 'critical': return 'bg-red-100 text-red-800';
-    case 'high': return 'bg-orange-100 text-orange-800';
-    case 'medium': return 'bg-yellow-100 text-yellow-800';
-    case 'low': return 'bg-green-100 text-green-800';
-    default: return 'bg-gray-100 text-gray-800';
+    case 'critical':
+      return 'bg-red-100 text-red-800';
+    case 'high':
+      return 'bg-orange-100 text-orange-800';
+    case 'medium':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'low':
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 };
-

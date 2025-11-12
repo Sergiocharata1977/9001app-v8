@@ -1,19 +1,23 @@
 // Service for Knowledge Base management
 
 import { db } from '@/lib/firebase';
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  query,
+  where,
   orderBy,
-  serverTimestamp 
+  serverTimestamp,
 } from 'firebase/firestore';
-import { KnowledgeArticle, KnowledgeFilters, ImplementationPhase } from '@/types/knowledge';
+import {
+  KnowledgeArticle,
+  KnowledgeFilters,
+  ImplementationPhase,
+} from '@/types/knowledge';
 
 const ARTICLES_COLLECTION = 'knowledge_articles';
 const PHASES_COLLECTION = 'implementation_phases';
@@ -22,7 +26,9 @@ export class KnowledgeBaseService {
   /**
    * Get all articles with optional filters
    */
-  static async getArticles(filters?: KnowledgeFilters): Promise<KnowledgeArticle[]> {
+  static async getArticles(
+    filters?: KnowledgeFilters
+  ): Promise<KnowledgeArticle[]> {
     try {
       let q = query(
         collection(db, ARTICLES_COLLECTION),
@@ -35,7 +41,10 @@ export class KnowledgeBaseService {
       }
 
       if (filters?.nivel_implementacion) {
-        q = query(q, where('nivel_implementacion', '==', filters.nivel_implementacion));
+        q = query(
+          q,
+          where('nivel_implementacion', '==', filters.nivel_implementacion)
+        );
       }
 
       if (filters?.clausula_iso) {
@@ -43,10 +52,13 @@ export class KnowledgeBaseService {
       }
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as KnowledgeArticle));
+      return snapshot.docs.map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as KnowledgeArticle
+      );
     } catch (error) {
       console.error('[KnowledgeBaseService] Error getting articles:', error);
       return [];
@@ -60,14 +72,14 @@ export class KnowledgeBaseService {
     try {
       const docRef = doc(db, ARTICLES_COLLECTION, id);
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
         return {
           id: docSnap.id,
-          ...docSnap.data()
+          ...docSnap.data(),
         } as KnowledgeArticle;
       }
-      
+
       return null;
     } catch (error) {
       console.error('[KnowledgeBaseService] Error getting article:', error);
@@ -86,10 +98,13 @@ export class KnowledgeBaseService {
       );
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as ImplementationPhase));
+      return snapshot.docs.map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as ImplementationPhase
+      );
     } catch (error) {
       console.error('[KnowledgeBaseService] Error getting phases:', error);
       return [];
@@ -104,12 +119,13 @@ export class KnowledgeBaseService {
       // Firestore no tiene búsqueda full-text nativa
       // Esta es una implementación básica
       const articles = await this.getArticles();
-      
+
       const searchLower = searchText.toLowerCase();
-      return articles.filter(article => 
-        article.titulo.toLowerCase().includes(searchLower) ||
-        article.contenido.toLowerCase().includes(searchLower) ||
-        article.tags.some(tag => tag.toLowerCase().includes(searchLower))
+      return articles.filter(
+        article =>
+          article.titulo.toLowerCase().includes(searchLower) ||
+          article.contenido.toLowerCase().includes(searchLower) ||
+          article.tags.some(tag => tag.toLowerCase().includes(searchLower))
       );
     } catch (error) {
       console.error('[KnowledgeBaseService] Error searching articles:', error);
@@ -120,14 +136,16 @@ export class KnowledgeBaseService {
   /**
    * Create new article (admin only)
    */
-  static async createArticle(article: Omit<KnowledgeArticle, 'id' | 'created_at' | 'updated_at'>): Promise<string> {
+  static async createArticle(
+    article: Omit<KnowledgeArticle, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<string> {
     try {
       const docRef = await addDoc(collection(db, ARTICLES_COLLECTION), {
         ...article,
         created_at: serverTimestamp(),
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
-      
+
       return docRef.id;
     } catch (error) {
       console.error('[KnowledgeBaseService] Error creating article:', error);
@@ -138,12 +156,15 @@ export class KnowledgeBaseService {
   /**
    * Update article (admin only)
    */
-  static async updateArticle(id: string, updates: Partial<KnowledgeArticle>): Promise<void> {
+  static async updateArticle(
+    id: string,
+    updates: Partial<KnowledgeArticle>
+  ): Promise<void> {
     try {
       const docRef = doc(db, ARTICLES_COLLECTION, id);
       await updateDoc(docRef, {
         ...updates,
-        updated_at: serverTimestamp()
+        updated_at: serverTimestamp(),
       });
     } catch (error) {
       console.error('[KnowledgeBaseService] Error updating article:', error);

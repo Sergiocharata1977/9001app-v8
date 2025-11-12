@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const filters = {
       status: (searchParams.get('status') as FindingStatus) || undefined,
       processId: searchParams.get('processId') || undefined,
+      sourceId: searchParams.get('sourceId') || undefined,
       year: searchParams.get('year')
         ? parseInt(searchParams.get('year')!)
         : undefined,

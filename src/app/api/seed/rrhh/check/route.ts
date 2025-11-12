@@ -26,8 +26,8 @@ export async function GET() {
           items: departments.map(dept => ({
             id: dept.id,
             name: dept.name,
-            is_active: dept.is_active
-          }))
+            is_active: dept.is_active,
+          })),
         },
         personnel: {
           count: personnel.length,
@@ -36,18 +36,18 @@ export async function GET() {
             nombres: person.nombres,
             apellidos: person.apellidos,
             email: person.email,
-            estado: person.estado
-          }))
+            estado: person.estado,
+          })),
         },
         positions: {
           count: positions.length,
           items: positions.map(pos => ({
             id: pos.id,
             nombre: pos.nombre,
-            departamento_id: pos.departamento_id
-          }))
-        }
-      }
+            departamento_id: pos.departamento_id,
+          })),
+        },
+      },
     });
   } catch (error) {
     console.error('❌ Error al verificar datos:', error);
@@ -55,29 +55,9 @@ export async function GET() {
       {
         success: false,
         error: 'Error al verificar datos',
-        details: error instanceof Error ? error.message : 'Error desconocido'
+        details: error instanceof Error ? error.message : 'Error desconocido',
       },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

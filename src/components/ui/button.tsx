@@ -2,21 +2,37 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  variant?:
+    | 'default'
+    | 'destructive'
+    | 'outline'
+    | 'secondary'
+    | 'ghost'
+    | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   asChild?: boolean;
 }
 
 const buttonVariantsObj = {
   default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-  destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-  outline: 'bg-background hover:bg-accent hover:text-accent-foreground shadow-sm',
+  destructive:
+    'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+  outline:
+    'bg-background hover:bg-accent hover:text-accent-foreground shadow-sm',
   secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   ghost: 'hover:bg-accent hover:text-accent-foreground',
   link: 'text-primary underline-offset-4 hover:underline',
 };
 
-export const buttonVariants = (props?: { variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' }) => {
+export const buttonVariants = (props?: {
+  variant?:
+    | 'default'
+    | 'destructive'
+    | 'outline'
+    | 'secondary'
+    | 'ghost'
+    | 'link';
+}) => {
   const variant = props?.variant || 'default';
   return buttonVariantsObj[variant];
 };
@@ -29,7 +45,16 @@ const buttonSizes = {
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'default', size = 'default', asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = 'default',
+      size = 'default',
+      asChild = false,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <button
         className={cn(
@@ -47,4 +72,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button };
-

@@ -1,10 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   Target,
   ChevronDown,
@@ -16,10 +26,14 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
-import { QualityObjective, QualityIndicator, Measurement } from '@/types/quality';
+import {
+  QualityObjective,
+  QualityIndicator,
+  Measurement,
+} from '@/types/quality';
 import { QualityObjectiveService } from '@/services/quality/QualityObjectiveService';
 import { QualityIndicatorService } from '@/services/quality/QualityIndicatorService';
 import { MeasurementService } from '@/services/quality/MeasurementService';
@@ -31,7 +45,7 @@ interface ProcessQualityObjectivesProps {
 
 export function ProcessQualityObjectives({
   processId,
-  onNavigateToQuality
+  onNavigateToQuality,
 }: ProcessQualityObjectivesProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [objectives, setObjectives] = useState<QualityObjective[]>([]);
@@ -50,14 +64,16 @@ export function ProcessQualityObjectives({
       setLoading(true);
 
       // Fetch objectives for this process
-      const processObjectives = await QualityObjectiveService.getByProcess(processId);
+      const processObjectives =
+        await QualityObjectiveService.getByProcess(processId);
       setObjectives(processObjectives);
 
       // Get all indicators for these objectives
       const objectiveIds = processObjectives.map(obj => obj.id);
       const allIndicators: QualityIndicator[] = [];
       for (const objId of objectiveIds) {
-        const objIndicators = await QualityIndicatorService.getByObjective(objId);
+        const objIndicators =
+          await QualityIndicatorService.getByObjective(objId);
         allIndicators.push(...objIndicators);
       }
       setIndicators(allIndicators);
@@ -70,7 +86,6 @@ export function ProcessQualityObjectives({
         recentMeasurements.push(...indMeasurements.slice(0, 3)); // Last 3 measurements per indicator
       }
       setMeasurements(recentMeasurements);
-
     } catch (error) {
       console.error('Error fetching process quality data:', error);
     } finally {
@@ -80,29 +95,42 @@ export function ProcessQualityObjectives({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'activo': return 'bg-blue-100 text-blue-800';
-      case 'completado': return 'bg-green-100 text-green-800';
-      case 'atrasado': return 'bg-red-100 text-red-800';
-      case 'cancelado': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'activo':
+        return 'bg-blue-100 text-blue-800';
+      case 'completado':
+        return 'bg-green-100 text-green-800';
+      case 'atrasado':
+        return 'bg-red-100 text-red-800';
+      case 'cancelado':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'activo': return 'Activo';
-      case 'completado': return 'Completado';
-      case 'atrasado': return 'Atrasado';
-      case 'cancelado': return 'Cancelado';
-      default: return status;
+      case 'activo':
+        return 'Activo';
+      case 'completado':
+        return 'Completado';
+      case 'atrasado':
+        return 'Atrasado';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return status;
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'ascendente': return <TrendingUp className="h-4 w-4 text-green-600" />;
-      case 'descendente': return <TrendingDown className="h-4 w-4 text-red-600" />;
-      default: return <Minus className="h-4 w-4 text-gray-600" />;
+      case 'ascendente':
+        return <TrendingUp className="h-4 w-4 text-green-600" />;
+      case 'descendente':
+        return <TrendingDown className="h-4 w-4 text-red-600" />;
+      default:
+        return <Minus className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -116,7 +144,9 @@ export function ProcessQualityObjectives({
 
   const calculateProcessCompliance = () => {
     if (objectives.length === 0) return 0;
-    const completedObjectives = objectives.filter(obj => obj.status === 'completado').length;
+    const completedObjectives = objectives.filter(
+      obj => obj.status === 'completado'
+    ).length;
     return Math.round((completedObjectives / objectives.length) * 100);
   };
 
@@ -124,11 +154,13 @@ export function ProcessQualityObjectives({
     return objectives.filter(obj => {
       const dueDate = new Date(obj.due_date);
       const now = new Date();
-      const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const daysUntilDue = Math.ceil(
+        (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
-      return obj.status === 'activo' && (
-        obj.progress_percentage < obj.alert_threshold ||
-        daysUntilDue < 30 // Less than 30 days until due
+      return (
+        obj.status === 'activo' &&
+        (obj.progress_percentage < obj.alert_threshold || daysUntilDue < 30) // Less than 30 days until due
       );
     });
   };
@@ -137,7 +169,9 @@ export function ProcessQualityObjectives({
     return (
       <div className="border-t border-gray-200 p-4">
         <div className="flex items-center justify-center h-32">
-          <div className="text-sm text-gray-500">Cargando objetivos de calidad...</div>
+          <div className="text-sm text-gray-500">
+            Cargando objetivos de calidad...
+          </div>
         </div>
       </div>
     );
@@ -189,7 +223,12 @@ export function ProcessQualityObjectives({
               <div className="flex space-x-2">
                 <Button
                   size="sm"
-                  onClick={() => window.open(`/dashboard/quality/objetivos?process_definition_id=${processId}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `/dashboard/quality/objetivos?process_definition_id=${processId}`,
+                      '_blank'
+                    )
+                  }
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo Objetivo
@@ -217,7 +256,12 @@ export function ProcessQualityObjectives({
                     Comienza creando objetivos SMART para este proceso
                   </p>
                   <Button
-                    onClick={() => window.open(`/dashboard/quality/objetivos?process_definition_id=${processId}`, '_blank')}
+                    onClick={() =>
+                      window.open(
+                        `/dashboard/quality/objetivos?process_definition_id=${processId}`,
+                        '_blank'
+                      )
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Crear Primer Objetivo
@@ -226,18 +270,25 @@ export function ProcessQualityObjectives({
               </Card>
             ) : (
               <div className="space-y-4">
-                {objectives.map((objective) => {
+                {objectives.map(objective => {
                   const objIndicators = getObjectiveIndicators(objective.id);
                   const isAtRisk = getObjectivesAtRisk().includes(objective);
 
                   return (
-                    <Card key={objective.id} className={`border-l-4 ${isAtRisk ? 'border-l-red-500' : 'border-l-blue-500'}`}>
+                    <Card
+                      key={objective.id}
+                      className={`border-l-4 ${isAtRisk ? 'border-l-red-500' : 'border-l-blue-500'}`}
+                    >
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="font-medium text-gray-900">{objective.code}</h4>
-                              <Badge className={getStatusColor(objective.status)}>
+                              <h4 className="font-medium text-gray-900">
+                                {objective.code}
+                              </h4>
+                              <Badge
+                                className={getStatusColor(objective.status)}
+                              >
                                 {getStatusText(objective.status)}
                               </Badge>
                               {isAtRisk && (
@@ -247,25 +298,25 @@ export function ProcessQualityObjectives({
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{objective.title}</p>
-                            <p className="text-xs text-gray-500 mb-3">{objective.description}</p>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {objective.title}
+                            </p>
+                            <p className="text-xs text-gray-500 mb-3">
+                              {objective.description}
+                            </p>
                           </div>
                           <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              asChild
-                            >
-                              <Link href={`/dashboard/quality/objetivos/${objective.id}`}>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link
+                                href={`/dashboard/quality/objetivos/${objective.id}`}
+                              >
                                 <Eye className="h-4 w-4" />
                               </Link>
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              asChild
-                            >
-                              <Link href={`/dashboard/quality/objetivos/${objective.id}/edit`}>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link
+                                href={`/dashboard/quality/objetivos/${objective.id}/edit`}
+                              >
                                 <Edit className="h-4 w-4" />
                               </Link>
                             </Button>
@@ -281,7 +332,9 @@ export function ProcessQualityObjectives({
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
                               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${objective.progress_percentage}%` }}
+                              style={{
+                                width: `${objective.progress_percentage}%`,
+                              }}
                             ></div>
                           </div>
                         </div>
@@ -290,15 +343,23 @@ export function ProcessQualityObjectives({
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500 mb-3">
                           <div>
                             <span className="font-medium">Meta:</span>
-                            <div>{objective.target_value} {objective.unit}</div>
+                            <div>
+                              {objective.target_value} {objective.unit}
+                            </div>
                           </div>
                           <div>
                             <span className="font-medium">Actual:</span>
-                            <div>{objective.current_value} {objective.unit}</div>
+                            <div>
+                              {objective.current_value} {objective.unit}
+                            </div>
                           </div>
                           <div>
                             <span className="font-medium">Vence:</span>
-                            <div>{new Date(objective.due_date).toLocaleDateString()}</div>
+                            <div>
+                              {new Date(
+                                objective.due_date
+                              ).toLocaleDateString()}
+                            </div>
                           </div>
                           <div>
                             <span className="font-medium">Tipo:</span>
@@ -319,31 +380,48 @@ export function ProcessQualityObjectives({
                                 className="p-0 h-auto"
                                 asChild
                               >
-                                <Link href={`/dashboard/quality/indicadores?objective_id=${objective.id}`}>
+                                <Link
+                                  href={`/dashboard/quality/indicadores?objective_id=${objective.id}`}
+                                >
                                   Ver todos
                                 </Link>
                               </Button>
                             </div>
                             <div className="space-y-2">
-                              {objIndicators.slice(0, 2).map((indicator) => {
-                                const recentMeasurements = getIndicatorMeasurements(indicator.id);
+                              {objIndicators.slice(0, 2).map(indicator => {
+                                const recentMeasurements =
+                                  getIndicatorMeasurements(indicator.id);
                                 const latestMeasurement = recentMeasurements[0];
 
                                 return (
-                                  <div key={indicator.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                  <div
+                                    key={indicator.id}
+                                    className="flex items-center justify-between bg-gray-50 p-2 rounded"
+                                  >
                                     <div className="flex-1">
                                       <div className="flex items-center space-x-2">
-                                        <span className="text-sm font-medium">{indicator.code}</span>
+                                        <span className="text-sm font-medium">
+                                          {indicator.code}
+                                        </span>
                                         {getTrendIcon(indicator.trend)}
                                       </div>
-                                      <div className="text-xs text-gray-600">{indicator.name}</div>
+                                      <div className="text-xs text-gray-600">
+                                        {indicator.name}
+                                      </div>
                                     </div>
                                     <div className="text-right">
                                       <div className="text-sm font-medium">
-                                        {latestMeasurement?.value || indicator.current_value || 0} {indicator.unit}
+                                        {latestMeasurement?.value ||
+                                          indicator.current_value ||
+                                          0}{' '}
+                                        {indicator.unit}
                                       </div>
                                       <div className="text-xs text-gray-500">
-                                        {latestMeasurement ? new Date(latestMeasurement.measurement_date).toLocaleDateString() : 'Sin mediciones'}
+                                        {latestMeasurement
+                                          ? new Date(
+                                              latestMeasurement.measurement_date
+                                            ).toLocaleDateString()
+                                          : 'Sin mediciones'}
                                       </div>
                                     </div>
                                   </div>

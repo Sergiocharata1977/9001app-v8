@@ -18,7 +18,12 @@ interface PositionFormProps {
   isLoading?: boolean;
 }
 
-export function PositionForm({ initialData, onSubmit, onCancel, isLoading = false }: PositionFormProps) {
+export function PositionForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  isLoading = false,
+}: PositionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -55,7 +60,9 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Información Básica */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Información Básica</h3>
+            <h3 className="text-lg font-medium text-gray-900">
+              Información Básica
+            </h3>
             <div>
               <Label htmlFor="nombre">Nombre del Puesto</Label>
               <Input
@@ -64,19 +71,31 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
                 placeholder="Ej. Analista de Datos"
                 className={errors.nombre ? 'border-red-500' : ''}
               />
-              {errors.nombre && <p className="text-red-500 text-sm mt-1">{errors.nombre.message}</p>}
+              {errors.nombre && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.nombre.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="descripcion_responsabilidades">Descripción de Responsabilidades</Label>
+              <Label htmlFor="descripcion_responsabilidades">
+                Descripción de Responsabilidades
+              </Label>
               <Textarea
                 id="descripcion_responsabilidades"
                 {...register('descripcion_responsabilidades')}
                 placeholder="Describe las responsabilidades principales del puesto"
-                className={errors.descripcion_responsabilidades ? 'border-red-500' : ''}
+                className={
+                  errors.descripcion_responsabilidades ? 'border-red-500' : ''
+                }
                 rows={4}
               />
-              {errors.descripcion_responsabilidades && <p className="text-red-500 text-sm mt-1">{errors.descripcion_responsabilidades.message}</p>}
+              {errors.descripcion_responsabilidades && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.descripcion_responsabilidades.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -84,19 +103,29 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Requisitos</h3>
             <div>
-              <Label htmlFor="requisitos_experiencia">Requisitos de Experiencia</Label>
+              <Label htmlFor="requisitos_experiencia">
+                Requisitos de Experiencia
+              </Label>
               <Textarea
                 id="requisitos_experiencia"
                 {...register('requisitos_experiencia')}
                 placeholder="Ej. 3 años de experiencia en análisis de datos"
-                className={errors.requisitos_experiencia ? 'border-red-500' : ''}
+                className={
+                  errors.requisitos_experiencia ? 'border-red-500' : ''
+                }
                 rows={3}
               />
-              {errors.requisitos_experiencia && <p className="text-red-500 text-sm mt-1">{errors.requisitos_experiencia.message}</p>}
+              {errors.requisitos_experiencia && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.requisitos_experiencia.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="requisitos_formacion">Requisitos de Formación</Label>
+              <Label htmlFor="requisitos_formacion">
+                Requisitos de Formación
+              </Label>
               <Textarea
                 id="requisitos_formacion"
                 {...register('requisitos_formacion')}
@@ -104,7 +133,11 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
                 className={errors.requisitos_formacion ? 'border-red-500' : ''}
                 rows={3}
               />
-              {errors.requisitos_formacion && <p className="text-red-500 text-sm mt-1">{errors.requisitos_formacion.message}</p>}
+              {errors.requisitos_formacion && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.requisitos_formacion.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -120,7 +153,11 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
                   placeholder="ID del departamento"
                   className={errors.departamento_id ? 'border-red-500' : ''}
                 />
-                {errors.departamento_id && <p className="text-red-500 text-sm mt-1">{errors.departamento_id.message}</p>}
+                {errors.departamento_id && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.departamento_id.message}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="reporta_a_id">Reporta a (ID)</Label>
@@ -130,14 +167,23 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
                   placeholder="ID del supervisor"
                   className={errors.reporta_a_id ? 'border-red-500' : ''}
                 />
-                {errors.reporta_a_id && <p className="text-red-500 text-sm mt-1">{errors.reporta_a_id.message}</p>}
+                {errors.reporta_a_id && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.reporta_a_id.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           {/* Botones */}
           <div className="flex justify-end space-x-2 pt-6">
-            <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading || isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isLoading || isSubmitting}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading || isSubmitting}>
@@ -149,4 +195,3 @@ export function PositionForm({ initialData, onSubmit, onCancel, isLoading = fals
     </Card>
   );
 }
-

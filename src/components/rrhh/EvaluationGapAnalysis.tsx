@@ -26,7 +26,9 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/rrhh/evaluaciones/gaps/${personnelId}`);
+      const response = await fetch(
+        `/api/rrhh/evaluaciones/gaps/${personnelId}`
+      );
 
       if (!response.ok) {
         throw new Error('Error al cargar análisis de brechas');
@@ -44,19 +46,27 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
 
   const getSeverityColor = (severidad: string) => {
     switch (severidad) {
-      case 'critica': return 'bg-red-500';
-      case 'media': return 'bg-yellow-500';
-      case 'baja': return 'bg-green-500';
-      default: return 'bg-gray-500';
+      case 'critica':
+        return 'bg-red-500';
+      case 'media':
+        return 'bg-yellow-500';
+      case 'baja':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getSeverityIcon = (severidad: string) => {
     switch (severidad) {
-      case 'critica': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'media': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'baja': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      default: return <CheckCircle className="h-4 w-4 text-gray-500" />;
+      case 'critica':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'media':
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'baja':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      default:
+        return <CheckCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -71,7 +81,8 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
 
     const totalBrechas = gaps.reduce((sum, gap) => sum + gap.brecha, 0);
     const maxPossibleBrechas = gaps.length * 5; // Máxima brecha posible por competencia
-    const progress = ((maxPossibleBrechas - totalBrechas) / maxPossibleBrechas) * 100;
+    const progress =
+      ((maxPossibleBrechas - totalBrechas) / maxPossibleBrechas) * 100;
 
     return Math.max(0, Math.min(100, progress));
   };
@@ -114,7 +125,8 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              ✅ El empleado cumple con todas las competencias requeridas para su puesto
+              ✅ El empleado cumple con todas las competencias requeridas para
+              su puesto
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -147,11 +159,15 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
         {/* Resumen de brechas */}
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center p-3 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">{criticalGaps}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {criticalGaps}
+            </div>
             <div className="text-sm text-red-700">Críticas</div>
           </div>
           <div className="text-center p-3 bg-yellow-50 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600">{mediumGaps}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {mediumGaps}
+            </div>
             <div className="text-sm text-yellow-700">Medias</div>
           </div>
           <div className="text-center p-3 bg-green-50 rounded-lg">
@@ -163,7 +179,7 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
         {/* Lista detallada de brechas */}
         <div className="space-y-4">
           <h3 className="font-medium">Detalle de Brechas</h3>
-          {gaps.map((gap) => (
+          {gaps.map(gap => (
             <div
               key={gap.competenciaId}
               className="border rounded-lg p-4 space-y-3"
@@ -202,7 +218,9 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
               <div className="space-y-1">
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>Progreso</span>
-                  <span>{gap.nivelActual}/{gap.nivelRequerido}</span>
+                  <span>
+                    {gap.nivelActual}/{gap.nivelRequerido}
+                  </span>
                 </div>
                 <Progress
                   value={(gap.nivelActual / gap.nivelRequerido) * 100}
@@ -215,7 +233,9 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
                 <div className="pt-2 border-t">
                   <div className="flex items-center gap-2 mb-2">
                     <BookOpen className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm font-medium">Capacitaciones sugeridas:</span>
+                    <span className="text-sm font-medium">
+                      Capacitaciones sugeridas:
+                    </span>
                   </div>
                   <Button size="sm" variant="outline">
                     Ver {gap.capacitacionesSugeridas.length} capacitación(es)
@@ -226,7 +246,8 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
               {/* Fecha de última evaluación */}
               {gap.fechaUltimaEvaluacion && (
                 <div className="text-xs text-gray-500 pt-2 border-t">
-                  Última evaluación: {gap.fechaUltimaEvaluacion.toLocaleDateString('es-ES')}
+                  Última evaluación:{' '}
+                  {gap.fechaUltimaEvaluacion.toLocaleDateString('es-ES')}
                 </div>
               )}
             </div>
@@ -241,8 +262,9 @@ export function EvaluationGapAnalysis({ personnelId }: Props) {
               <Alert>
                 <XCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Urgente:</strong> {criticalGaps} competencia(s) crítica(s) requieren atención inmediata.
-                  Se recomienda programar capacitación especializada.
+                  <strong>Urgente:</strong> {criticalGaps} competencia(s)
+                  crítica(s) requieren atención inmediata. Se recomienda
+                  programar capacitación especializada.
                 </AlertDescription>
               </Alert>
             )}

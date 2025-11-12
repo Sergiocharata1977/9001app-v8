@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProcessRecordService } from '@/services/procesos/ProcessRecordService';
-import { processRecordSchema, processRecordFiltersSchema } from '@/lib/validations/procesos';
+import {
+  processRecordSchema,
+  processRecordFiltersSchema,
+} from '@/lib/validations/procesos';
 
 export async function GET(
   request: NextRequest,
@@ -13,8 +16,14 @@ export async function GET(
     // Parse filters
     const filters = processRecordFiltersSchema.parse({
       search: searchParams.get('search') || undefined,
-      estado: searchParams.get('estado') as 'pendiente' | 'en-progreso' | 'completado' || undefined,
-      prioridad: searchParams.get('prioridad') as 'baja' | 'media' | 'alta' || undefined,
+      estado:
+        (searchParams.get('estado') as
+          | 'pendiente'
+          | 'en-progreso'
+          | 'completado') || undefined,
+      prioridad:
+        (searchParams.get('prioridad') as 'baja' | 'media' | 'alta') ||
+        undefined,
     });
 
     const records = await ProcessRecordService.getFiltered(
@@ -52,7 +61,12 @@ export async function POST(
   } catch (error) {
     console.error('Error in registros POST:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }

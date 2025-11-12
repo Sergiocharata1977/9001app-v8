@@ -7,7 +7,7 @@ export default function TestPage() {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <Sidebar />
-      
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation */}
@@ -16,7 +16,9 @@ export default function TestPage() {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <div className="flex-shrink-0 flex items-center">
-                  <span className="text-xl font-bold text-gray-900">Test Page</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    Test Page
+                  </span>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -29,11 +31,14 @@ export default function TestPage() {
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Página de Prueba</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-6">
+              Página de Prueba
+            </h1>
             <div className="bg-white rounded-lg shadow p-6">
               <p className="text-gray-600">
-                Esta es una página de prueba para verificar que el sidebar funciona correctamente.
-                Si puedes ver el menú lateral izquierdo, entonces el problema está en la autenticación.
+                Esta es una página de prueba para verificar que el sidebar
+                funciona correctamente. Si puedes ver el menú lateral izquierdo,
+                entonces el problema está en la autenticación.
               </p>
             </div>
           </div>

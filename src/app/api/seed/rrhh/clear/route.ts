@@ -57,7 +57,7 @@ export async function DELETE() {
         personnel: personnel.length,
         trainings: trainings.length,
         evaluations: evaluations.length,
-      }
+      },
     });
   } catch (error) {
     console.error('❌ Error al limpiar datos RRHH:', error);
@@ -65,29 +65,9 @@ export async function DELETE() {
       {
         success: false,
         error: 'Error al limpiar datos RRHH',
-        details: error instanceof Error ? error.message : 'Error desconocido'
+        details: error instanceof Error ? error.message : 'Error desconocido',
       },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

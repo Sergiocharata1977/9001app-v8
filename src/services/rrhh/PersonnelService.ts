@@ -10,10 +10,15 @@ import {
   where,
   orderBy,
   limit,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebase/config';
-import { Personnel, PersonnelFilters, PaginationParams, PaginatedResponse } from '@/types/rrhh';
+import {
+  Personnel,
+  PersonnelFilters,
+  PaginationParams,
+  PaginatedResponse,
+} from '@/types/rrhh';
 
 const COLLECTION_NAME = 'personnel';
 
@@ -69,7 +74,11 @@ export class PersonnelService {
       // Apply filters
       if (filters.search) {
         // Search in names and email
-        q = query(q, where('nombres', '>=', filters.search), where('nombres', '<=', filters.search + '\uf8ff'));
+        q = query(
+          q,
+          where('nombres', '>=', filters.search),
+          where('nombres', '<=', filters.search + '\uf8ff')
+        );
       }
 
       if (filters.estado) {
@@ -150,14 +159,22 @@ export class PersonnelService {
     }
   }
 
-  static async create(data: Omit<Personnel, 'id' | 'created_at' | 'updated_at'>): Promise<Personnel> {
+  static async create(
+    data: Omit<Personnel, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Personnel> {
     try {
       const now = Timestamp.now();
       const docData = {
         ...data,
-        fecha_nacimiento: data.fecha_nacimiento ? Timestamp.fromDate(data.fecha_nacimiento) : null,
-        fecha_contratacion: data.fecha_contratacion ? Timestamp.fromDate(data.fecha_contratacion) : null,
-        fecha_inicio_ventas: data.fecha_inicio_ventas ? Timestamp.fromDate(data.fecha_inicio_ventas) : null,
+        fecha_nacimiento: data.fecha_nacimiento
+          ? Timestamp.fromDate(data.fecha_nacimiento)
+          : null,
+        fecha_contratacion: data.fecha_contratacion
+          ? Timestamp.fromDate(data.fecha_contratacion)
+          : null,
+        fecha_inicio_ventas: data.fecha_inicio_ventas
+          ? Timestamp.fromDate(data.fecha_inicio_ventas)
+          : null,
         created_at: now,
         updated_at: now,
       };
@@ -176,14 +193,23 @@ export class PersonnelService {
     }
   }
 
-  static async update(id: string, data: Partial<Omit<Personnel, 'id' | 'created_at'>>): Promise<Personnel> {
+  static async update(
+    id: string,
+    data: Partial<Omit<Personnel, 'id' | 'created_at'>>
+  ): Promise<Personnel> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
         ...data,
-        fecha_nacimiento: data.fecha_nacimiento ? Timestamp.fromDate(data.fecha_nacimiento) : undefined,
-        fecha_contratacion: data.fecha_contratacion ? Timestamp.fromDate(data.fecha_contratacion) : undefined,
-        fecha_inicio_ventas: data.fecha_inicio_ventas ? Timestamp.fromDate(data.fecha_inicio_ventas) : undefined,
+        fecha_nacimiento: data.fecha_nacimiento
+          ? Timestamp.fromDate(data.fecha_nacimiento)
+          : undefined,
+        fecha_contratacion: data.fecha_contratacion
+          ? Timestamp.fromDate(data.fecha_contratacion)
+          : undefined,
+        fecha_inicio_ventas: data.fecha_inicio_ventas
+          ? Timestamp.fromDate(data.fecha_inicio_ventas)
+          : undefined,
         updated_at: Timestamp.now(),
       };
 
@@ -235,7 +261,10 @@ export class PersonnelService {
 
   static async getBySupervisor(supervisorId: string): Promise<Personnel[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), where('supervisor_id', '==', supervisorId));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('supervisor_id', '==', supervisorId)
+      );
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -254,7 +283,10 @@ export class PersonnelService {
 
   static async getActive(): Promise<Personnel[]> {
     try {
-      const q = query(collection(db, COLLECTION_NAME), where('estado', '==', 'Activo'));
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('estado', '==', 'Activo')
+      );
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -280,12 +312,15 @@ export class PersonnelService {
    * @param personnelId Personnel ID
    * @param processIds Array of process definition IDs
    */
-  static async assignProcesses(personnelId: string, processIds: string[]): Promise<void> {
+  static async assignProcesses(
+    personnelId: string,
+    processIds: string[]
+  ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, personnelId);
       await updateDoc(docRef, {
         procesos_asignados: processIds,
-        updated_at: Timestamp.now()
+        updated_at: Timestamp.now(),
       });
     } catch (error) {
       console.error('Error assigning processes:', error);
@@ -298,12 +333,15 @@ export class PersonnelService {
    * @param personnelId Personnel ID
    * @param objectiveIds Array of quality objective IDs
    */
-  static async assignObjectives(personnelId: string, objectiveIds: string[]): Promise<void> {
+  static async assignObjectives(
+    personnelId: string,
+    objectiveIds: string[]
+  ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, personnelId);
       await updateDoc(docRef, {
         objetivos_asignados: objectiveIds,
-        updated_at: Timestamp.now()
+        updated_at: Timestamp.now(),
       });
     } catch (error) {
       console.error('Error assigning objectives:', error);
@@ -316,12 +354,15 @@ export class PersonnelService {
    * @param personnelId Personnel ID
    * @param indicatorIds Array of quality indicator IDs
    */
-  static async assignIndicators(personnelId: string, indicatorIds: string[]): Promise<void> {
+  static async assignIndicators(
+    personnelId: string,
+    indicatorIds: string[]
+  ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, personnelId);
       await updateDoc(docRef, {
         indicadores_asignados: indicatorIds,
-        updated_at: Timestamp.now()
+        updated_at: Timestamp.now(),
       });
     } catch (error) {
       console.error('Error assigning indicators:', error);
@@ -334,7 +375,9 @@ export class PersonnelService {
    * @param personnelId Personnel ID
    * @returns Personnel with assignment details
    */
-  static async getWithAssignments(personnelId: string): Promise<Personnel | null> {
+  static async getWithAssignments(
+    personnelId: string
+  ): Promise<Personnel | null> {
     try {
       // For now, just return the personnel record
       // The UserContextService will handle fetching related data
@@ -358,11 +401,11 @@ export class PersonnelService {
       const fieldMap = {
         proceso: 'procesos_asignados',
         objetivo: 'objetivos_asignados',
-        indicador: 'indicadores_asignados'
+        indicador: 'indicadores_asignados',
       };
 
       const field = fieldMap[type];
-      
+
       // Get all personnel with this assignment
       const q = query(
         collection(db, COLLECTION_NAME),
@@ -371,14 +414,14 @@ export class PersonnelService {
       const querySnapshot = await getDocs(q);
 
       // Remove the ID from each personnel's array
-      const updates = querySnapshot.docs.map(async (docSnapshot) => {
+      const updates = querySnapshot.docs.map(async docSnapshot => {
         const data = docSnapshot.data();
         const currentArray = data[field] || [];
         const newArray = currentArray.filter((item: string) => item !== id);
 
         await updateDoc(docSnapshot.ref, {
           [field]: newArray,
-          updated_at: Timestamp.now()
+          updated_at: Timestamp.now(),
         });
       });
 
@@ -428,14 +471,18 @@ export class PersonnelService {
       if (copyAssignments) {
         const positionData = positionSnap.data();
         updateData.procesos_asignados = positionData?.procesos_asignados || [];
-        updateData.objetivos_asignados = positionData?.objetivos_asignados || [];
-        updateData.indicadores_asignados = positionData?.indicadores_asignados || [];
+        updateData.objetivos_asignados =
+          positionData?.objetivos_asignados || [];
+        updateData.indicadores_asignados =
+          positionData?.indicadores_asignados || [];
       }
 
       await updateDoc(docRef, updateData);
     } catch (error) {
       console.error('Error assigning position:', error);
-      throw error instanceof Error ? error : new Error('Error al asignar puesto');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al asignar puesto');
     }
   }
 
@@ -478,14 +525,18 @@ export class PersonnelService {
       if (replaceAssignments) {
         const positionData = positionSnap.data();
         updateData.procesos_asignados = positionData?.procesos_asignados || [];
-        updateData.objetivos_asignados = positionData?.objetivos_asignados || [];
-        updateData.indicadores_asignados = positionData?.indicadores_asignados || [];
+        updateData.objetivos_asignados =
+          positionData?.objetivos_asignados || [];
+        updateData.indicadores_asignados =
+          positionData?.indicadores_asignados || [];
       }
 
       await updateDoc(docRef, updateData);
     } catch (error) {
       console.error('Error changing position:', error);
-      throw error instanceof Error ? error : new Error('Error al cambiar puesto');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al cambiar puesto');
     }
   }
 
@@ -531,7 +582,9 @@ export class PersonnelService {
       await updateDoc(docRef, updateData);
     } catch (error) {
       console.error('Error updating personnel assignments:', error);
-      throw error instanceof Error ? error : new Error('Error al actualizar asignaciones');
+      throw error instanceof Error
+        ? error
+        : new Error('Error al actualizar asignaciones');
     }
   }
 }

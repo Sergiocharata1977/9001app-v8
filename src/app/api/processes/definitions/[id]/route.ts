@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const docRef = doc(db, 'processDefinitions', id);
     const docSnap = await getDoc(docRef);
 
@@ -24,8 +24,8 @@ export async function GET(
       success: true,
       data: {
         id: docSnap.id,
-        ...docSnap.data()
-      }
+        ...docSnap.data(),
+      },
     });
   } catch (error) {
     console.error('Error fetching process definition:', error);
@@ -44,10 +44,10 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     const updateData = {
       ...body,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     const docRef = doc(db, 'processDefinitions', id);
@@ -55,7 +55,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      message: 'Definición de proceso actualizada exitosamente'
+      message: 'Definición de proceso actualizada exitosamente',
     });
   } catch (error) {
     console.error('Error updating process definition:', error);
@@ -73,13 +73,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    
+
     const docRef = doc(db, 'processDefinitions', id);
     await deleteDoc(docRef);
 
     return NextResponse.json({
       success: true,
-      message: 'Definición de proceso eliminada exitosamente'
+      message: 'Definición de proceso eliminada exitosamente',
     });
   } catch (error) {
     console.error('Error deleting process definition:', error);

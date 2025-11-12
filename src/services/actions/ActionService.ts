@@ -32,7 +32,7 @@ export class ActionService {
   // ============================================
 
   static async create(
-    data: ActionFormData,
+    data: ActionFormData & { findingId?: string; findingNumber?: string },
     userId: string,
     userName: string
   ): Promise<string> {
@@ -55,8 +55,8 @@ export class ActionService {
         priority: data.priority,
 
         sourceType: data.sourceType,
-        findingId: null,
-        findingNumber: null,
+        findingId: data.findingId || null,
+        findingNumber: data.findingNumber || null,
         sourceName: data.sourceName,
 
         processId: data.processId,

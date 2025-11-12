@@ -16,6 +16,8 @@ export const FindingFormSchema = z.object({
     .max(2000, 'La descripción no puede exceder 2000 caracteres'),
   processId: z.string().min(1, 'El proceso es requerido'),
   processName: z.string().min(1, 'El nombre del proceso es requerido'),
+  source: z.enum(['audit', 'inspection', 'complaint', 'other']).optional(),
+  sourceId: z.string().optional(),
 });
 
 // ============================================

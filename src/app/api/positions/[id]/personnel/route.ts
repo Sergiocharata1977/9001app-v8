@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
     const personnel = await PositionService.getPersonnelInPosition(id);
-    
+
     return NextResponse.json(personnel);
   } catch (error) {
     console.error('Error getting personnel in position:', error);

@@ -125,11 +125,7 @@ export function NormPointFormDialog({
           <h2 className="text-xl font-semibold">
             {normPoint ? 'Editar Punto de Norma' : 'Nuevo Punto de Norma'}
           </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -140,9 +136,7 @@ export function NormPointFormDialog({
             <Input
               id="code"
               value={formData.code}
-              onChange={(e) =>
-                setFormData({ ...formData, code: e.target.value })
-              }
+              onChange={e => setFormData({ ...formData, code: e.target.value })}
               placeholder="4.1"
               required
             />
@@ -153,7 +147,7 @@ export function NormPointFormDialog({
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) =>
+              onChange={e =>
                 setFormData({ ...formData, title: e.target.value })
               }
               required
@@ -165,7 +159,7 @@ export function NormPointFormDialog({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) =>
+              onChange={e =>
                 setFormData({ ...formData, description: e.target.value })
               }
               rows={3}
@@ -178,7 +172,7 @@ export function NormPointFormDialog({
             <Textarea
               id="requirement"
               value={formData.requirement}
-              onChange={(e) =>
+              onChange={e =>
                 setFormData({ ...formData, requirement: e.target.value })
               }
               rows={3}
@@ -191,7 +185,7 @@ export function NormPointFormDialog({
               <Label htmlFor="tipo_norma">Tipo de Norma *</Label>
               <Select
                 value={formData.tipo_norma}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setFormData({ ...formData, tipo_norma: value as NormType })
                 }
               >
@@ -213,7 +207,7 @@ export function NormPointFormDialog({
                 <Label htmlFor="chapter">Capítulo</Label>
                 <Select
                   value={formData.chapter?.toString() || ''}
-                  onValueChange={(value) =>
+                  onValueChange={value =>
                     setFormData({ ...formData, chapter: parseInt(value) })
                   }
                 >
@@ -239,8 +233,11 @@ export function NormPointFormDialog({
               <Label htmlFor="priority">Prioridad *</Label>
               <Select
                 value={formData.priority}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, priority: value as typeof formData.priority })
+                onValueChange={value =>
+                  setFormData({
+                    ...formData,
+                    priority: value as typeof formData.priority,
+                  })
                 }
               >
                 <SelectTrigger>
@@ -258,7 +255,7 @@ export function NormPointFormDialog({
               <Checkbox
                 id="is_mandatory"
                 checked={formData.is_mandatory}
-                onCheckedChange={(checked) =>
+                onCheckedChange={checked =>
                   setFormData({ ...formData, is_mandatory: checked as boolean })
                 }
               />

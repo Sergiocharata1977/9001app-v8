@@ -2,12 +2,12 @@ import { competenceService } from '@/services/rrhh/CompetenceService';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
-   request: NextRequest,
-   { params }: { params: Promise<{ id: string }> }
- ) {
-   try {
-     const { id } = await params;
-     const competence = await competenceService.getById(id);
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const competence = await competenceService.getById(id);
 
     if (!competence) {
       return NextResponse.json(
@@ -27,13 +27,13 @@ export async function GET(
 }
 
 export async function PUT(
-   request: NextRequest,
-   { params }: { params: Promise<{ id: string }> }
- ) {
-   try {
-     const { id } = await params;
-     const body = await request.json();
-     await competenceService.update(id, body);
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    await competenceService.update(id, body);
 
     const updated = await competenceService.getById(id);
     return NextResponse.json(updated);
@@ -47,25 +47,25 @@ export async function PUT(
 }
 
 export async function DELETE(
-   request: NextRequest,
-   { params }: { params: Promise<{ id: string }> }
- ) {
-   try {
-     const { id } = await params;
-     // Validar que se puede eliminar
-     const canDelete = await competenceService.validateCanDelete(id);
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    // Validar que se puede eliminar
+    const canDelete = await competenceService.validateCanDelete(id);
 
-     if (!canDelete) {
-       return NextResponse.json(
-         {
-           error:
-             'No se puede eliminar: la competencia está asignada a uno o más puestos',
-         },
-         { status: 400 }
-       );
-     }
+    if (!canDelete) {
+      return NextResponse.json(
+        {
+          error:
+            'No se puede eliminar: la competencia está asignada a uno o más puestos',
+        },
+        { status: 400 }
+      );
+    }
 
-     await competenceService.delete(id);
+    await competenceService.delete(id);
     return NextResponse.json({ message: 'Competencia eliminada exitosamente' });
   } catch (error) {
     console.error('Error en DELETE /api/rrhh/competencias/[id]:', error);

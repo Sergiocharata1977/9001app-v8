@@ -21,12 +21,14 @@ interface FindingFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  initialData?: Partial<FindingFormData>;
 }
 
 export function FindingFormDialog({
   open,
   onOpenChange,
   onSuccess,
+  initialData,
 }: FindingFormDialogProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,6 +40,7 @@ export function FindingFormDialog({
     reset,
   } = useForm<FindingFormData>({
     resolver: zodResolver(FindingFormSchema),
+    defaultValues: initialData || {},
   });
 
   const onSubmit = async (data: FindingFormData) => {

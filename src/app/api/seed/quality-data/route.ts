@@ -11,7 +11,8 @@ export async function POST() {
       {
         code: 'OBJ-SAT-001',
         title: 'Satisfacción del Cliente',
-        description: 'Mantener la satisfacción del cliente por encima del 85% en todas las encuestas',
+        description:
+          'Mantener la satisfacción del cliente por encima del 85% en todas las encuestas',
         type: 'estrategico',
         target_value: 85,
         current_value: 88,
@@ -38,7 +39,8 @@ export async function POST() {
       {
         code: 'OBJ-RES-001',
         title: 'Tiempo de Respuesta',
-        description: 'Reducir el tiempo de respuesta a consultas de clientes a menos de 24 horas',
+        description:
+          'Reducir el tiempo de respuesta a consultas de clientes a menos de 24 horas',
         type: 'tactico',
         target_value: 24,
         current_value: 30,
@@ -65,7 +67,8 @@ export async function POST() {
       {
         code: 'OBJ-VEN-001',
         title: 'Incremento de Ventas Online',
-        description: 'Aumentar las ventas online en un 20% respecto al año anterior',
+        description:
+          'Aumentar las ventas online en un 20% respecto al año anterior',
         type: 'estrategico',
         target_value: 120,
         current_value: 125,
@@ -177,7 +180,8 @@ export async function POST() {
       {
         code: 'IND-RESP-001',
         name: 'Tiempo Promedio de Respuesta',
-        description: 'Tiempo promedio en horas para responder consultas de clientes',
+        description:
+          'Tiempo promedio en horas para responder consultas de clientes',
         type: 'eficiencia',
         formula: 'Promedio de tiempo de respuesta',
         unit: 'horas',
@@ -206,14 +210,20 @@ export async function POST() {
     // Seed Objetivos de Calidad
     const objetivosIds: string[] = [];
     for (const objetivo of objetivosEjemplo) {
-      const docRef = await addDoc(collection(db, 'qualityObjectives'), objetivo);
+      const docRef = await addDoc(
+        collection(db, 'qualityObjectives'),
+        objetivo
+      );
       objetivosIds.push(docRef.id);
     }
 
     // Seed Indicadores de Calidad
     const indicadoresIds: string[] = [];
     for (const indicador of indicadoresEjemplo) {
-      const docRef = await addDoc(collection(db, 'qualityIndicators'), indicador);
+      const docRef = await addDoc(
+        collection(db, 'qualityIndicators'),
+        indicador
+      );
       indicadoresIds.push(docRef.id);
     }
 
@@ -285,7 +295,8 @@ export async function POST() {
         },
       },
       instructions: {
-        message: 'Ahora debes asignar estos IDs a un usuario en la colección "personnel"',
+        message:
+          'Ahora debes asignar estos IDs a un usuario en la colección "personnel"',
         fields: {
           objetivos_asignados: objetivosIds,
           indicadores_asignados: indicadoresIds,

@@ -12,7 +12,7 @@ import {
   limit,
   startAfter,
   Timestamp,
-  DocumentSnapshot
+  DocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { ProcessDefinition } from '@/types/procesos';
@@ -22,26 +22,26 @@ const COLLECTION_NAME = 'processDefinitions';
 // Helper function to safely convert Firebase Timestamp to Date
 const safeToDate = (timestamp: Record<string, unknown>): Date => {
   if (!timestamp) return new Date();
-  
+
   // If it's already a Date object
   if (timestamp instanceof Date) return timestamp;
-  
+
   // If it's a Firebase Timestamp
   if (timestamp && typeof timestamp.toDate === 'function') {
     return timestamp.toDate();
   }
-  
+
   // If it's a string, try to parse it
   if (typeof timestamp === 'string') {
     const parsed = new Date(timestamp);
     return isNaN(parsed.getTime()) ? new Date() : parsed;
   }
-  
+
   // If it's a number (Unix timestamp)
   if (typeof timestamp === 'number') {
     return new Date(timestamp);
   }
-  
+
   // Default fallback
   return new Date();
 };
@@ -92,7 +92,11 @@ export class ProcessService {
 
       // Aplicar filtros
       if (search) {
-        q = query(q, where('nombre', '>=', search), where('nombre', '<=', search + '\uf8ff'));
+        q = query(
+          q,
+          where('nombre', '>=', search),
+          where('nombre', '<=', search + '\uf8ff')
+        );
       }
 
       if (estado) {
@@ -119,7 +123,9 @@ export class ProcessService {
     }
   }
 
-  static async create(data: Omit<ProcessDefinition, 'id' | 'createdAt' | 'updatedAt'>): Promise<ProcessDefinition> {
+  static async create(
+    data: Omit<ProcessDefinition, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ProcessDefinition> {
     try {
       const now = Timestamp.now();
       const docData = {
@@ -142,7 +148,10 @@ export class ProcessService {
     }
   }
 
-  static async update(id: string, data: Partial<Omit<ProcessDefinition, 'id' | 'createdAt'>>): Promise<ProcessDefinition> {
+  static async update(
+    id: string,
+    data: Partial<Omit<ProcessDefinition, 'id' | 'createdAt'>>
+  ): Promise<ProcessDefinition> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
@@ -154,7 +163,9 @@ export class ProcessService {
 
       const updated = await this.getById(id);
       if (!updated) {
-        throw new Error('Definición de proceso no encontrada después de actualizar');
+        throw new Error(
+          'Definición de proceso no encontrada después de actualizar'
+        );
       }
 
       return updated;

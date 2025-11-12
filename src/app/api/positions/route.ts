@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validar datos requeridos
     if (!body.nombre || body.nombre.trim() === '') {
       return NextResponse.json(
@@ -42,11 +42,15 @@ export async function POST(request: NextRequest) {
     };
 
     const id = await PositionService.create(data);
-    
-    return NextResponse.json({ id, message: 'Puesto creado exitosamente' }, { status: 201 });
+
+    return NextResponse.json(
+      { id, message: 'Puesto creado exitosamente' },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating position:', error);
-    const message = error instanceof Error ? error.message : 'Error al crear puesto';
+    const message =
+      error instanceof Error ? error.message : 'Error al crear puesto';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

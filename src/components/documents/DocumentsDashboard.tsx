@@ -128,7 +128,7 @@ export function DocumentsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {stats.most_downloaded.slice(0, 5).map((doc) => (
+              {stats.most_downloaded.slice(0, 5).map(doc => (
                 <div key={doc.id} className="flex justify-between items-center">
                   <span className="truncate">{doc.title}</span>
                   <span className="text-sm text-muted-foreground">

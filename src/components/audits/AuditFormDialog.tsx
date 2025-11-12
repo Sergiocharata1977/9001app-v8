@@ -4,155 +4,229 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { AuditFormSchema, type AuditFormInput } from '@/lib/validations/audits';
-import { zodResolver } from '@hookform/resolvers/zod';
+import type { AuditFormData } from '@/types/audits';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 
 interface AuditFormDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: AuditFormInput) => Promise<void>;
-  initialData?: AuditFormInput;
-  mode: 'create' | 'edit';
+  onClose: () => void;
+  onSubmit: (data: AuditFormData) => Promise<void>;
+  initialData?: Partial<AuditFormData>;
+  mode?: 'create' | 'edit';
 }
 
 export function AuditFormDialog({
   open,
-  onOpenChange,
+  onClose,
   onSubmit,
   initialData,
-  mode,
+  mode = 'create',
 }: AuditFormDialogProps) {
+  const [formData, setFormData] = useState<Partial<AuditFormData>>(
+    initialData || {
+      title: '',
+      auditType: 'complete',
+      scope: '',
+      plannedDate: new Date(),
+      leadAuditor: '',
+      selectedNormPoints: [],
+    }
+  );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(AuditFormSchema),
-    defaultValues: initialData,
-  });
-
-  const onSubmitForm = async (data: Record<string, unknown>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
+    setError(null);
+
     try {
-      await onSubmit(data as AuditFormInput);
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error submitting form:', error);
+      await onSubmit(formData as AuditFormData);
+      onClose();
+      // Reset form
+      setFormData({
+        title: '',
+        auditType: 'complete',
+        scope: '',
+        plannedDate: new Date(),
+        leadAuditor: '',
+        selectedNormPoints: [],
+      });
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Error al guardar la auditoría'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        aria-describedby="audit-form-description"
+      >
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create'
-              ? 'Planificar Nueva Auditoría'
-              : 'Editar Auditoría'}
+            {mode === 'create' ? 'Nueva Auditoría' : 'Editar Auditoría'}
           </DialogTitle>
         </DialogHeader>
+        <p id="audit-form-description" className="sr-only">
+          Formulario para {mode === 'create' ? 'crear' : 'editar'} una auditoría
+          interna ISO 9001
+        </p>
 
-        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Título *</Label>
-            <Input
-              id="title"
-              {...register('title')}
-              placeholder="Ej: Auditoría Interna ISO 9001:2015"
-            />
-            {errors.title && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.title.message}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Información Básica */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
+              Información Básica
+            </h3>
+
+            <div>
+              <Label htmlFor="title">
+                Título <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="title"
+                value={formData.title || ''}
+                onChange={e =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                maxLength={200}
+                placeholder="Ej: Auditoría Interna 2025"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="auditType">
+                Tipo de Auditoría <span className="text-red-500">*</span>
+              </Label>
+              <select
+                id="auditType"
+                value={formData.auditType}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    auditType: e.target.value as 'complete' | 'partial',
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="complete">Auditoría Completa</option>
+                <option value="partial">Auditoría Parcial</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                {formData.auditType === 'complete'
+                  ? 'Se verificarán todos los puntos de la norma ISO 9001:2015'
+                  : 'Seleccione los puntos específicos a auditar'}
               </p>
-            )}
+            </div>
+
+            <div>
+              <Label htmlFor="scope">
+                Alcance <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="scope"
+                value={formData.scope || ''}
+                onChange={e =>
+                  setFormData({ ...formData, scope: e.target.value })
+                }
+                rows={3}
+                maxLength={500}
+                placeholder="Describe el alcance de la auditoría..."
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="plannedDate">
+                  Fecha Planificada <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="plannedDate"
+                  type="date"
+                  value={
+                    formData.plannedDate
+                      ? new Date(formData.plannedDate)
+                          .toISOString()
+                          .split('T')[0]
+                      : ''
+                  }
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      plannedDate: new Date(e.target.value),
+                    })
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="leadAuditor">
+                  Auditor Líder <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="leadAuditor"
+                  value={formData.leadAuditor || ''}
+                  onChange={e =>
+                    setFormData({ ...formData, leadAuditor: e.target.value })
+                  }
+                  placeholder="Ej: Juan Pérez"
+                  required
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <Label htmlFor="description">Descripción</Label>
-            <Textarea
-              id="description"
-              {...register('description')}
-              placeholder="Descripción de la auditoría..."
-              rows={3}
-            />
-            {errors.description && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.description.message}
+          {/* TODO: Agregar selector de puntos de norma si es parcial */}
+          {formData.auditType === 'partial' && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                <strong>Nota:</strong> El selector de puntos de norma estará
+                disponible próximamente. Por ahora, cree la auditoría como
+                completa.
               </p>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div>
-            <Label htmlFor="plannedDate">Fecha Planificada *</Label>
-            <Input
-              id="plannedDate"
-              type="date"
-              {...register('plannedDate', {
-                setValueAs: v => {
-                  if (!v) return undefined;
-                  // Crear fecha en zona horaria local
-                  const date = new Date(v + 'T00:00:00');
-                  return date;
-                },
-              })}
-              defaultValue={
-                initialData?.plannedDate
-                  ? new Date(initialData.plannedDate)
-                      .toISOString()
-                      .split('T')[0]
-                  : ''
-              }
-            />
-            {errors.plannedDate && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.plannedDate.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="leadAuditor">Auditor Líder *</Label>
-            <Input
-              id="leadAuditor"
-              {...register('leadAuditor')}
-              placeholder="Nombre del auditor líder"
-            />
-            {errors.leadAuditor && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.leadAuditor.message}
-              </p>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+          {/* Buttons */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading
-                ? 'Guardando...'
-                : mode === 'create'
-                  ? 'Crear Auditoría'
-                  : 'Guardar Cambios'}
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Guardando...
+                </>
+              ) : mode === 'create' ? (
+                'Crear Auditoría'
+              ) : (
+                'Guardar Cambios'
+              )}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

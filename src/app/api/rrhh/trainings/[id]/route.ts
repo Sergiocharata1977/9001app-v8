@@ -42,7 +42,12 @@ export async function PUT(
   } catch (error) {
     console.error('Error in training PUT:', error);
 
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ZodError'
+    ) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: (error as any).errors },
         { status: 400 }
@@ -64,7 +69,9 @@ export async function DELETE(
     const { id } = await params;
     await TrainingService.delete(id);
 
-    return NextResponse.json({ message: 'Capacitación eliminada exitosamente' });
+    return NextResponse.json({
+      message: 'Capacitación eliminada exitosamente',
+    });
   } catch (error) {
     console.error('Error in training DELETE:', error);
     return NextResponse.json(
@@ -89,19 +96,22 @@ export async function PATCH(
     }
 
     if (body.action === 'add_participant' && body.participant_id) {
-      const training = await TrainingService.addParticipant(id, body.participant_id);
+      const training = await TrainingService.addParticipant(
+        id,
+        body.participant_id
+      );
       return NextResponse.json(training);
     }
 
     if (body.action === 'remove_participant' && body.participant_id) {
-      const training = await TrainingService.removeParticipant(id, body.participant_id);
+      const training = await TrainingService.removeParticipant(
+        id,
+        body.participant_id
+      );
       return NextResponse.json(training);
     }
 
-    return NextResponse.json(
-      { error: 'Acción no válida' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
   } catch (error) {
     console.error('Error in training PATCH:', error);
     return NextResponse.json(

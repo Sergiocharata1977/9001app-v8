@@ -2,11 +2,21 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Grid, List, Plus, Search, Filter, Building2, Edit, Trash2, Eye } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Grid,
+  List,
+  Plus,
+  Search,
+  Filter,
+  Building2,
+  Edit,
+  Trash2,
+  Eye,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { DepartmentCard } from './DepartmentCard';
 import { DepartmentForm } from './DepartmentForm';
 import { Department, DepartmentFormData } from '@/types/rrhh';
@@ -21,7 +31,7 @@ interface DepartmentListingProps {
 export const DepartmentListing: React.FC<DepartmentListingProps> = ({
   onViewDepartment,
   onEditDepartment,
-  onNewDepartment
+  onNewDepartment,
 }) => {
   const router = useRouter();
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -30,10 +40,12 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
   const [loadingData, setLoadingData] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
+  const [departmentToDelete, setDepartmentToDelete] =
+    useState<Department | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] =
+    useState<Department | null>(null);
 
   // Cargar datos
   const fetchData = useCallback(async () => {
@@ -47,7 +59,9 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       setDepartments(data || []);
     } catch (err) {
       console.error('Error al cargar datos:', err);
-      setLocalError('Error al cargar los datos. Por favor, intenta de nuevo más tarde.');
+      setLocalError(
+        'Error al cargar los datos. Por favor, intenta de nuevo más tarde.'
+      );
       setDepartments([]);
     } finally {
       setLoadingData(false);
@@ -63,26 +77,36 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
     if (!searchTerm.trim()) return departments;
 
     const searchLower = searchTerm.toLowerCase();
-    return departments.filter(dept =>
-      dept.name?.toLowerCase().includes(searchLower) ||
-      dept.description?.toLowerCase().includes(searchLower)
+    return departments.filter(
+      dept =>
+        dept.name?.toLowerCase().includes(searchLower) ||
+        dept.description?.toLowerCase().includes(searchLower)
     );
   }, [departments, searchTerm]);
 
   // Handlers
-  const handleView = useCallback((dept: Department) => {
-    router.push(`/dashboard/rrhh/departments/${dept.id}`);
-  }, [router]);
+  const handleView = useCallback(
+    (dept: Department) => {
+      router.push(`/dashboard/rrhh/departments/${dept.id}`);
+    },
+    [router]
+  );
 
-  const handleCardClick = useCallback((dept: Department) => {
-    router.push(`/dashboard/rrhh/departments/${dept.id}`);
-  }, [router]);
+  const handleCardClick = useCallback(
+    (dept: Department) => {
+      router.push(`/dashboard/rrhh/departments/${dept.id}`);
+    },
+    [router]
+  );
 
-  const handleEdit = useCallback((dept: Department) => {
-    setSelectedDepartment(dept);
-    setShowForm(true);
-    onEditDepartment?.(dept);
-  }, [onEditDepartment]);
+  const handleEdit = useCallback(
+    (dept: Department) => {
+      setSelectedDepartment(dept);
+      setShowForm(true);
+      onEditDepartment?.(dept);
+    },
+    [onEditDepartment]
+  );
 
   const handleDelete = useCallback((dept: Department) => {
     setDepartmentToDelete(dept);
@@ -109,21 +133,24 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
     onNewDepartment?.();
   }, [onNewDepartment]);
 
-  const handleFormSuccess = useCallback(async (data: DepartmentFormData) => {
-    try {
-      if (selectedDepartment) {
-        // Actualizar departamento existente
-        await DepartmentService.update(selectedDepartment.id, data);
-      } else {
-        // Crear nuevo departamento
-        await DepartmentService.create(data);
+  const handleFormSuccess = useCallback(
+    async (data: DepartmentFormData) => {
+      try {
+        if (selectedDepartment) {
+          // Actualizar departamento existente
+          await DepartmentService.update(selectedDepartment.id, data);
+        } else {
+          // Crear nuevo departamento
+          await DepartmentService.create(data);
+        }
+        setShowForm(false);
+        fetchData(); // Recargar datos
+      } catch (error) {
+        console.error('Error al guardar departamento:', error);
       }
-      setShowForm(false);
-      fetchData(); // Recargar datos
-    } catch (error) {
-      console.error('Error al guardar departamento:', error);
-    }
-  }, [selectedDepartment, fetchData]);
+    },
+    [selectedDepartment, fetchData]
+  );
 
   const handleFormCancel = useCallback(() => {
     setShowForm(false);
@@ -168,7 +195,9 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       if (response.ok) {
         const result = await response.json();
         console.log('Datos en Firebase:', result);
-        alert(`Datos encontrados:\n- Departamentos: ${result.data.departments.count}\n- Personal: ${result.data.personnel.count}\n- Puestos: ${result.data.positions.count}`);
+        alert(
+          `Datos encontrados:\n- Departamentos: ${result.data.departments.count}\n- Personal: ${result.data.personnel.count}\n- Puestos: ${result.data.positions.count}`
+        );
       } else {
         const error = await response.json();
         console.error('Error al verificar datos:', error);
@@ -189,7 +218,9 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       if (response.ok) {
         const result = await response.json();
         console.log('Diagnóstico completo:', result);
-        alert(`Diagnóstico Firebase:\n\nProyecto: ${result.firebase.projectId}\nBase de datos: ${result.firebase.databaseType}\n\nDepartamentos: ${result.firebase.collections.departments.count || 0}\nPersonal: ${result.firebase.collections.personnel.count || 0}\nPuestos: ${result.firebase.collections.positions.count || 0}\n\nInstrucciones:\n${result.instructions.firebaseConsole}`);
+        alert(
+          `Diagnóstico Firebase:\n\nProyecto: ${result.firebase.projectId}\nBase de datos: ${result.firebase.databaseType}\n\nDepartamentos: ${result.firebase.collections.departments.count || 0}\nPersonal: ${result.firebase.collections.personnel.count || 0}\nPuestos: ${result.firebase.collections.positions.count || 0}\n\nInstrucciones:\n${result.instructions.firebaseConsole}`
+        );
       } else {
         const error = await response.json();
         console.error('Error en diagnóstico:', error);
@@ -214,7 +245,9 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
         const result = await response.json();
         console.log('Datos masivos creados:', result);
         await fetchData();
-        alert(`Datos masivos creados exitosamente:\n\n- ${result.created.departments} departamentos\n- ${result.created.personnel} empleados\n- ${result.created.positions} puestos`);
+        alert(
+          `Datos masivos creados exitosamente:\n\n- ${result.created.departments} departamentos\n- ${result.created.personnel} empleados\n- ${result.created.positions} puestos`
+        );
       } else {
         const error = await response.json();
         console.error('Error al crear datos masivos:', error);
@@ -228,7 +261,9 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
 
   // Función para obtener color del estado
   const getEstadoColor = (isActive: boolean) => {
-    return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+    return isActive
+      ? 'bg-green-100 text-green-800'
+      : 'bg-gray-100 text-gray-800';
   };
 
   // Renderizar contenido
@@ -260,33 +295,53 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
         <div className="text-center py-12">
           <Building2 className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">
-            {searchTerm ? 'No se encontraron departamentos' : 'No hay departamentos registrados'}
+            {searchTerm
+              ? 'No se encontraron departamentos'
+              : 'No hay departamentos registrados'}
           </h3>
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm
               ? 'No se encontraron resultados que coincidan con tu búsqueda.'
-              : 'Comienza agregando el primer departamento.'
-            }
+              : 'Comienza agregando el primer departamento.'}
           </p>
           {!searchTerm && (
             <div className="mt-6 flex gap-4 justify-center">
-              <Button onClick={handleNewDepartment} className="bg-blue-600 hover:bg-blue-700">
+              <Button
+                onClick={handleNewDepartment}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Nuevo Departamento
               </Button>
-              <Button onClick={handleSeedData} variant="outline" className="bg-green-600 hover:bg-green-700 text-white">
+              <Button
+                onClick={handleSeedData}
+                variant="outline"
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Agregar Datos de Prueba
               </Button>
-              <Button onClick={handleCheckData} variant="outline" className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button
+                onClick={handleCheckData}
+                variant="outline"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
                 <Search className="mr-2 h-4 w-4" />
                 Verificar Datos
               </Button>
-              <Button onClick={handleDiagnose} variant="outline" className="bg-orange-600 hover:bg-orange-700 text-white">
+              <Button
+                onClick={handleDiagnose}
+                variant="outline"
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
                 <Search className="mr-2 h-4 w-4" />
                 Diagnóstico
               </Button>
-              <Button onClick={handleMassiveData} variant="outline" className="bg-red-600 hover:bg-red-700 text-white">
+              <Button
+                onClick={handleMassiveData}
+                variant="outline"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Datos Masivos
               </Button>
@@ -349,7 +404,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                     onClick={() => handleCardClick(dept)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         handleCardClick(dept);
@@ -383,7 +438,10 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex justify-end space-x-2"
+                        onClick={e => e.stopPropagation()}
+                      >
                         <Button
                           size="sm"
                           variant="ghost"
@@ -419,17 +477,35 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
         </CardContent>
       </Card>
     );
-  }, [loadingData, filteredDepartments, viewMode, searchTerm, handleNewDepartment, handleSeedData, handleView, handleEdit, handleDelete, handleCardClick]);
+  }, [
+    loadingData,
+    filteredDepartments,
+    viewMode,
+    searchTerm,
+    handleNewDepartment,
+    handleSeedData,
+    handleView,
+    handleEdit,
+    handleDelete,
+    handleCardClick,
+  ]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestión de Departamentos</h2>
-          <p className="text-gray-600">Administra los departamentos de la organización</p>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Gestión de Departamentos
+          </h2>
+          <p className="text-gray-600">
+            Administra los departamentos de la organización
+          </p>
         </div>
-        <Button onClick={handleNewDepartment} className="bg-blue-600 hover:bg-blue-700">
+        <Button
+          onClick={handleNewDepartment}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Departamento
         </Button>
@@ -445,7 +521,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                 type="text"
                 placeholder="Buscar departamentos..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -457,17 +533,17 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
 
           <div className="flex items-center space-x-2">
             <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("grid")}
+              onClick={() => setViewMode('grid')}
             >
               <Grid className="mr-2 h-4 w-4" />
               Tarjetas
             </Button>
             <Button
-              variant={viewMode === "list" ? "default" : "outline"}
+              variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setViewMode("list")}
+              onClick={() => setViewMode('list')}
             >
               <List className="mr-2 h-4 w-4" />
               Tabla
@@ -477,9 +553,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       </div>
 
       {/* Content */}
-      <div className="min-h-96">
-        {renderContent}
-      </div>
+      <div className="min-h-96">{renderContent}</div>
 
       {/* Modal de formulario */}
       {showForm && (
@@ -506,52 +580,87 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                       {selectedDepartment.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900">{selectedDepartment.name}</h2>
-                      <Badge className={getEstadoColor(selectedDepartment.is_active)}>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {selectedDepartment.name}
+                      </h2>
+                      <Badge
+                        className={getEstadoColor(selectedDepartment.is_active)}
+                      >
                         {selectedDepartment.is_active ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </div>
                   </div>
-                  <Button variant="outline" onClick={handleCloseDetails}>Cerrar</Button>
+                  <Button variant="outline" onClick={handleCloseDetails}>
+                    Cerrar
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Información General</h3>
+                    <h3 className="text-lg font-medium mb-4">
+                      Información General
+                    </h3>
                     <dl className="space-y-3">
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Descripción</dt>
-                        <dd className="text-base mt-1">{selectedDepartment.description || 'Sin descripción'}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Descripción
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedDepartment.description || 'Sin descripción'}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Responsable</dt>
-                        <dd className="text-base mt-1">{selectedDepartment.responsible_user_id || 'Sin asignar'}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Responsable
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {selectedDepartment.responsible_user_id ||
+                            'Sin asignar'}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Fecha de Creación</dt>
-                        <dd className="text-base mt-1">{new Date(selectedDepartment.created_at).toLocaleDateString('es-ES')}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Fecha de Creación
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {new Date(
+                            selectedDepartment.created_at
+                          ).toLocaleDateString('es-ES')}
+                        </dd>
                       </div>
                     </dl>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Detalles Adicionales</h3>
+                    <h3 className="text-lg font-medium mb-4">
+                      Detalles Adicionales
+                    </h3>
                     <dl className="space-y-3">
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Última Actualización</dt>
-                        <dd className="text-base mt-1">{new Date(selectedDepartment.updated_at).toLocaleDateString('es-ES')}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          Última Actualización
+                        </dt>
+                        <dd className="text-base mt-1">
+                          {new Date(
+                            selectedDepartment.updated_at
+                          ).toLocaleDateString('es-ES')}
+                        </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">ID</dt>
-                        <dd className="text-base mt-1 font-mono">{selectedDepartment.id}</dd>
+                        <dt className="text-sm font-medium text-gray-500">
+                          ID
+                        </dt>
+                        <dd className="text-base mt-1 font-mono">
+                          {selectedDepartment.id}
+                        </dd>
                       </div>
                     </dl>
                   </div>
                 </div>
 
                 <div className="mt-8 pt-6 border-t flex justify-end gap-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       handleCloseDetails();
                       handleDelete(selectedDepartment);
@@ -561,7 +670,7 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
                     <Trash2 className="mr-2 h-4 w-4" />
                     Eliminar
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => {
                       handleCloseDetails();
                       handleEdit(selectedDepartment);
@@ -582,15 +691,19 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
       {deleteDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium mb-4">¿Estás completamente seguro?</h3>
+            <h3 className="text-lg font-medium mb-4">
+              ¿Estás completamente seguro?
+            </h3>
             <p className="text-gray-600 mb-6">
-              Esta acción no se puede deshacer. Se eliminará permanentemente el departamento{' '}
-              <span className="font-semibold">
-                {departmentToDelete?.name}
-              </span>.
+              Esta acción no se puede deshacer. Se eliminará permanentemente el
+              departamento{' '}
+              <span className="font-semibold">{departmentToDelete?.name}</span>.
             </p>
             <div className="flex justify-end gap-4">
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
                 Cancelar
               </Button>
               <Button
@@ -606,4 +719,3 @@ export const DepartmentListing: React.FC<DepartmentListingProps> = ({
     </div>
   );
 };
-

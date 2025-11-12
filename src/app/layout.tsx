@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider } from '@/contexts/AuthContext';
+import type { Metadata } from 'next';
+import { Inter, Roboto_Mono } from 'next/font/google';
+import './globals.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const geistSans = Inter({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const geistMono = Roboto_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Sistema ISO 9001",
-  description: "Sistema de gestión de calidad ISO 9001:2015",
+  title: 'Sistema ISO 9001',
+  description: 'Sistema de gestión de calidad ISO 9001:2015',
 };
 
 export default function RootLayout({
@@ -29,9 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

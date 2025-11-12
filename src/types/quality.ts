@@ -2,25 +2,25 @@
 
 export interface QualityObjective {
   id: string;
-  code: string;                    // Código único del objetivo
-  title: string;                   // Título descriptivo
-  description: string;             // Descripción detallada
+  code: string; // Código único del objetivo
+  title: string; // Título descriptivo
+  description: string; // Descripción detallada
   type: 'estrategico' | 'tactico' | 'operativo';
-  target_value: number;            // Valor meta a alcanzar
-  current_value: number;           // Valor actual
-  unit: string;                    // Unidad de medida
-  baseline_value: number;          // Valor línea base
-  start_date: string;              // Fecha de inicio
-  due_date: string;                // Fecha límite
-  completed_date?: string;         // Fecha de completado
+  target_value: number; // Valor meta a alcanzar
+  current_value: number; // Valor actual
+  unit: string; // Unidad de medida
+  baseline_value: number; // Valor línea base
+  start_date: string; // Fecha de inicio
+  due_date: string; // Fecha límite
+  completed_date?: string; // Fecha de completado
   status: 'activo' | 'completado' | 'atrasado' | 'cancelado';
-  progress_percentage: number;     // Porcentaje de avance
-  process_definition_id: string;   // ID del proceso relacionado
-  responsible_user_id: string;      // Responsable principal
-  department_id?: string;          // Departamento responsable
-  team_members: string[];          // Miembros del equipo
-  alert_threshold: number;         // Umbral de alerta (%)
-  last_alert_sent?: string;        // Última alerta enviada
+  progress_percentage: number; // Porcentaje de avance
+  process_definition_id: string; // ID del proceso relacionado
+  responsible_user_id: string; // Responsable principal
+  department_id?: string; // Departamento responsable
+  team_members: string[]; // Miembros del equipo
+  alert_threshold: number; // Umbral de alerta (%)
+  last_alert_sent?: string; // Última alerta enviada
   organization_id: string;
   is_active: boolean;
   created_by: string;
@@ -31,25 +31,30 @@ export interface QualityObjective {
 
 export interface QualityIndicator {
   id: string;
-  code: string;                    // Código único del indicador
-  name: string;                    // Nombre del indicador
-  description: string;             // Descripción y propósito
+  code: string; // Código único del indicador
+  name: string; // Nombre del indicador
+  description: string; // Descripción y propósito
   type: 'eficacia' | 'eficiencia' | 'efectividad' | 'calidad' | 'productividad';
-  formula: string;                  // Fórmula de cálculo
-  unit: string;                    // Unidad de medida
-  measurement_frequency: 'diaria' | 'semanal' | 'mensual' | 'trimestral' | 'anual';
-  target_min: number;              // Meta mínima aceptable
-  target_max: number;              // Meta máxima deseada
-  current_value?: number;          // Valor actual
+  formula: string; // Fórmula de cálculo
+  unit: string; // Unidad de medida
+  measurement_frequency:
+    | 'diaria'
+    | 'semanal'
+    | 'mensual'
+    | 'trimestral'
+    | 'anual';
+  target_min: number; // Meta mínima aceptable
+  target_max: number; // Meta máxima deseada
+  current_value?: number; // Valor actual
   trend: 'ascendente' | 'descendente' | 'estable';
-  data_source: string;             // Fuente de los datos
-  calculation_method: string;      // Método de cálculo
-  process_definition_id: string;   // ID del proceso relacionado
-  objective_id?: string;           // ID del objetivo relacionado (opcional)
-  responsible_user_id: string;     // Responsable de medición
-  department_id?: string;          // Departamento responsable
+  data_source: string; // Fuente de los datos
+  calculation_method: string; // Método de cálculo
+  process_definition_id: string; // ID del proceso relacionado
+  objective_id?: string; // ID del objetivo relacionado (opcional)
+  responsible_user_id: string; // Responsable de medición
+  department_id?: string; // Departamento responsable
   status: 'activo' | 'inactivo' | 'suspendido';
-  last_measurement_date?: string;  // Última medición
+  last_measurement_date?: string; // Última medición
   organization_id: string;
   is_active: boolean;
   created_by: string;
@@ -60,20 +65,20 @@ export interface QualityIndicator {
 
 export interface Measurement {
   id: string;
-  indicator_id: string;            // ID del indicador
-  objective_id?: string;           // ID del objetivo (opcional)
-  process_definition_id: string;   // ID del proceso relacionado
-  value: number;                   // Valor medido
-  measurement_date: string;        // Fecha de medición
-  measured_by: string;             // Quien realizó la medición
-  measurement_method: string;      // Método utilizado
-  data_source: string;             // Fuente de los datos
-  notes?: string;                  // Observaciones
-  evidence_files?: string[];       // Archivos de evidencia
+  indicator_id: string; // ID del indicador
+  objective_id?: string; // ID del objetivo (opcional)
+  process_definition_id: string; // ID del proceso relacionado
+  value: number; // Valor medido
+  measurement_date: string; // Fecha de medición
+  measured_by: string; // Quien realizó la medición
+  measurement_method: string; // Método utilizado
+  data_source: string; // Fuente de los datos
+  notes?: string; // Observaciones
+  evidence_files?: string[]; // Archivos de evidencia
   validation_status: 'pendiente' | 'validado' | 'rechazado';
-  validated_by?: string;           // Quien validó
-  validation_date?: string;        // Fecha de validación
-  validation_notes?: string;       // Notas de validación
+  validated_by?: string; // Quien validó
+  validation_date?: string; // Fecha de validación
+  validation_notes?: string; // Notas de validación
   organization_id: string;
   created_by: string;
   created_at: string;
@@ -106,7 +111,12 @@ export interface QualityIndicatorFormData {
   type: 'eficacia' | 'eficiencia' | 'efectividad' | 'calidad' | 'productividad';
   formula: string;
   unit: string;
-  measurement_frequency: 'diaria' | 'semanal' | 'mensual' | 'trimestral' | 'anual';
+  measurement_frequency:
+    | 'diaria'
+    | 'semanal'
+    | 'mensual'
+    | 'trimestral'
+    | 'anual';
   target_min: number;
   target_max: number;
   data_source: string;

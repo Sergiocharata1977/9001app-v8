@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         categoria,
         documento_origen_id,
         etapas_default,
-        activo
+        activo,
       } = body;
 
       const id = await ProcessDefinitionService.create({
@@ -63,7 +63,9 @@ export async function POST(request: NextRequest) {
     if (body.action === 'update') {
       const { id, ...updateData } = body;
       await ProcessDefinitionService.update(id, updateData);
-      return NextResponse.json({ message: 'Definición actualizada exitosamente' });
+      return NextResponse.json({
+        message: 'Definición actualizada exitosamente',
+      });
     }
 
     return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });

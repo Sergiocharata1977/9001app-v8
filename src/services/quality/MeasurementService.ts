@@ -164,7 +164,10 @@ export class MeasurementService {
 
       // Update indicator's current value and trend
       if (data.indicator_id) {
-        await QualityIndicatorService.updateCurrentValue(data.indicator_id, data.value);
+        await QualityIndicatorService.updateCurrentValue(
+          data.indicator_id,
+          data.value
+        );
       }
 
       return {
@@ -180,7 +183,10 @@ export class MeasurementService {
     }
   }
 
-  static async update(id: string, data: Partial<MeasurementFormData>): Promise<Measurement> {
+  static async update(
+    id: string,
+    data: Partial<MeasurementFormData>
+  ): Promise<Measurement> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
@@ -197,7 +203,10 @@ export class MeasurementService {
 
       // Update indicator's current value if value changed
       if (data.value !== undefined && updated.indicator_id) {
-        await QualityIndicatorService.updateCurrentValue(updated.indicator_id, data.value);
+        await QualityIndicatorService.updateCurrentValue(
+          updated.indicator_id,
+          data.value
+        );
       }
 
       return updated;
@@ -217,7 +226,11 @@ export class MeasurementService {
     }
   }
 
-  static async validateMeasurement(id: string, validatedBy: string, notes?: string): Promise<Measurement> {
+  static async validateMeasurement(
+    id: string,
+    validatedBy: string,
+    notes?: string
+  ): Promise<Measurement> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
@@ -242,7 +255,11 @@ export class MeasurementService {
     }
   }
 
-  static async rejectMeasurement(id: string, validatedBy: string, notes?: string): Promise<Measurement> {
+  static async rejectMeasurement(
+    id: string,
+    validatedBy: string,
+    notes?: string
+  ): Promise<Measurement> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData = {
@@ -267,7 +284,9 @@ export class MeasurementService {
     }
   }
 
-  static async getRecentMeasurements(limitCount: number = 10): Promise<Measurement[]> {
+  static async getRecentMeasurements(
+    limitCount: number = 10
+  ): Promise<Measurement[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),

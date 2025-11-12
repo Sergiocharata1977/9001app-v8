@@ -6,7 +6,8 @@ const objetivosEjemplo = [
   {
     code: 'OBJ-SAT-001',
     title: 'Satisfacción del Cliente',
-    description: 'Mantener la satisfacción del cliente por encima del 85% en todas las encuestas',
+    description:
+      'Mantener la satisfacción del cliente por encima del 85% en todas las encuestas',
     type: 'estrategico',
     target_value: 85,
     current_value: 88,
@@ -33,7 +34,8 @@ const objetivosEjemplo = [
   {
     code: 'OBJ-RES-001',
     title: 'Tiempo de Respuesta',
-    description: 'Reducir el tiempo de respuesta a consultas de clientes a menos de 24 horas',
+    description:
+      'Reducir el tiempo de respuesta a consultas de clientes a menos de 24 horas',
     type: 'tactico',
     target_value: 24,
     current_value: 30,
@@ -60,7 +62,8 @@ const objetivosEjemplo = [
   {
     code: 'OBJ-VEN-001',
     title: 'Incremento de Ventas Online',
-    description: 'Aumentar las ventas online en un 20% respecto al año anterior',
+    description:
+      'Aumentar las ventas online en un 20% respecto al año anterior',
     type: 'estrategico',
     target_value: 120,
     current_value: 125,
@@ -172,7 +175,8 @@ const indicadoresEjemplo = [
   {
     code: 'IND-RESP-001',
     name: 'Tiempo Promedio de Respuesta',
-    description: 'Tiempo promedio en horas para responder consultas de clientes',
+    description:
+      'Tiempo promedio en horas para responder consultas de clientes',
     type: 'eficiencia',
     formula: 'Promedio de tiempo de respuesta',
     unit: 'horas',
@@ -250,25 +254,37 @@ async function seedQualityData() {
     console.log('\n📊 Creando Objetivos de Calidad...');
     const objetivosIds: string[] = [];
     for (const objetivo of objetivosEjemplo) {
-      const docRef = await addDoc(collection(db, 'qualityObjectives'), objetivo);
+      const docRef = await addDoc(
+        collection(db, 'qualityObjectives'),
+        objetivo
+      );
       objetivosIds.push(docRef.id);
-      console.log(`✅ Objetivo creado: ${objetivo.code} - ${objetivo.title} (ID: ${docRef.id})`);
+      console.log(
+        `✅ Objetivo creado: ${objetivo.code} - ${objetivo.title} (ID: ${docRef.id})`
+      );
     }
 
     // Seed Indicadores de Calidad
     console.log('\n📈 Creando Indicadores de Calidad...');
     const indicadoresIds: string[] = [];
     for (const indicador of indicadoresEjemplo) {
-      const docRef = await addDoc(collection(db, 'qualityIndicators'), indicador);
+      const docRef = await addDoc(
+        collection(db, 'qualityIndicators'),
+        indicador
+      );
       indicadoresIds.push(docRef.id);
-      console.log(`✅ Indicador creado: ${indicador.code} - ${indicador.name} (ID: ${docRef.id})`);
+      console.log(
+        `✅ Indicador creado: ${indicador.code} - ${indicador.name} (ID: ${docRef.id})`
+      );
     }
 
     // Seed Mediciones
     console.log('\n📏 Creando Mediciones...');
     for (const medicion of medicionesEjemplo) {
       const docRef = await addDoc(collection(db, 'measurements'), medicion);
-      console.log(`✅ Medición creada para indicador: ${medicion.indicator_id} (ID: ${docRef.id})`);
+      console.log(
+        `✅ Medición creada para indicador: ${medicion.indicator_id} (ID: ${docRef.id})`
+      );
     }
 
     console.log('\n✅ Seed completado exitosamente!');
@@ -276,16 +292,17 @@ async function seedQualityData() {
     console.log(`   - ${objetivosIds.length} Objetivos de Calidad creados`);
     console.log(`   - ${indicadoresIds.length} Indicadores de Calidad creados`);
     console.log(`   - ${medicionesEjemplo.length} Mediciones creadas`);
-    
+
     console.log('\n📝 IDs generados:');
     console.log('Objetivos:', objetivosIds);
     console.log('Indicadores:', indicadoresIds);
 
-    console.log('\n⚠️ IMPORTANTE: Ahora debes asignar estos IDs a un usuario en la colección "personnel"');
+    console.log(
+      '\n⚠️ IMPORTANTE: Ahora debes asignar estos IDs a un usuario en la colección "personnel"'
+    );
     console.log('Agrega estos campos al documento de personnel:');
     console.log(`objetivos_asignados: ${JSON.stringify(objetivosIds)}`);
     console.log(`indicadores_asignados: ${JSON.stringify(indicadoresIds)}`);
-
   } catch (error) {
     console.error('❌ Error al crear datos de seed:', error);
     throw error;
@@ -298,7 +315,7 @@ seedQualityData()
     console.log('\n🎉 Proceso completado!');
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('\n💥 Error fatal:', error);
     process.exit(1);
   });
