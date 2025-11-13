@@ -1,8 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -11,16 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { NormPoint } from '@/types/normPoints';
-import { Plus, Search, Edit, Trash2, List, Grid } from 'lucide-react';
+import { Edit, Grid, List, Plus, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { NormPointFormDialog } from './NormPointFormDialog';
 
 export function NormPointsList() {
@@ -34,6 +34,8 @@ export function NormPointsList() {
     null
   );
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     fetchNormPoints();
@@ -47,10 +49,23 @@ export function NormPointsList() {
       if (chapterFilter !== 'all') params.append('chapter', chapterFilter);
       if (priorityFilter !== 'all') params.append('priority', priorityFilter);
 
+      // Ordenar por código para que aparezcan en orden numérico
+      params.append('sort', 'code');
+      params.append('order', 'asc');
+      params.append('limit', '1000'); // Traer todos los puntos
+
       const response = await fetch(`/api/norm-points?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        setNormPoints(data.data || []);
+        // Ordenar manualmente por código para asegurar orden correcto
+        const sortedPoints = (data.data || []).sort(
+          (a: NormPoint, b: NormPoint) => {
+            const aNum = parseFloat(a.code.replace(/[^\d.]/g, ''));
+            const bNum = parseFloat(b.code.replace(/[^\d.]/g, ''));
+            return aNum - bNum;
+          }
+        );
+        setNormPoints(sortedPoints);
       }
     } catch (error) {
       console.error('Error fetching norm points:', error);
@@ -78,8 +93,20 @@ export function NormPointsList() {
   const filteredNormPoints = normPoints.filter(
     np =>
       np.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      np.code.toLowerCase().includes(searchTerm.toLowerCase())
+      np.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      np.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Paginación
+  const totalPages = Math.ceil(filteredNormPoints.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedNormPoints = filteredNormPoints.slice(startIndex, endIndex);
+
+  // Reset página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, chapterFilter, priorityFilter]);
 
   const getPriorityBadge = (priority: 'alta' | 'media' | 'baja') => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
@@ -96,17 +123,17 @@ export function NormPointsList() {
       {/* Barra de herramientas */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-4 top-4 h-6 w-6 text-gray-500" />
           <Input
-            placeholder="Buscar puntos de norma..."
+            placeholder="Buscar por código, título o descripción..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="pl-10 border-0 shadow-sm shadow-green-100 focus:shadow-md focus:shadow-green-200"
+            className="pl-12 h-14 text-lg border-0 shadow-md shadow-green-200/50 focus:shadow-lg focus:shadow-green-300/60"
           />
         </div>
 
         <Select value={chapterFilter} onValueChange={setChapterFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
             <SelectValue placeholder="Capítulo" />
           </SelectTrigger>
           <SelectContent>
@@ -122,7 +149,7 @@ export function NormPointsList() {
         </Select>
 
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
             <SelectValue placeholder="Prioridad" />
           </SelectTrigger>
           <SelectContent>
@@ -187,17 +214,26 @@ export function NormPointsList() {
         </Button>
       </div>
 
+      {/* Contador de resultados */}
+      {!loading && (
+        <div className="text-sm text-gray-600">
+          Mostrando {startIndex + 1}-
+          {Math.min(endIndex, filteredNormPoints.length)} de{' '}
+          {filteredNormPoints.length} puntos
+        </div>
+      )}
+
       {/* Vista Lista o Tarjetas */}
       {loading ? (
         <div className="text-center py-8">Cargando puntos de norma...</div>
       ) : viewMode === 'cards' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredNormPoints.length === 0 ? (
+          {paginatedNormPoints.length === 0 ? (
             <div className="col-span-full text-center py-8">
               No se encontraron puntos de norma
             </div>
           ) : (
-            filteredNormPoints.map(np => (
+            paginatedNormPoints.map(np => (
               <div
                 key={np.id}
                 className="bg-white rounded-lg shadow-md shadow-green-100 hover:shadow-lg hover:shadow-green-200 cursor-pointer transition-all duration-200 p-4"
@@ -267,43 +303,49 @@ export function NormPointsList() {
           )}
         </div>
       ) : (
-        <div className="rounded-lg shadow-md shadow-green-100">
+        <div className="rounded-lg shadow-md shadow-green-200/50 overflow-hidden bg-white">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Título</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Capítulo</TableHead>
-                <TableHead>Prioridad</TableHead>
-                <TableHead>Obligatorio</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+              <TableRow className="border-0 bg-gray-50/50">
+                <TableHead className="border-0">Código</TableHead>
+                <TableHead className="border-0">Título</TableHead>
+                <TableHead className="border-0">Tipo</TableHead>
+                <TableHead className="border-0">Capítulo</TableHead>
+                <TableHead className="border-0">Prioridad</TableHead>
+                <TableHead className="border-0">Obligatorio</TableHead>
+                <TableHead className="text-right border-0">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredNormPoints.length === 0 ? (
+              {paginatedNormPoints.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     No se encontraron puntos de norma
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredNormPoints.map(np => (
+                paginatedNormPoints.map(np => (
                   <TableRow
                     key={np.id}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="hover:bg-green-50/30 cursor-pointer transition-colors border-0 border-b border-gray-100 last:border-0"
                     onClick={() => {
                       window.location.href = `/puntos-norma/${np.id}`;
                     }}
                   >
-                    <TableCell className="font-medium">{np.code}</TableCell>
-                    <TableCell>{np.title}</TableCell>
-                    <TableCell className="capitalize">
+                    <TableCell className="font-medium border-0">
+                      {np.code}
+                    </TableCell>
+                    <TableCell className="border-0">{np.title}</TableCell>
+                    <TableCell className="capitalize border-0">
                       {np.tipo_norma.replace('_', ' ')}
                     </TableCell>
-                    <TableCell>{np.chapter || '-'}</TableCell>
-                    <TableCell>{getPriorityBadge(np.priority)}</TableCell>
-                    <TableCell>
+                    <TableCell className="border-0">
+                      {np.chapter || '-'}
+                    </TableCell>
+                    <TableCell className="border-0">
+                      {getPriorityBadge(np.priority)}
+                    </TableCell>
+                    <TableCell className="border-0">
                       {np.is_mandatory ? (
                         <Badge variant="destructive">Sí</Badge>
                       ) : (
@@ -311,7 +353,7 @@ export function NormPointsList() {
                       )}
                     </TableCell>
                     <TableCell
-                      className="text-right"
+                      className="text-right border-0"
                       onClick={e => e.stopPropagation()}
                     >
                       <div className="flex justify-end gap-2">
@@ -341,6 +383,62 @@ export function NormPointsList() {
               )}
             </TableBody>
           </Table>
+        </div>
+      )}
+
+      {/* Paginación */}
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-between border-t pt-4">
+          <div className="text-sm text-gray-600">
+            Página {currentPage} de {totalPages}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+
+            {/* Números de página */}
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className="w-10"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+            </Button>
+          </div>
         </div>
       )}
 

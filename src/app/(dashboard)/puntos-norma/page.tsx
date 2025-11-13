@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NormPointsDashboard } from '@/components/normPoints/NormPointsDashboard';
 import { NormPointsList } from '@/components/normPoints/NormPointsList';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
 
 export default function PuntosNormaPage() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('gestion');
 
   return (
     <div className="p-6">

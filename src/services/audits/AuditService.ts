@@ -1,4 +1,5 @@
 import { db } from '@/firebase/config';
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import { TraceabilityService } from '@/services/shared/TraceabilityService';
 import type {
   Audit,
@@ -101,6 +102,34 @@ export class AuditService {
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), auditData);
+
+      // Publicar evento de calendario (no bloquear si falla)
+      try {
+        await EventPublisher.publishEvent('audits', {
+          title: `Auditoría: ${data.title}`,
+          description: `Auditoría ${data.auditType === 'complete' ? 'completa' : 'parcial'} - ${data.scope}`,
+          date: data.plannedDate,
+          endDate: null,
+          type: 'audit',
+          sourceRecordId: docRef.id,
+          sourceRecordType: 'audit',
+          sourceRecordNumber: auditNumber,
+          responsibleUserId: null,
+          responsibleUserName: data.leadAuditor,
+          participantIds: null,
+          priority: 'high',
+          processId: null,
+          processName: null,
+          metadata: {
+            auditType: data.auditType,
+            scope: data.scope,
+            leadAuditor: data.leadAuditor,
+          },
+        });
+      } catch (calendarError) {
+        console.error('Error publishing calendar event:', calendarError);
+        // No fallar la creación de auditoría si falla el calendario
+      }
 
       return docRef.id;
     } catch (error) {
@@ -233,6 +262,36 @@ export class AuditService {
         updateData.selectedNormPoints = data.selectedNormPoints;
 
       await updateDoc(docRef, updateData);
+
+      // Actualizar evento de calendario si cambió la fecha (no bloquear si falla)
+      if (data.plannedDate) {
+        try {
+          const eventUpdateData: Record<string, unknown> = {
+            date: data.plannedDate,
+          };
+
+          if (data.title) {
+            eventUpdateData.title = `Auditoría: ${data.title}`;
+          }
+
+          if (data.scope || data.auditType) {
+            eventUpdateData.description = `Auditoría ${data.auditType || audit.auditType === 'complete' ? 'completa' : 'parcial'} - ${data.scope || audit.scope}`;
+          }
+
+          if (data.leadAuditor) {
+            eventUpdateData.responsibleUserName = data.leadAuditor;
+          }
+
+          await EventPublisher.updatePublishedEvent(
+            'audits',
+            id,
+            eventUpdateData
+          );
+        } catch (calendarError) {
+          console.error('Error updating calendar event:', calendarError);
+          // No fallar la actualización de auditoría si falla el calendario
+        }
+      }
     } catch (error) {
       console.error('Error updating audit:', error);
       throw new Error('Error al actualizar la auditoría');
@@ -247,6 +306,14 @@ export class AuditService {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       await deleteDoc(docRef);
+
+      // Eliminar evento de calendario (no bloquear si falla)
+      try {
+        await EventPublisher.deletePublishedEvent('audits', id);
+      } catch (calendarError) {
+        console.error('Error deleting calendar event:', calendarError);
+        // No fallar la eliminación de auditoría si falla el calendario
+      }
     } catch (error) {
       console.error('Error deleting audit:', error);
       throw new Error('Error al eliminar la auditoría');

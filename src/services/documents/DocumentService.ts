@@ -1,29 +1,30 @@
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp,
-} from 'firebase/firestore';
 import { db } from '@/firebase/config';
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import {
   Document,
-  DocumentFilters,
-  PaginationParams,
-  PaginatedResponse,
-  DocumentFormData,
   DocumentCreateData,
-  DocumentType,
-  DocumentStatus,
+  DocumentFilters,
+  DocumentFormData,
   DocumentStats,
+  DocumentStatus,
+  DocumentType,
   DocumentVersion,
+  PaginatedResponse,
+  PaginationParams,
 } from '@/types/documents';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 
 const COLLECTION_NAME = 'documents';
 
@@ -83,49 +84,10 @@ export class DocumentService {
     pagination: PaginationParams = { page: 1, limit: 20 }
   ): Promise<PaginatedResponse<Document>> {
     try {
-      let q = query(collection(db, COLLECTION_NAME));
+      // Obtener todos los documentos y filtrar en memoria para evitar índices complejos
+      const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
 
-      // Por defecto, excluir archivados a menos que se especifique explícitamente
-      if (filters.is_archived !== undefined) {
-        q = query(q, where('is_archived', '==', filters.is_archived));
-      } else {
-        q = query(q, where('is_archived', '==', false));
-      }
-
-      // Apply filters
-      if (filters.type) {
-        q = query(q, where('type', '==', filters.type));
-      }
-
-      if (filters.status) {
-        q = query(q, where('status', '==', filters.status));
-      }
-
-      if (filters.responsible_user_id) {
-        q = query(
-          q,
-          where('responsible_user_id', '==', filters.responsible_user_id)
-        );
-      }
-
-      if (filters.process_id) {
-        q = query(q, where('process_id', '==', filters.process_id));
-      }
-
-      // Apply sorting
-      const sortField = pagination.sort || 'created_at';
-      const sortOrder = pagination.order === 'asc' ? 'asc' : 'desc';
-      q = query(q, orderBy(sortField, sortOrder));
-
-      // Get all docs for pagination
-      const querySnapshot = await getDocs(q);
-      const total = querySnapshot.size;
-
-      // Apply pagination
-      const offset = (pagination.page - 1) * pagination.limit;
-      const docs = querySnapshot.docs.slice(offset, offset + pagination.limit);
-
-      const data = docs.map(doc => ({
+      let allDocs = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         effective_date: doc.data().effective_date?.toDate(),
@@ -134,6 +96,58 @@ export class DocumentService {
         created_at: doc.data().created_at?.toDate() || new Date(),
         updated_at: doc.data().updated_at?.toDate() || new Date(),
       })) as Document[];
+
+      // Filtrar en memoria
+      allDocs = allDocs.filter(doc => {
+        // Por defecto, excluir archivados
+        if (filters.is_archived !== undefined) {
+          if (doc.is_archived !== filters.is_archived) return false;
+        } else {
+          if (doc.is_archived) return false;
+        }
+
+        // Filtros adicionales
+        if (filters.type && doc.type !== filters.type) return false;
+        if (filters.status && doc.status !== filters.status) return false;
+        if (
+          filters.responsible_user_id &&
+          doc.responsible_user_id !== filters.responsible_user_id
+        )
+          return false;
+        if (filters.process_id && doc.process_id !== filters.process_id)
+          return false;
+
+        return true;
+      });
+
+      // Ordenar en memoria
+      const sortField = pagination.sort || 'created_at';
+      const sortOrder = pagination.order === 'asc' ? 'asc' : 'desc';
+
+      allDocs.sort((a, b) => {
+        const aVal = (a as any)[sortField];
+        const bVal = (b as unknown)[sortField];
+
+        if (aVal instanceof Date && bVal instanceof Date) {
+          return sortOrder === 'asc'
+            ? aVal.getTime() - bVal.getTime()
+            : bVal.getTime() - aVal.getTime();
+        }
+
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return sortOrder === 'asc'
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        }
+
+        return 0;
+      });
+
+      const total = allDocs.length;
+
+      // Aplicar paginación
+      const offset = (pagination.page - 1) * pagination.limit;
+      const data = allDocs.slice(offset, offset + pagination.limit);
 
       return {
         data,
@@ -178,6 +192,36 @@ export class DocumentService {
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), docData);
+
+      // Publicar evento de calendario si tiene review_date (no bloquear si falla)
+      if (data.review_date) {
+        try {
+          const priority = this.getExpiryPriority(data.review_date);
+          await EventPublisher.publishEvent('documents', {
+            title: `Revisión de documento: ${data.title}`,
+            description: `Documento ${code} - ${data.type}`,
+            date: data.review_date,
+            endDate: null,
+            type: 'document_expiry',
+            sourceRecordId: docRef.id,
+            sourceRecordType: 'document',
+            sourceRecordNumber: code,
+            responsibleUserId: data.responsible_user_id || null,
+            responsibleUserName: null,
+            participantIds: null,
+            priority,
+            processId: data.process_id || null,
+            processName: null,
+            metadata: {
+              documentType: data.type,
+              documentCode: code,
+            },
+          });
+        } catch (calendarError) {
+          console.error('Error publishing calendar event:', calendarError);
+          // No fallar la creación de documento si falla el calendario
+        }
+      }
 
       return {
         id: docRef.id,
@@ -245,6 +289,34 @@ export class DocumentService {
         throw new Error('Documento no encontrado después de actualizar');
       }
 
+      // Actualizar evento de calendario si cambió review_date (no bloquear si falla)
+      if (data.review_date) {
+        try {
+          const priority = this.getExpiryPriority(data.review_date);
+          const eventUpdateData: Record<string, unknown> = {
+            date: data.review_date,
+            priority,
+          };
+
+          if (data.title) {
+            eventUpdateData.title = `Revisión de documento: ${data.title}`;
+          }
+
+          if (data.responsible_user_id !== undefined) {
+            eventUpdateData.responsibleUserId = data.responsible_user_id;
+          }
+
+          await EventPublisher.updatePublishedEvent(
+            'documents',
+            id,
+            eventUpdateData
+          );
+        } catch (calendarError) {
+          console.error('Error updating calendar event:', calendarError);
+          // No fallar la actualización de documento si falla el calendario
+        }
+      }
+
       return updated;
     } catch (error) {
       console.error('Error updating document:', error);
@@ -256,6 +328,14 @@ export class DocumentService {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       await deleteDoc(docRef);
+
+      // Eliminar evento de calendario (no bloquear si falla)
+      try {
+        await EventPublisher.deletePublishedEvent('documents', id);
+      } catch (calendarError) {
+        console.error('Error deleting calendar event:', calendarError);
+        // No fallar la eliminación de documento si falla el calendario
+      }
     } catch (error) {
       console.error('Error deleting document:', error);
       throw new Error('Error al eliminar documento');
@@ -972,5 +1052,30 @@ export class DocumentService {
       otro: 'DOC',
     };
     return prefixes[type];
+  }
+
+  // ============================================
+  // CALENDAR INTEGRATION
+  // ============================================
+
+  /**
+   * Calcular prioridad del evento basado en días hasta vencimiento
+   * - Crítico: < 7 días
+   * - Alto: < 30 días
+   * - Medio: < 60 días
+   * - Bajo: > 60 días
+   */
+  private static getExpiryPriority(
+    reviewDate: Date
+  ): 'low' | 'medium' | 'high' | 'critical' {
+    const now = new Date();
+    const daysUntilExpiry = Math.ceil(
+      (reviewDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysUntilExpiry < 7) return 'critical';
+    if (daysUntilExpiry < 30) return 'high';
+    if (daysUntilExpiry < 60) return 'medium';
+    return 'low';
   }
 }

@@ -10,6 +10,7 @@ import {
   Bot,
   Briefcase,
   Building,
+  Calendar,
   CheckCircle,
   ChevronDown,
   ChevronLeft,
@@ -77,6 +78,7 @@ const navigation: MenuItem[] = [
     ],
   },
   { name: 'Documentos', href: '/documentos', icon: FileText },
+  { name: 'Calendario', href: '/calendario', icon: Calendar },
   { name: 'Puntos de Norma', href: '/puntos-norma', icon: BookOpen },
   { name: 'CRM', href: '/dashboard/crm', icon: Briefcase },
   {

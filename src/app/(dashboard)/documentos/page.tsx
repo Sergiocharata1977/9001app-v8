@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocumentsDashboard } from '@/components/documents/DocumentsDashboard';
 import { DocumentsList } from '@/components/documents/DocumentsList';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
 
 export default function DocumentosPage() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('gestion');
 
   return (
     <div className="p-6">

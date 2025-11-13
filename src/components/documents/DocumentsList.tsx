@@ -1,8 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -11,16 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Document, DocumentStatus } from '@/types/documents';
-import { Plus, Search, Download, Edit, Trash2, List, Grid } from 'lucide-react';
+import { Download, Edit, Grid, List, Plus, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { DocumentFormDialog } from './DocumentFormDialog';
 
 export function DocumentsList() {
@@ -128,17 +128,17 @@ export function DocumentsList() {
       {/* Barra de herramientas */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-4 top-4 h-6 w-6 text-gray-500" />
           <Input
-            placeholder="Buscar documentos..."
+            placeholder="Buscar por código o título..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="pl-10 border-0 shadow-sm shadow-green-100 focus:shadow-md focus:shadow-green-200"
+            className="pl-12 h-14 text-lg border-0 shadow-md shadow-green-200/50 focus:shadow-lg focus:shadow-green-300/60"
           />
         </div>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
@@ -152,7 +152,7 @@ export function DocumentsList() {
         </Select>
 
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -275,17 +275,17 @@ export function DocumentsList() {
           )}
         </div>
       ) : (
-        <div className="rounded-lg shadow-md shadow-green-100">
+        <div className="rounded-lg shadow-md shadow-green-200/50 overflow-hidden bg-white">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Título</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Versión</TableHead>
-                <TableHead>Descargas</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+              <TableRow className="border-0 bg-gray-50/50">
+                <TableHead className="border-0">Código</TableHead>
+                <TableHead className="border-0">Título</TableHead>
+                <TableHead className="border-0">Tipo</TableHead>
+                <TableHead className="border-0">Estado</TableHead>
+                <TableHead className="border-0">Versión</TableHead>
+                <TableHead className="border-0">Descargas</TableHead>
+                <TableHead className="text-right border-0">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -299,19 +299,27 @@ export function DocumentsList() {
                 filteredDocuments.map(doc => (
                   <TableRow
                     key={doc.id}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="hover:bg-green-50/30 cursor-pointer transition-colors border-0 border-b border-gray-100 last:border-0"
                     onClick={() => {
                       window.location.href = `/documentos/${doc.id}`;
                     }}
                   >
-                    <TableCell className="font-medium">{doc.code}</TableCell>
-                    <TableCell>{doc.title}</TableCell>
-                    <TableCell className="capitalize">{doc.type}</TableCell>
-                    <TableCell>{getStatusBadge(doc.status)}</TableCell>
-                    <TableCell>{doc.version}</TableCell>
-                    <TableCell>{doc.download_count}</TableCell>
+                    <TableCell className="font-medium border-0">
+                      {doc.code}
+                    </TableCell>
+                    <TableCell className="border-0">{doc.title}</TableCell>
+                    <TableCell className="capitalize border-0">
+                      {doc.type}
+                    </TableCell>
+                    <TableCell className="border-0">
+                      {getStatusBadge(doc.status)}
+                    </TableCell>
+                    <TableCell className="border-0">{doc.version}</TableCell>
+                    <TableCell className="border-0">
+                      {doc.download_count}
+                    </TableCell>
                     <TableCell
-                      className="text-right"
+                      className="text-right border-0"
                       onClick={e => e.stopPropagation()}
                     >
                       <div className="flex justify-end gap-2">
