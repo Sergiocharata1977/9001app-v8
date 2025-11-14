@@ -170,7 +170,7 @@ Estoy aquí para ayudarte con:
     setCargando(true);
 
     try {
-      const response = await fetch('/api/claude/chat', {
+      const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -178,6 +178,7 @@ Estoy aquí para ayudarte con:
           userId: usuario.id,
           sessionId,
           modulo,
+          mode: 'fast', // Usar Groq para respuestas rápidas (2-3 seg)
         }),
       });
 
