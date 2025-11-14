@@ -126,7 +126,7 @@ export class DocumentService {
 
       allDocs.sort((a, b) => {
         const aVal = (a as any)[sortField];
-        const bVal = (b as unknown)[sortField];
+        const bVal = (b as any)[sortField];
 
         if (aVal instanceof Date && bVal instanceof Date) {
           return sortOrder === 'asc'
@@ -735,7 +735,7 @@ export class DocumentService {
 
   static async downloadFile(
     documentId: string,
-    userId: string
+    _userId: string
   ): Promise<string> {
     try {
       const document = await this.getById(documentId);

@@ -85,7 +85,7 @@ export const CalendarEventSchema = z.object({
   organizationId: z.string().min(1),
   processId: z.string().nullable(),
   processName: z.string().nullable(),
-  metadata: z.record(z.any()).nullable(),
+  metadata: z.record(z.string(), z.any()).nullable(),
   notificationSchedule: NotificationScheduleSchema.nullable(),
   isRecurring: z.boolean().default(false),
   recurrenceRule: RecurrenceRuleSchema.nullable(),
@@ -113,7 +113,7 @@ export const PublishEventSchema = z.object({
   priority: EventPrioritySchema,
   processId: z.string().nullable().optional(),
   processName: z.string().nullable().optional(),
-  metadata: z.record(z.any()).nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional(),
 });
 
 // ============================================
@@ -132,7 +132,7 @@ export const CalendarEventUpdateSchema = z.object({
   participantIds: z.array(z.string()).nullable().optional(),
   processId: z.string().nullable().optional(),
   processName: z.string().nullable().optional(),
-  metadata: z.record(z.any()).nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional(),
   notificationSchedule: NotificationScheduleSchema.nullable().optional(),
 });
 

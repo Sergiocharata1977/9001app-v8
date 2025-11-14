@@ -264,27 +264,157 @@ export interface CalendarStats {
 
 export interface UserWorkload {
   userId: string;
+  userName: string;
   period: 'week' | 'month' | 'quarter';
+  startDate: Date;
+  endDate: Date;
   totalEvents: number;
   overdueEvents: number;
   upcomingEvents: number;
+  completedEvents: number;
   byType: Record<EventType, number>;
   byPriority: Record<EventPriority, number>;
+  byStatus: Record<EventStatus, number>;
   completionRate: number; // Porcentaje de eventos completados
+  averageEventsPerDay: number;
+  peakDay: { date: Date; count: number } | null; // Día con más eventos
 }
 
 export interface AvailabilitySlot {
   startTime: Date;
   endTime: Date;
   durationMinutes: number;
+  isAvailable: boolean;
+}
+
+export interface UserAvailability {
+  userId: string;
+  userName: string;
+  dateRange: { startDate: Date; endDate: Date };
+  workingHours: { start: string; end: string }; // "09:00" - "18:00"
+  totalSlots: number;
+  availableSlots: AvailabilitySlot[];
+  busySlots: AvailabilitySlot[];
+  utilizationRate: number; // Porcentaje de tiempo ocupado
 }
 
 export interface EventContext {
   event: CalendarEvent;
-  sourceRecord: Record<string, unknown>; // Registro origen (Audit, Document, etc.)
+  sourceRecord: Record<string, unknown> | null; // Registro origen (Audit, Document, etc.)
   relatedRecords: Record<string, unknown>[]; // Registros relacionados
-  responsibleUser: Record<string, unknown> | null;
-  participants: Record<string, unknown>[] | null;
+  responsibleUser: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+  participants: Array<{
+    id: string;
+    name: string;
+    email: string;
+  }> | null;
+  process: {
+    id: string;
+    name: string;
+  } | null;
+  organization: {
+    id: string;
+    name: string;
+  };
+}
+
+// ============================================
+// TIPOS PARA QUERIES DE IA
+// ============================================
+
+export interface AIQueryFilters extends EventFilters {
+  includeCompleted?: boolean;
+  includeOverdue?: boolean;
+  minPriority?: EventPriority;
+  dateRange?: DateRangeFilter;
+  limit?: number;
+}
+
+export interface UserEventsQuery {
+  userId: string;
+  filters?: AIQueryFilters;
+  includeContext?: boolean; // Si incluir información completa del contexto
+  sortBy?: 'date' | 'priority' | 'status';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface UserTasksQuery {
+  userId: string;
+  includeOverdue?: boolean;
+  includeUpcoming?: boolean;
+  daysAhead?: number; // Próximos N días
+  groupBy?: 'type' | 'priority' | 'module' | 'date';
+}
+
+export interface WorkloadAnalysisQuery {
+  userId: string;
+  period: 'week' | 'month' | 'quarter';
+  startDate?: Date; // Si no se provee, usa fecha actual
+  compareWithPrevious?: boolean; // Comparar con período anterior
+}
+
+export interface AvailabilityQuery {
+  userId: string;
+  startDate: Date;
+  endDate: Date;
+  workingHours?: { start: string; end: string };
+  minSlotDuration?: number; // Duración mínima del slot en minutos
+  includeWeekends?: boolean;
+}
+
+export interface EventContextQuery {
+  eventId: string;
+  includeSourceRecord?: boolean;
+  includeRelatedRecords?: boolean;
+  includeUserDetails?: boolean;
+  includeProcessDetails?: boolean;
+}
+
+// ============================================
+// TIPOS PARA RESPUESTAS DE IA API
+// ============================================
+
+export interface UserEventsResponse {
+  userId: string;
+  userName: string;
+  totalEvents: number;
+  events: CalendarEvent[];
+  summary: {
+    byType: Record<EventType, number>;
+    byPriority: Record<EventPriority, number>;
+    byStatus: Record<EventStatus, number>;
+    overdueCount: number;
+    upcomingCount: number;
+  };
+  context?: EventContext[]; // Si includeContext=true
+}
+
+export interface UserTasksResponse {
+  userId: string;
+  userName: string;
+  totalTasks: number;
+  overdueTasks: number;
+  upcomingTasks: number;
+  tasks: CalendarEvent[];
+  groupedTasks?: Record<string, CalendarEvent[]>; // Si groupBy está presente
+}
+
+export interface WorkloadAnalysisResponse {
+  current: UserWorkload;
+  previous?: UserWorkload; // Si compareWithPrevious=true
+  trend: 'increasing' | 'decreasing' | 'stable';
+  insights: string[]; // Observaciones sobre la carga de trabajo
+  recommendations: string[]; // Recomendaciones para optimizar
+}
+
+export interface AvailabilityAnalysisResponse {
+  availability: UserAvailability;
+  suggestedSlots: AvailabilitySlot[]; // Mejores slots disponibles
+  insights: string[]; // Observaciones sobre disponibilidad
 }
 
 // ============================================
