@@ -1,5 +1,7 @@
 'use client';
 
+import { AuditAdvancedFilters, type AuditFiltersState } from '@/components/audits/AuditAdvancedFilters';
+import { AuditExportButton } from '@/components/audits/AuditExportButton';
 import { AuditFormDialog } from '@/components/audits/AuditFormDialog';
 import { AuditKanban } from '@/components/audits/AuditKanban';
 import { AuditList } from '@/components/audits/AuditList';
@@ -14,46 +16,76 @@ type ViewMode = 'kanban' | 'list';
 export default function AuditsPage() {
   const router = useRouter();
   const [audits, setAudits] = useState<Audit[]>([]);
+  const [filteredAudits, setFilteredAudits] = useState<Audit[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
   const [showFormDialog, setShowFormDialog] = useState(false);
+  const [filters, setFilters] = useState<AuditFiltersState>({});
 
   useEffect(() => {
     fetchAudits();
   }, []);
 
+  useEffect(() => {
+    applyFilters();
+  }, [audits, filters]);
+
   const fetchAudits = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/audits');
-      const data = await response.json();
-      setAudits(data.audits || []);
+      const response = await fetch('/api/sdk/audits');
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setAudits(result.data);
+      } else {
+        setAudits([]);
+      }
     } catch (error) {
       console.error('Error fetching audits:', error);
+      setAudits([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreateAudit = async (data: AuditFormData) => {
-    try {
-      const response = await fetch('/api/audits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+  const applyFilters = () => {
+    let filtered = [...audits];
 
-      if (!response.ok) {
-        throw new Error('Error al crear la auditoría');
-      }
-
-      const result = await response.json();
-      await fetchAudits();
-      router.push(`/auditorias/${result.id}`);
-    } catch (error) {
-      console.error('Error creating audit:', error);
-      throw error;
+    // Apply search filter
+    if (filters.searchText) {
+      const searchLower = filters.searchText.toLowerCase();
+      filtered = filtered.filter(
+        audit =>
+          audit.title.toLowerCase().includes(searchLower) ||
+          audit.auditNumber.toLowerCase().includes(searchLower) ||
+          audit.scope.toLowerCase().includes(searchLower)
+      );
     }
+
+    // Apply status filter
+    if (filters.status && filters.status.length > 0) {
+      filtered = filtered.filter(audit => filters.status?.includes(audit.status));
+    }
+
+    // Apply type filter
+    if (filters.auditType && filters.auditType.length > 0) {
+      filtered = filtered.filter(audit => filters.auditType?.includes(audit.auditType));
+    }
+
+    // Apply year filter
+    if (filters.year) {
+      filtered = filtered.filter(audit => {
+        const auditYear = audit.createdAt?.toDate?.().getFullYear?.() || new Date(audit.createdAt).getFullYear();
+        return auditYear === filters.year;
+      });
+    }
+
+    setFilteredAudits(filtered);
+  };
+
+  const handleCreateAudit = () => {
+    router.push('/auditorias/crear');
   };
 
   if (loading) {
@@ -103,6 +135,8 @@ export default function AuditsPage() {
             </button>
           </div>
 
+          <AuditExportButton audits={filteredAudits} />
+
           <Button onClick={() => setShowFormDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Nueva Auditoría
@@ -110,38 +144,48 @@ export default function AuditsPage() {
         </div>
       </div>
 
+      {/* Filters */}
+      <AuditAdvancedFilters
+        onFiltersChange={setFilters}
+        isLoading={loading}
+      />
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Total</p>
-          <p className="text-2xl font-bold text-gray-900">{audits.length}</p>
+          <p className="text-2xl font-bold text-gray-900">{filteredAudits.length}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Planificadas</p>
           <p className="text-2xl font-bold text-gray-900">
-            {audits.filter(a => a.status === 'planned').length}
+            {filteredAudits.filter(a => a.status === 'planned').length}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">En Progreso</p>
           <p className="text-2xl font-bold text-blue-600">
-            {audits.filter(a => a.status === 'in_progress').length}
+            {filteredAudits.filter(a => a.status === 'in_progress').length}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Completadas</p>
           <p className="text-2xl font-bold text-green-600">
-            {audits.filter(a => a.status === 'completed').length}
+            {filteredAudits.filter(a => a.status === 'completed').length}
           </p>
         </div>
       </div>
 
       {/* Content */}
       <div className="bg-white rounded-lg shadow p-6">
-        {viewMode === 'kanban' ? (
-          <AuditKanban audits={audits} />
+        {filteredAudits.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No hay auditorías que coincidan con los filtros</p>
+          </div>
+        ) : viewMode === 'kanban' ? (
+          <AuditKanban audits={filteredAudits} />
         ) : (
-          <AuditList audits={audits} />
+          <AuditList audits={filteredAudits} />
         )}
       </div>
 

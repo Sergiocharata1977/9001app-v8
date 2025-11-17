@@ -41,9 +41,37 @@ export function AuditCard({ audit }: AuditCardProps) {
   const plannedDate = toDate(audit.plannedDate);
   const progress = getAuditProgress(audit);
 
+  // Determinar color de borde según estado
+  const getBorderColor = () => {
+    switch (audit.status) {
+      case 'planned':
+        return 'border-blue-200';
+      case 'in_progress':
+        return 'border-yellow-200';
+      case 'completed':
+        return 'border-green-200';
+      default:
+        return 'border-gray-200';
+    }
+  };
+
+  // Determinar color de barra de progreso según estado
+  const getProgressColor = () => {
+    switch (audit.status) {
+      case 'planned':
+        return 'bg-blue-500';
+      case 'in_progress':
+        return 'bg-yellow-500';
+      case 'completed':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
   return (
     <Link href={`/auditorias/${audit.id}`}>
-      <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 border border-gray-200 cursor-pointer">
+      <div className={`bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-2 ${getBorderColor()} cursor-pointer`}>
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
@@ -68,23 +96,27 @@ export function AuditCard({ audit }: AuditCardProps) {
           <AuditStatusBadge status={audit.status} />
         </div>
 
-        {/* Barra de Progreso */}
-        {audit.status !== 'planned' && (
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-gray-600">Progreso</span>
-              <span className="text-xs font-semibold text-gray-900">
-                {progress}%
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+        {/* Barra de Progreso - Siempre visible */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-gray-600">
+              {audit.status === 'planned' ? 'Estado' : 'Progreso'}
+            </span>
+            <span className="text-xs font-semibold text-gray-900">
+              {audit.status === 'planned'
+                ? 'Pendiente'
+                : `${progress}%`}
+            </span>
           </div>
-        )}
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className={`${getProgressColor()} h-2 rounded-full transition-all`}
+              style={{
+                width: audit.status === 'planned' ? '0%' : `${progress}%`
+              }}
+            />
+          </div>
+        </div>
 
         {/* Info en Grid */}
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -94,20 +126,19 @@ export function AuditCard({ audit }: AuditCardProps) {
               <Calendar className="w-3 h-3 shrink-0" />
               <span className="truncate">{formatDate(plannedDate)}</span>
             </div>
-            {audit.status !== 'planned' &&
-              audit.normPointsVerification.length > 0 && (
-                <div className="flex items-center gap-1 text-gray-600">
-                  <FileText className="w-3 h-3 shrink-0" />
-                  <span className="truncate">
-                    {
-                      audit.normPointsVerification.filter(
-                        v => v.conformityStatus !== null
-                      ).length
-                    }
-                    /{audit.normPointsVerification.length} puntos
-                  </span>
-                </div>
-              )}
+            {audit.normPointsVerification.length > 0 && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <FileText className="w-3 h-3 shrink-0" />
+                <span className="truncate">
+                  {
+                    audit.normPointsVerification.filter(
+                      v => v.conformityStatus !== null
+                    ).length
+                  }
+                  /{audit.normPointsVerification.length} puntos
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Columna 2 */}

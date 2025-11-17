@@ -1,121 +1,96 @@
-import { AuditFormSchema } from '@/lib/validations/audits';
-import { AuditService } from '@/services/audits/AuditService';
+/**
+ * Audit API Routes (by ID)
+ *
+ * Endpoints for managing individual audits using the SDK
+ */
+
+import { AuditService } from '@/lib/sdk/modules/audits';
 import { NextRequest, NextResponse } from 'next/server';
 
 // ============================================
-// GET - Obtener auditoría por ID
+// GET - Get audit by ID
 // ============================================
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const audit = await AuditService.getById(params.id);
+    const auditService = new AuditService();
+    const { params } = context;
+    const audit = await auditService.getById(params.id);
 
-    if (!audit) {
-      return NextResponse.json(
-        { error: 'Auditoría no encontrada' },
-        { status: 404 }
-      );
-    }
-
-    // Serializar Timestamps
-    const serializedAudit = {
-      ...audit,
-      plannedDate: audit.plannedDate.toDate().toISOString(),
-      executionDate: audit.executionDate?.toDate().toISOString() || null,
-      normPointsVerification: audit.normPointsVerification.map(v => ({
-        ...v,
-        verifiedAt: v.verifiedAt?.toDate().toISOString() || null,
-      })),
-      openingMeeting: audit.openingMeeting
-        ? {
-            ...audit.openingMeeting,
-            date: audit.openingMeeting.date.toDate().toISOString(),
-          }
-        : null,
-      closingMeeting: audit.closingMeeting
-        ? {
-            ...audit.closingMeeting,
-            date: audit.closingMeeting.date.toDate().toISOString(),
-          }
-        : null,
-      reportDelivery: audit.reportDelivery
-        ? {
-            ...audit.reportDelivery,
-            date: audit.reportDelivery.date.toDate().toISOString(),
-          }
-        : null,
-      createdAt: audit.createdAt.toDate().toISOString(),
-      updatedAt: audit.updatedAt.toDate().toISOString(),
-    };
-
-    return NextResponse.json({ audit: serializedAudit });
+    return NextResponse.json({
+      success: true,
+      data: audit,
+    });
   } catch (error) {
-    console.error('Error in GET /api/audits/[id]:', error);
+    console.error('Error getting audit:', error);
     return NextResponse.json(
-      { error: 'Error al obtener la auditoría' },
+      { success: false, error: 'Error al obtener auditoría' },
       { status: 500 }
     );
   }
 }
 
 // ============================================
-// PUT - Actualizar auditoría
+// PUT - Update audit
 // ============================================
 
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const userId = 'temp-user-id';
-    const userName = 'Usuario Temporal';
+    const auditService = new AuditService();
+    const { params } = context;
+    const body = await req.json();
 
-    const body = await request.json();
-
-    // Convertir fecha si existe
+    // Convert date if exists
     if (body.plannedDate) {
       body.plannedDate = new Date(body.plannedDate);
     }
 
-    // Validar datos parcialmente
-    const validatedData = AuditFormSchema.partial().parse(body);
+    // TODO: Get real user ID from auth
+    const userId = 'temp-user-id';
 
-    await AuditService.update(params.id, validatedData, userId, userName);
+    await auditService.update(params.id, body, userId);
 
-    return NextResponse.json({ message: 'Auditoría actualizada exitosamente' });
-  } catch (error: unknown) {
-    console.error('Error in PUT /api/audits/[id]:', error);
-
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-
+    return NextResponse.json({
+      success: true,
+      message: 'Auditoría actualizada exitosamente',
+    });
+  } catch (error) {
+    console.error('Error updating audit:', error);
     return NextResponse.json(
-      { error: 'Error al actualizar la auditoría' },
+      { success: false, error: 'Error al actualizar auditoría' },
       { status: 500 }
     );
   }
 }
 
 // ============================================
-// DELETE - Eliminar auditoría
+// DELETE - Delete audit
 // ============================================
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    await AuditService.delete(params.id);
+    const auditService = new AuditService();
+    const { params } = context;
 
-    return NextResponse.json({ message: 'Auditoría eliminada exitosamente' });
+    await auditService.delete(params.id);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Auditoría eliminada exitosamente',
+    });
   } catch (error) {
-    console.error('Error in DELETE /api/audits/[id]:', error);
+    console.error('Error deleting audit:', error);
     return NextResponse.json(
-      { error: 'Error al eliminar la auditoría' },
+      { success: false, error: 'Error al eliminar auditoría' },
       { status: 500 }
     );
   }

@@ -1,112 +1,81 @@
-import { AuditFormSchema } from '@/lib/validations/audits';
-import { AuditService } from '@/services/audits/AuditService';
-import type { AuditStatus, AuditType } from '@/types/audits';
+/**
+ * Audits API Routes
+ *
+ * Endpoints for managing audits using the SDK
+ */
+
+import { AuditService } from '@/lib/sdk/modules/audits';
 import { NextRequest, NextResponse } from 'next/server';
 
 // ============================================
-// GET - Listar auditorías
+// GET - List audits
 // ============================================
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const auditService = new AuditService();
+    const searchParams = req.nextUrl.searchParams;
 
-    const filters = {
-      status: (searchParams.get('status') as AuditStatus) || undefined,
-      auditType: (searchParams.get('auditType') as AuditType) || undefined,
-      year: searchParams.get('year')
-        ? parseInt(searchParams.get('year')!)
-        : undefined,
-      search: searchParams.get('search') || undefined,
-    };
+    const filters: Record<string, unknown> = {};
 
-    const pageSize = searchParams.get('pageSize')
+    if (searchParams.get('status')) {
+      filters.status = searchParams.get('status');
+    }
+
+    if (searchParams.get('auditType')) {
+      filters.auditType = searchParams.get('auditType');
+    }
+
+    const limit = searchParams.get('pageSize')
       ? parseInt(searchParams.get('pageSize')!)
       : 50;
 
-    const result = await AuditService.list(filters, pageSize);
-
-    // Serializar Timestamps a ISO strings
-    const serializedAudits = result.audits.map(audit => ({
-      ...audit,
-      plannedDate: audit.plannedDate.toDate().toISOString(),
-      executionDate: audit.executionDate?.toDate().toISOString() || null,
-      normPointsVerification: audit.normPointsVerification.map(v => ({
-        ...v,
-        verifiedAt: v.verifiedAt?.toDate().toISOString() || null,
-      })),
-      openingMeeting: audit.openingMeeting
-        ? {
-            ...audit.openingMeeting,
-            date: audit.openingMeeting.date.toDate().toISOString(),
-          }
-        : null,
-      closingMeeting: audit.closingMeeting
-        ? {
-            ...audit.closingMeeting,
-            date: audit.closingMeeting.date.toDate().toISOString(),
-          }
-        : null,
-      reportDelivery: audit.reportDelivery
-        ? {
-            ...audit.reportDelivery,
-            date: audit.reportDelivery.date.toDate().toISOString(),
-          }
-        : null,
-      createdAt: audit.createdAt.toDate().toISOString(),
-      updatedAt: audit.updatedAt.toDate().toISOString(),
-    }));
+    const audits = await auditService.list(filters, { limit });
 
     return NextResponse.json({
-      audits: serializedAudits,
+      success: true,
+      data: audits,
     });
   } catch (error) {
-    console.error('Error in GET /api/audits:', error);
+    console.error('Error listing audits:', error);
     return NextResponse.json(
-      { error: 'Error al obtener las auditorías' },
+      { success: false, error: 'Error al listar auditorías' },
       { status: 500 }
     );
   }
 }
 
 // ============================================
-// POST - Crear auditoría
+// POST - Create audit
 // ============================================
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const userId = 'temp-user-id';
-    const userName = 'Usuario Temporal';
+    const auditService = new AuditService();
+    const body = await req.json();
 
-    const body = await request.json();
-
-    // Convertir fecha de string a Date
+    // Convert date string to Date
     if (body.plannedDate) {
       body.plannedDate = new Date(body.plannedDate);
     }
 
-    // Validar datos
-    const validatedData = AuditFormSchema.parse(body);
+    // TODO: Get real user ID from auth
+    const userId = 'temp-user-id';
 
-    // Crear auditoría
-    const auditId = await AuditService.create(validatedData, userId, userName);
+    const auditId = await auditService.createAndReturnId(body, userId);
 
     return NextResponse.json(
-      { id: auditId, message: 'Auditoría creada exitosamente' },
+      {
+        success: true,
+        data: { id: auditId },
+        message: 'Auditoría creada exitosamente',
+      },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('Error in POST /api/audits:', error);
-
-    if (error instanceof Error && error.name === 'ZodError') {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: error },
-        { status: 400 }
-      );
-    }
-
+  } catch (error) {
+    console.error('Error creating audit:', error);
     return NextResponse.json(
-      { error: 'Error al crear la auditoría' },
+      { success: false, error: 'Error al crear auditoría' },
       { status: 500 }
     );
   }
