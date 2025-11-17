@@ -253,7 +253,6 @@ export async function createAuditLog(
     const db = getAdminFirestore();
     const auditLog: Omit<AuditLog, 'id'> = {
       userId,
-      organizationId,
       action,
       resource,
       resourceId,

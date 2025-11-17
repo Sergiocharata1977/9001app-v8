@@ -10,8 +10,11 @@ export class NormPointRelationService extends BaseService<NormPointRelation> {
   async createRelation(data: any, userId: string): Promise<string> {
     const validated = this.schema.parse(data);
 
+    const { notes, ...restValidated } = validated;
     const relationData: Omit<NormPointRelation, 'id'> = {
-      ...validated,
+      ...restValidated,
+      evidence: validated.evidence || [],
+      notes: notes || '',
       isActive: true,
       createdBy: userId,
       createdAt: Timestamp.now(),

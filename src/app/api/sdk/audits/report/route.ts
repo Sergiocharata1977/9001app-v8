@@ -1,16 +1,10 @@
-import { authMiddleware } from '@/lib/sdk/middleware/auth';
+import { withAuth } from '@/lib/sdk/middleware/auth';
 import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { AuditService } from '@/lib/sdk/modules/audits/AuditService';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request) => {
   try {
-    // Verificar autenticación
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const reportType = searchParams.get('type') || 'summary';
     const format = searchParams.get('format') || 'pdf';
@@ -32,9 +26,7 @@ export async function GET(request: NextRequest) {
       }
     } else {
       // Reporte general de todas las auditorías
-      auditData = await auditService.getAdvancedFiltered({
-        limit: 1000,
-      });
+      auditData = await auditService.list({}, { limit: 1000 });
     }
 
     if (format === 'csv') {
@@ -52,7 +44,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return errorHandler(error);
   }
-}
+});
 
 function generateCSVReport(data: any, reportType: string) {
   let csv = '';

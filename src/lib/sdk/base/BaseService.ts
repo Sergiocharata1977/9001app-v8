@@ -62,7 +62,7 @@ export abstract class BaseService<T extends BaseDocument> {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string[]> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach((err: any) => {
           const path = err.path.join('.');
           if (!errors[path]) errors[path] = [];
           errors[path].push(err.message);
@@ -88,8 +88,8 @@ export abstract class BaseService<T extends BaseDocument> {
     const data = doc.data() as T;
 
     return {
-      id: doc.id,
       ...data,
+      id: doc.id,
     } as T;
   }
 
@@ -109,7 +109,7 @@ export abstract class BaseService<T extends BaseDocument> {
 
     try {
       // Validate partial data
-      const validated = this.schema.partial().parse(data);
+      const validated = (this.schema as any).partial().parse(data);
 
       // Update with timestamp
       const updateData = {
@@ -126,7 +126,7 @@ export abstract class BaseService<T extends BaseDocument> {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string[]> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach((err: any) => {
           const path = err.path.join('.');
           if (!errors[path]) errors[path] = [];
           errors[path].push(err.message);
@@ -291,3 +291,4 @@ export abstract class BaseService<T extends BaseDocument> {
     return this.db.runTransaction(operation);
   }
 }
+

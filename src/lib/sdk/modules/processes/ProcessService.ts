@@ -13,6 +13,7 @@ export class ProcessService extends BaseService<Process> {
     const processData: Omit<Process, 'id'> = {
       ...validated,
       status: 'active',
+      steps: validated.steps || [],
       isActive: true,
       createdBy: userId,
       createdAt: Timestamp.now(),

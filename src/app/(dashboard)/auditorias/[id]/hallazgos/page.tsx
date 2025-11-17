@@ -222,8 +222,7 @@ export default function AuditFindingsPage() {
                     {finding.createdAt && (
                       <span>
                         Creado:{' '}
-                        {finding.createdAt.toDate?.().toLocaleDateString('es-ES') ||
-                          new Date(finding.createdAt).toLocaleDateString('es-ES')}
+                        {((finding.createdAt as any)?.toDate?.() || new Date((finding.createdAt as any))).toLocaleDateString('es-ES')}
                       </span>
                     )}
                   </div>

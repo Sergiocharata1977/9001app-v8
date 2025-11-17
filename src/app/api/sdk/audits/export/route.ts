@@ -1,16 +1,10 @@
-import { authMiddleware } from '@/lib/sdk/middleware/auth';
+import { withAuth } from '@/lib/sdk/middleware/auth';
 import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { AuditService } from '@/lib/sdk/modules/audits/AuditService';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request) => {
   try {
-    // Verificar autenticación
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month';
     const format = searchParams.get('format') || 'csv';
@@ -34,11 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Obtener auditorías del período
-    const audits = await auditService.getAdvancedFiltered({
-      startDate,
-      endDate: now,
-      limit: 1000,
-    });
+    const audits = await auditService.list({}, { limit: 1000 });
 
     if (format === 'csv') {
       return exportToCSV(audits);
@@ -53,7 +43,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return errorHandler(error);
   }
-}
+});
 
 function exportToCSV(audits: any[]) {
   // Headers

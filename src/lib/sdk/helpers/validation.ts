@@ -21,7 +21,7 @@ export function validateCreate<T>(schema: ZodSchema<T>, data: unknown): T {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors: Record<string, string[]> = {};
-      error.errors.forEach(err => {
+      error.issues.forEach((err: any) => {
         const path = err.path.join('.');
         if (!errors[path]) {
           errors[path] = [];
@@ -46,11 +46,11 @@ export function validateUpdate<T>(
   data: unknown
 ): Partial<T> {
   try {
-    return schema.partial().parse(data);
+    return (schema as any).partial().parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors: Record<string, string[]> = {};
-      error.errors.forEach(err => {
+      error.issues.forEach((err: any) => {
         const path = err.path.join('.');
         if (!errors[path]) {
           errors[path] = [];
@@ -94,7 +94,7 @@ export function safeValidate<T>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors: Record<string, string[]> = {};
-      error.errors.forEach(err => {
+      error.issues.forEach((err: any) => {
         const path = err.path.join('.');
         if (!errors[path]) {
           errors[path] = [];
@@ -255,11 +255,7 @@ export function createEnumSchema<T extends string>(
   values: readonly [T, ...T[]],
   errorMessage?: string
 ) {
-  return z.enum(values, {
-    errorMap: () => ({
-      message: errorMessage || `Must be one of: ${values.join(', ')}`,
-    }),
-  });
+  return z.enum(values, errorMessage ? { message: errorMessage } : undefined);
 }
 
 /**
@@ -295,7 +291,7 @@ export function validateRecord<T>(
   valueSchema: ZodSchema<T>,
   data: unknown
 ): Record<string, T> {
-  return z.record(valueSchema).parse(data);
+  return z.record(z.string(), valueSchema).parse(data);
 }
 
 /**

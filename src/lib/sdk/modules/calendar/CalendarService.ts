@@ -18,6 +18,7 @@ export class CalendarService extends BaseService<CalendarEvent> {
       status: 'scheduled',
       startDate: Timestamp.fromDate(startDate),
       endDate: Timestamp.fromDate(endDate),
+      reminders: validated.reminders || [],
       isActive: true,
       createdBy: userId,
       createdAt: Timestamp.now(),

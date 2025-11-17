@@ -1,36 +1,69 @@
+import { Timestamp } from 'firebase-admin/firestore';
 import { BaseService } from '../../base/BaseService';
-import { Timestamp, FieldValue } from 'firebase-admin/firestore';
-import type { Action, CreateActionInput, ActionFilters, ActionStats } from './types';
-import { CreateActionSchema, UpdateActionExecutionSchema, VerifyEffectivenessSchema, ActionFiltersSchema } from './validations';
+import type {
+  Action,
+  ActionFilters,
+  ActionStats,
+  CreateActionInput,
+} from './types';
+import {
+  ActionFiltersSchema,
+  CreateActionSchema,
+  UpdateActionExecutionSchema,
+  VerifyEffectivenessSchema,
+} from './validations';
 
 export class ActionService extends BaseService<Action> {
   protected collectionName = 'actions';
   protected schema = CreateActionSchema;
 
-  async createAndReturnId(data: CreateActionInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateActionInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
-    
+
+    const dueDate =
+      validated.dueDate instanceof Date
+        ? validated.dueDate
+        : new Date(validated.dueDate);
+
     const actionData: Omit<Action, 'id'> = {
-      ...validated,
+      title: validated.title,
+      description: validated.description,
+      findingId: validated.findingId,
+      responsibleId: validated.responsibleId,
+      dueDate: Timestamp.fromDate(dueDate),
+      priority: validated.priority || 'medium',
+      estimatedCost: validated.estimatedCost,
+      resources: validated.resources,
+      tags: validated.tags,
       status: 'pending',
       progressPercentage: 0,
       isEffective: null,
+      isActive: true,
       createdBy: userId,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
       updatedBy: userId,
-      deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(actionData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(actionData);
     return docRef.id;
   }
 
-  async list(filters: ActionFilters = {}, options: any = {}): Promise<Action[]> {
+  async list(
+    filters: ActionFilters = {},
+    options: any = {}
+  ): Promise<Action[]> {
     try {
       ActionFiltersSchema.parse(filters);
-      
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.status) {
         query = query.where('status', '==', filters.status);
@@ -53,12 +86,18 @@ export class ActionService extends BaseService<Action> {
       }
 
       if (filters.dueDateFrom) {
-        const fromDate = filters.dueDateFrom instanceof Date ? filters.dueDateFrom : new Date(filters.dueDateFrom);
+        const fromDate =
+          filters.dueDateFrom instanceof Date
+            ? filters.dueDateFrom
+            : new Date(filters.dueDateFrom);
         query = query.where('dueDate', '>=', Timestamp.fromDate(fromDate));
       }
 
       if (filters.dueDateTo) {
-        const toDate = filters.dueDateTo instanceof Date ? filters.dueDateTo : new Date(filters.dueDateTo);
+        const toDate =
+          filters.dueDateTo instanceof Date
+            ? filters.dueDateTo
+            : new Date(filters.dueDateTo);
         query = query.where('dueDate', '<=', Timestamp.fromDate(toDate));
       }
 
@@ -68,9 +107,11 @@ export class ActionService extends BaseService<Action> {
       query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Action));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Action
+      );
     } catch (error) {
-      this.logger.error('Error listing actions', error);
+      console.error('Error listing actions', error);
       throw error;
     }
   }
@@ -78,7 +119,7 @@ export class ActionService extends BaseService<Action> {
   async getById(id: string): Promise<Action | null> {
     try {
       const doc = await this.db.collection(this.collectionName).doc(id).get();
-      
+
       if (!doc.exists) {
         return null;
       }
@@ -90,7 +131,7 @@ export class ActionService extends BaseService<Action> {
 
       return { id: doc.id, ...data } as Action;
     } catch (error) {
-      this.logger.error(`Error getting action ${id}`, error);
+      console.error(`Error getting action ${id}`, error);
       throw error;
     }
   }
@@ -124,18 +165,23 @@ export class ActionService extends BaseService<Action> {
 
       await this.db.collection(this.collectionName).doc(id).update(updateData);
     } catch (error) {
-      this.logger.error(`Error updating action execution ${id}`, error);
+      console.error(`Error updating action execution ${id}`, error);
       throw error;
     }
   }
 
-  async verifyEffectiveness(id: string, data: any, userId: string): Promise<void> {
+  async verifyEffectiveness(
+    id: string,
+    data: any,
+    userId: string
+  ): Promise<void> {
     try {
       const validated = VerifyEffectivenessSchema.parse(data);
 
-      const verificationDate = validated.verificationDate instanceof Date 
-        ? validated.verificationDate 
-        : new Date(validated.verificationDate);
+      const verificationDate =
+        validated.verificationDate instanceof Date
+          ? validated.verificationDate
+          : new Date(validated.verificationDate);
 
       const updateData: Record<string, any> = {
         isEffective: validated.isEffective,
@@ -157,7 +203,7 @@ export class ActionService extends BaseService<Action> {
 
       await this.db.collection(this.collectionName).doc(id).update(updateData);
     } catch (error) {
-      this.logger.error(`Error verifying action effectiveness ${id}`, error);
+      console.error(`Error verifying action effectiveness ${id}`, error);
       throw error;
     }
   }
@@ -172,7 +218,7 @@ export class ActionService extends BaseService<Action> {
         updatedBy: userId,
       });
     } catch (error) {
-      this.logger.error(`Error closing action ${id}`, error);
+      console.error(`Error closing action ${id}`, error);
       throw error;
     }
   }
@@ -183,14 +229,16 @@ export class ActionService extends BaseService<Action> {
         deletedAt: Timestamp.now(),
       });
     } catch (error) {
-      this.logger.error(`Error deleting action ${id}`, error);
+      console.error(`Error deleting action ${id}`, error);
       throw error;
     }
   }
 
   async getStats(filters: any = {}): Promise<ActionStats> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.responsibleId) {
         query = query.where('responsibleId', '==', filters.responsibleId);
@@ -213,17 +261,27 @@ export class ActionService extends BaseService<Action> {
         ineffective: actions.filter(a => a.isEffective === false).length,
         unverified: actions.filter(a => a.isEffective === null).length,
         overdue: actions.filter(a => {
-          const dueDate = a.dueDate instanceof Timestamp ? a.dueDate.toDate() : new Date(a.dueDate);
+          if (!a.dueDate) return false;
+          const dueDate =
+            a.dueDate instanceof Timestamp
+              ? a.dueDate.toDate()
+              : new Date(a.dueDate);
           return dueDate < new Date() && a.status !== 'completed';
         }).length,
-        averageProgressPercentage: actions.length > 0 
-          ? Math.round(actions.reduce((sum, a) => sum + (a.progressPercentage || 0), 0) / actions.length)
-          : 0,
+        averageProgressPercentage:
+          actions.length > 0
+            ? Math.round(
+                actions.reduce(
+                  (sum, a) => sum + (a.progressPercentage || 0),
+                  0
+                ) / actions.length
+              )
+            : 0,
       };
 
       return stats;
     } catch (error) {
-      this.logger.error('Error getting action stats', error);
+      console.error('Error getting action stats', error);
       throw error;
     }
   }

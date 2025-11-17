@@ -1,8 +1,25 @@
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { z } from 'zod';
 
 // Tipos de notificación
-export type NotificationType = 'audit_scheduled' | 'audit_upcoming' | 'action_due' | 'action_overdue' | 'conformity_alert' | 'finding_registered';
+export type NotificationType =
+  | 'audit_scheduled'
+  | 'audit_upcoming'
+  | 'action_due'
+  | 'action_overdue'
+  | 'conformity_alert'
+  | 'finding_registered';
 
 // Prioridad de notificación
 export type NotificationPriority = 'low' | 'medium' | 'high' | 'critical';
@@ -31,14 +48,21 @@ export interface Notification {
 // Schema de validación
 const notificationSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
-  type: z.enum(['audit_scheduled', 'audit_upcoming', 'action_due', 'action_overdue', 'conformity_alert', 'finding_registered']),
+  type: z.enum([
+    'audit_scheduled',
+    'audit_upcoming',
+    'action_due',
+    'action_overdue',
+    'conformity_alert',
+    'finding_registered',
+  ]),
   title: z.string().min(1, 'Title is required').max(200),
   message: z.string().min(1, 'Message is required').max(1000),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   status: z.enum(['pending', 'sent', 'read', 'archived']).default('pending'),
   relatedId: z.string().optional(),
   relatedType: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export class NotificationService {
@@ -48,10 +72,12 @@ export class NotificationService {
   /**
    * Crear una notificación
    */
-  async createNotification(data: Omit<Notification, 'id' | 'createdAt'>): Promise<Notification> {
+  async createNotification(
+    data: Omit<Notification, 'id' | 'createdAt'>
+  ): Promise<Notification> {
     const validated = this.schema.parse(data);
     const db = getFirestore();
-    
+
     const docRef = await addDoc(collection(db, this.collectionName), {
       ...validated,
       createdAt: Timestamp.now(),
@@ -69,7 +95,10 @@ export class NotificationService {
   /**
    * Obtener notificaciones de un usuario
    */
-  async getNotificationsByUser(userId: string, status?: NotificationStatus): Promise<Notification[]> {
+  async getNotificationsByUser(
+    userId: string,
+    status?: NotificationStatus
+  ): Promise<Notification[]> {
     const db = getFirestore();
     let q;
 
@@ -89,10 +118,32 @@ export class NotificationService {
     }
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Notification));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Notification
+    );
+  }
+
+  /**
+   * Obtener notificación por ID
+   */
+  async getById(notificationId: string): Promise<Notification | null> {
+    const db = getFirestore();
+    const docRef = doc(db, this.collectionName, notificationId);
+    const docSnap = await getDocs(query(collection(db, this.collectionName), where('__name__', '==', notificationId)));
+    
+    if (docSnap.empty) {
+      return null;
+    }
+    
+    const data = docSnap.docs[0].data();
+    return {
+      id: docSnap.docs[0].id,
+      ...data,
+    } as Notification;
   }
 
   /**
@@ -153,7 +204,10 @@ export class NotificationService {
   /**
    * Obtener notificaciones por tipo
    */
-  async getNotificationsByType(userId: string, type: NotificationType): Promise<Notification[]> {
+  async getNotificationsByType(
+    userId: string,
+    type: NotificationType
+  ): Promise<Notification[]> {
     const db = getFirestore();
     const q = query(
       collection(db, this.collectionName),
@@ -163,16 +217,22 @@ export class NotificationService {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Notification));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Notification
+    );
   }
 
   /**
    * Obtener notificaciones por prioridad
    */
-  async getNotificationsByPriority(userId: string, priority: NotificationPriority): Promise<Notification[]> {
+  async getNotificationsByPriority(
+    userId: string,
+    priority: NotificationPriority
+  ): Promise<Notification[]> {
     const db = getFirestore();
     const q = query(
       collection(db, this.collectionName),
@@ -182,10 +242,13 @@ export class NotificationService {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Notification));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Notification
+    );
   }
 
   /**
@@ -201,10 +264,13 @@ export class NotificationService {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Notification));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Notification
+    );
   }
 
   /**
@@ -220,10 +286,13 @@ export class NotificationService {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Notification));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Notification
+    );
   }
 
   /**
@@ -235,7 +304,8 @@ export class NotificationService {
     auditName: string,
     daysUntil: number
   ): Promise<Notification> {
-    const priority = daysUntil <= 1 ? 'critical' : daysUntil <= 3 ? 'high' : 'medium';
+    const priority =
+      daysUntil <= 1 ? 'critical' : daysUntil <= 3 ? 'high' : 'medium';
 
     return this.createNotification({
       userId,
@@ -243,6 +313,7 @@ export class NotificationService {
       title: `Auditoría próxima: ${auditName}`,
       message: `La auditoría "${auditName}" está programada para dentro de ${daysUntil} día(s)`,
       priority,
+      status: 'pending',
       relatedId: auditId,
       relatedType: 'audit',
     });
@@ -263,6 +334,7 @@ export class NotificationService {
       title: `Acción vencida: ${actionDescription}`,
       message: `La acción "${actionDescription}" está vencida hace ${daysOverdue} día(s)`,
       priority: 'critical',
+      status: 'pending',
       relatedId: actionId,
       relatedType: 'action',
     });
@@ -277,7 +349,8 @@ export class NotificationService {
     actionDescription: string,
     daysUntil: number
   ): Promise<Notification> {
-    const priority = daysUntil <= 1 ? 'critical' : daysUntil <= 3 ? 'high' : 'medium';
+    const priority =
+      daysUntil <= 1 ? 'critical' : daysUntil <= 3 ? 'high' : 'medium';
 
     return this.createNotification({
       userId,
@@ -285,6 +358,7 @@ export class NotificationService {
       title: `Acción próxima a vencer: ${actionDescription}`,
       message: `La acción "${actionDescription}" vence en ${daysUntil} día(s)`,
       priority,
+      status: 'pending',
       relatedId: actionId,
       relatedType: 'action',
     });
@@ -298,7 +372,12 @@ export class NotificationService {
     auditId: string,
     conformityRate: number
   ): Promise<Notification> {
-    const priority = conformityRate < 50 ? 'critical' : conformityRate < 75 ? 'high' : 'medium';
+    const priority =
+      conformityRate < 50
+        ? 'critical'
+        : conformityRate < 75
+          ? 'high'
+          : 'medium';
 
     return this.createNotification({
       userId,
@@ -306,6 +385,7 @@ export class NotificationService {
       title: 'Alerta de conformidad',
       message: `La tasa de conformidad es del ${conformityRate}%`,
       priority,
+      status: 'pending',
       relatedId: auditId,
       relatedType: 'audit',
       metadata: { conformityRate },
@@ -321,7 +401,12 @@ export class NotificationService {
     findingName: string,
     severity: string
   ): Promise<Notification> {
-    const priority = severity === 'critica' ? 'critical' : severity === 'alta' ? 'high' : 'medium';
+    const priority =
+      severity === 'critica'
+        ? 'critical'
+        : severity === 'alta'
+          ? 'high'
+          : 'medium';
 
     return this.createNotification({
       userId,
@@ -329,6 +414,7 @@ export class NotificationService {
       title: `Nuevo hallazgo: ${findingName}`,
       message: `Se ha registrado un hallazgo de severidad ${severity}`,
       priority,
+      status: 'pending',
       relatedId: findingId,
       relatedType: 'finding',
       metadata: { severity },
@@ -354,8 +440,10 @@ export class NotificationService {
     };
 
     notifications.forEach(notification => {
-      stats.byType[notification.type] = (stats.byType[notification.type] || 0) + 1;
-      stats.byPriority[notification.priority] = (stats.byPriority[notification.priority] || 0) + 1;
+      stats.byType[notification.type] =
+        (stats.byType[notification.type] || 0) + 1;
+      stats.byPriority[notification.priority] =
+        (stats.byPriority[notification.priority] || 0) + 1;
     });
 
     return stats;

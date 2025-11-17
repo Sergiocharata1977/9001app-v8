@@ -1,6 +1,6 @@
 /**
  * Action Module Types
- * 
+ *
  * Tipos e interfaces para la gestión de acciones correctivas
  */
 
@@ -9,79 +9,89 @@ import type { BaseDocument } from '../../base/types';
 /**
  * Estado de la acción
  */
-export type ActionStatus = 
-  | 'planificada'
-  | 'en_ejecucion'
-  | 'completada'
-  | 'verificada'
-  | 'cerrada';
+export type ActionStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled';
 
 /**
  * Documento de acción
  */
 export interface Action extends BaseDocument {
-  actionNumber: string;
-  findingId: string;
-  findingNumber: string;
-  
   // Información básica
+  actionNumber?: string; // Número único de la acción
   title: string;
   description: string;
-  responsiblePersonId: string;
-  responsiblePersonName: string;
-  
+  details?: string; // Detalles adicionales
+  findingId: string;
+  responsibleId: string;
+  responsible?: string; // Nombre del responsable
+  type?: 'correctiva' | 'preventiva'; // Tipo de acción
+
   // Fechas
-  plannedDate: any; // Timestamp
-  executionDate: any | null; // Timestamp
-  verificationDate: any | null; // Timestamp
-  
+  dueDate: any; // Timestamp
+  completedAt?: any; // Timestamp
+  verificationDate?: any; // Timestamp
+
+  // Prioridad y recursos
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  estimatedCost?: number;
+  resources?: string[];
+  tags?: string[];
+
   // Ejecución
-  executionDetails: string | null;
-  executedBy: string | null;
-  executedByName: string | null;
-  
-  // Verificación de efectividad
-  effectivenessVerification: string | null;
-  verifiedBy: string | null;
-  verifiedByName: string | null;
-  isEffective: boolean | null;
-  
-  // Estado y progreso
   status: ActionStatus;
-  progress: number; // 0-100
-  
-  // Auditoría
-  createdByName: string;
-  updatedByName: string | null;
+  progressPercentage: number; // 0-100
+  notes?: string;
+  attachments?: string[];
+  evidence?: string; // Evidencia de la acción
+  completedBy?: string;
+
+  // Verificación de efectividad
+  isEffective: boolean | null;
+  verificationNotes?: string;
+  verifiedBy?: string;
+  evidenceAttachments?: string[];
+  followUpRequired?: boolean;
+  followUpDescription?: string;
 }
 
 /**
  * Input para crear acción
  */
 export interface CreateActionInput {
-  findingId: string;
-  findingNumber: string;
   title: string;
   description: string;
-  responsiblePersonId: string;
-  responsiblePersonName: string;
-  plannedDate: Date;
+  findingId: string;
+  responsibleId: string;
+  dueDate: Date | string;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  estimatedCost?: number;
+  resources?: string[];
+  tags?: string[];
 }
 
 /**
  * Input para actualizar ejecución
  */
 export interface UpdateActionExecutionInput {
-  executionDate: Date;
-  executionDetails: string;
+  status: ActionStatus;
+  progressPercentage?: number;
+  notes?: string;
+  attachments?: string[];
 }
 
 /**
  * Input para verificar efectividad
  */
 export interface VerifyActionEffectivenessInput {
-  effectivenessVerification: string;
   isEffective: boolean;
+  verificationDate: Date | string;
+  verificationNotes: string;
+  evidenceAttachments?: string[];
+  followUpRequired?: boolean;
+  followUpDescription?: string;
 }
 
 /**
@@ -89,9 +99,12 @@ export interface VerifyActionEffectivenessInput {
  */
 export interface ActionFilters {
   status?: ActionStatus;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  responsibleId?: string;
   findingId?: string;
-  responsiblePersonId?: string;
-  year?: number;
+  dueDateFrom?: Date | string;
+  dueDateTo?: Date | string;
+  isEffective?: boolean;
   search?: string;
 }
 
@@ -100,8 +113,13 @@ export interface ActionFilters {
  */
 export interface ActionStats {
   total: number;
-  byStatus: Record<ActionStatus, number>;
-  averageProgress: number;
-  effectiveCount: number;
-  overdueCount: number;
+  pending: number;
+  inProgress: number;
+  completed: number;
+  cancelled: number;
+  effective: number;
+  ineffective: number;
+  unverified: number;
+  overdue: number;
+  averageProgressPercentage: number;
 }

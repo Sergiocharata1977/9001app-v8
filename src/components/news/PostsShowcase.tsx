@@ -92,10 +92,10 @@ export function PostsShowcase({
           <div className="flex-1">
             <CardTitle className="text-lg">{post.title}</CardTitle>
             <CardDescription className="mt-1">
-              Por {post.author} • {new Date(post.createdAt).toLocaleDateString()}
+              Por {post.author} • {((post.createdAt as any)?.toDate?.() || new Date((post.createdAt as any))).toLocaleDateString()}
             </CardDescription>
           </div>
-          {post.isFeatured && (
+          {(post as any).isFeatured && (
             <Badge className="ml-2">
               <Star className="h-3 w-3 mr-1" />
               Destacado
@@ -165,7 +165,7 @@ export function PostsShowcase({
         <CardDescription>Explora los posts más relevantes</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="trending" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />

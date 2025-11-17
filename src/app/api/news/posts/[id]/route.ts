@@ -1,4 +1,4 @@
-import { auth } from '@/firebase/admin';
+import { getAdminAuth } from '@/lib/firebase/admin';
 import { updatePostSchema } from '@/lib/validations/news';
 import { PostService } from '@/services/news/PostService';
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,6 +22,7 @@ export async function GET(
     }
 
     const token = authHeader.split('Bearer ')[1];
+    const auth = getAdminAuth();
     await auth.verifyIdToken(token);
 
     // Obtener post
@@ -79,6 +80,7 @@ export async function PATCH(
     }
 
     const token = authHeader.split('Bearer ')[1];
+    const auth = getAdminAuth();
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
@@ -175,6 +177,7 @@ export async function DELETE(
     }
 
     const token = authHeader.split('Bearer ')[1];
+    const auth = getAdminAuth();
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 

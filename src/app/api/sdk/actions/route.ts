@@ -18,9 +18,8 @@ export async function GET(request: NextRequest) {
     // Extract filters from query parameters
     const filters: ActionFilters = {
       status: (searchParams.get('status') as any) || undefined,
-      responsiblePersonId: searchParams.get('responsiblePersonId') || undefined,
+      responsibleId: searchParams.get('responsibleId') || undefined,
       findingId: searchParams.get('findingId') || undefined,
-      year: searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined,
       search: searchParams.get('search') || undefined,
     };
 

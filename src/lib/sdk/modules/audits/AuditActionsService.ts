@@ -417,12 +417,12 @@ export class AuditActionsService extends BaseService<Action> {
       actions.forEach((action: any) => {
         // Count by status
         if (action.status in stats.byStatus) {
-          stats.byStatus[action.status]++;
+          (stats.byStatus as Record<string, number>)[action.status]++;
         }
 
         // Count by priority
         if (action.priority in stats.byPriority) {
-          stats.byPriority[action.priority]++;
+          (stats.byPriority as Record<string, number>)[action.priority]++;
         }
 
         // Total progress

@@ -1,4 +1,4 @@
-import { auth } from '@/firebase/admin';
+import { getAdminAuth } from '@/lib/firebase/admin';
 import { createReactionSchema } from '@/lib/validations/news';
 import { PostService } from '@/services/news/PostService';
 import { ReactionService } from '@/services/news/ReactionService';
@@ -23,6 +23,7 @@ export async function POST(
     }
 
     const token = authHeader.split('Bearer ')[1];
+    const auth = getAdminAuth();
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 

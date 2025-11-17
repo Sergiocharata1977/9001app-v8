@@ -79,6 +79,7 @@ export function requirePermission(...requiredPermissions: string[]) {
 
 /**
  * Require user to belong to specific organization
+ * Note: Currently disabled as the system is not multi-tenant
  *
  * @param getOrganizationId - Function to extract organization ID from request
  * @returns Middleware function
@@ -100,15 +101,8 @@ export function requireOrganization(
 ) {
   return (handler: AuthenticatedHandler): AuthenticatedHandler => {
     return async (req: AuthenticatedRequest): Promise<NextResponse> => {
-      const { user } = req;
-      const organizationId = getOrganizationId(req);
-
-      if (user.organizationId !== organizationId) {
-        throw new ForbiddenError(
-          'Access denied. You do not belong to this organization.'
-        );
-      }
-
+      // Note: organizationId check disabled - system is not multi-tenant
+      // If multi-tenancy is needed in the future, add organizationId to UserContext
       return handler(req);
     };
   };

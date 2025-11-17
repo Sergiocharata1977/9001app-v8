@@ -84,7 +84,7 @@ export default function Dashboard() {
       icon: Shield,
       color: 'orange',
       href: '/auditorias',
-      enabled: false,
+      enabled: true,
       stats: {},
     },
     {
@@ -92,8 +92,8 @@ export default function Dashboard() {
       description: 'Control documental',
       icon: FolderOpen,
       color: 'red',
-      href: '/dashboard/documentos',
-      enabled: false,
+      href: '/documentos',
+      enabled: true,
       stats: {},
     },
     {
@@ -101,8 +101,8 @@ export default function Dashboard() {
       description: 'KPIs y reportes ejecutivos',
       icon: BarChart,
       color: 'indigo',
-      href: '/dashboard/reportes',
-      enabled: false,
+      href: '/reportes',
+      enabled: true,
       stats: {},
     },
   ];

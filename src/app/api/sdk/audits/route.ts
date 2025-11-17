@@ -20,19 +20,27 @@ export async function GET(request: NextRequest) {
     let audits;
 
     if (status) {
-      audits = await service.getByStatus(status);
+      audits = await service.searchAudits({ status: [status as any], limit });
     } else {
       audits = await service.list({}, { limit, offset });
     }
 
     return NextResponse.json(
-      { data: audits, count: audits.length },
+      {
+        success: true,
+        data: audits,
+        count: audits.length
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error('Error in GET /api/sdk/audits:', error);
     return NextResponse.json(
-      { error: 'Error al obtener auditorías', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        success: false,
+        error: 'Error al obtener auditorías',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

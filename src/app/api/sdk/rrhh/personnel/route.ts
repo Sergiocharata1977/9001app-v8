@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PersonnelService } from '@/lib/sdk/modules/rrhh';
-import { createPersonnelInputSchema } from '@/lib/sdk/modules/rrhh/validations';
+import { CreatePersonnelSchema } from '@/lib/sdk/modules/rrhh/validations';
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validated = createPersonnelInputSchema.parse(body);
+    const validated = CreatePersonnelSchema.parse(body);
 
     const service = new PersonnelService();
     const id = await service.createAndReturnId(validated, 'system');

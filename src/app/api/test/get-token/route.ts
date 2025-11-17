@@ -22,7 +22,6 @@ export const GET = withAuth(
         uid: user.uid,
         email: user.email,
         role: user.role,
-        organizationId: user.organizationId,
       },
       instructions: {
         thunderClient: 'Use this in Authorization header: Bearer <token>',

@@ -1,4 +1,5 @@
 import { BaseService } from '../../base/BaseService';
+import { z } from 'zod';
 import type { NormPoint, NormPointFilters } from './types';
 import { NormPointFiltersSchema } from './validations';
 
@@ -88,7 +89,7 @@ export class NormPointService extends BaseService<NormPoint> {
         doc => ({ id: doc.id, ...doc.data() }) as NormPoint
       );
     } catch (error) {
-      this.logger.error(
+      console.error(
         `Error getting norm points by chapter ${chapter}`,
         error
       );
@@ -109,7 +110,7 @@ export class NormPointService extends BaseService<NormPoint> {
         doc => ({ id: doc.id, ...doc.data() }) as NormPoint
       );
     } catch (error) {
-      this.logger.error(
+      console.error(
         `Error getting norm points by category ${category}`,
         error
       );

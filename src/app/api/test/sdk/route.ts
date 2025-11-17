@@ -35,7 +35,6 @@ export const GET = withAuth(
         uid: user.uid,
         email: user.email,
         role: user.role,
-        organizationId: user.organizationId,
         permissions: user.permissions,
       },
       timestamp: new Date().toISOString(),

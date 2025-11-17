@@ -285,12 +285,12 @@ export class AuditFindingsService extends BaseService<Finding> {
       findings.forEach((finding: any) => {
         // Count by status
         if (finding.status in stats.byStatus) {
-          stats.byStatus[finding.status]++;
+          (stats.byStatus as Record<string, number>)[finding.status]++;
         }
 
         // Count by conformity status
         if (finding.conformityStatus && finding.conformityStatus in stats.byConformityStatus) {
-          stats.byConformityStatus[finding.conformityStatus]++;
+          (stats.byConformityStatus as Record<string, number>)[finding.conformityStatus]++;
         }
 
         // Total progress

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import type { Action } from '@/types/actions';
+import type { Action } from '@/lib/sdk/modules/actions/types';
 import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -46,15 +46,13 @@ export default function AuditActionsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'planificada':
+      case 'pending':
         return 'bg-blue-100 text-blue-800';
-      case 'en_ejecucion':
+      case 'in_progress':
         return 'bg-yellow-100 text-yellow-800';
-      case 'completada':
+      case 'completed':
         return 'bg-green-100 text-green-800';
-      case 'verificada':
-        return 'bg-purple-100 text-purple-800';
-      case 'cerrada':
+      case 'cancelled':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -63,16 +61,14 @@ export default function AuditActionsPage() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'planificada':
-        return 'Planificada';
-      case 'en_ejecucion':
-        return 'En Ejecución';
-      case 'completada':
+      case 'pending':
+        return 'Pendiente';
+      case 'in_progress':
+        return 'En Progreso';
+      case 'completed':
         return 'Completada';
-      case 'verificada':
-        return 'Verificada';
-      case 'cerrada':
-        return 'Cerrada';
+      case 'cancelled':
+        return 'Cancelada';
       default:
         return status;
     }
@@ -147,27 +143,27 @@ export default function AuditActionsPage() {
           <p className="text-2xl font-bold text-gray-900">{actions.length}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Planificadas</p>
+          <p className="text-sm text-gray-600">Pendientes</p>
           <p className="text-2xl font-bold text-blue-600">
-            {actions.filter(a => a.status === 'planificada').length}
+            {actions.filter(a => a.status === 'pending').length}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">En Ejecución</p>
+          <p className="text-sm text-gray-600">En Progreso</p>
           <p className="text-2xl font-bold text-yellow-600">
-            {actions.filter(a => a.status === 'en_ejecucion').length}
+            {actions.filter(a => a.status === 'in_progress').length}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Completadas</p>
           <p className="text-2xl font-bold text-green-600">
-            {actions.filter(a => a.status === 'completada' || a.status === 'verificada').length}
+            {actions.filter(a => a.status === 'completed').length}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Vencidas</p>
           <p className="text-2xl font-bold text-red-600">
-            {actions.filter(a => isOverdue(a.dueDate) && a.status !== 'cerrada').length}
+            {actions.filter(a => isOverdue(a.dueDate) && a.status !== 'cancelled').length}
           </p>
         </div>
       </div>
@@ -175,7 +171,7 @@ export default function AuditActionsPage() {
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex gap-2 flex-wrap">
-          {['all', 'planificada', 'en_ejecucion', 'completada', 'verificada', 'cerrada'].map(
+          {['all', 'pending', 'in_progress', 'completed', 'cancelled'].map(
             status => (
               <button
                 key={status}
@@ -205,7 +201,7 @@ export default function AuditActionsPage() {
               <div
                 key={action.id}
                 className={`p-6 hover:bg-gray-50 transition-colors cursor-pointer ${
-                  isOverdue(action.dueDate) && action.status !== 'cerrada'
+                  isOverdue(action.dueDate) && action.status !== 'cancelled'
                     ? 'border-l-4 border-red-500'
                     : ''
                 }`}
@@ -220,14 +216,14 @@ export default function AuditActionsPage() {
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(action.status)}`}>
                         {getStatusLabel(action.status)}
                       </span>
-                      {isOverdue(action.dueDate) && action.status !== 'cerrada' && (
+                      {isOverdue(action.dueDate) && (action.status as any) !== 'cancelled' && (
                         <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                           Vencida
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-gray-600">
-                      {action.actionNumber}
+                      {action.title}
                     </p>
                   </div>
                   <div className="text-right">
@@ -235,10 +231,10 @@ export default function AuditActionsPage() {
                     <div className="w-24 h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
                       <div
                         className="h-full bg-green-600 transition-all"
-                        style={{ width: `${action.progress || 0}%` }}
+                        style={{ width: `${(action as any).progressPercentage || 0}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">{action.progress || 0}%</p>
+                    <p className="text-xs text-gray-600 mt-1">{(action as any).progressPercentage || 0}%</p>
                   </div>
                 </div>
 

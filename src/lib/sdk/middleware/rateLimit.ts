@@ -237,7 +237,7 @@ export function withOrgRateLimit(
     ...config,
     keyGenerator: req => {
       const authReq = req as AuthenticatedRequest;
-      return authReq.user?.organizationId || 'unknown';
+      return authReq.user?.uid || 'unknown';
     },
   });
 }

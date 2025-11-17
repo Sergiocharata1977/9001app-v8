@@ -36,9 +36,20 @@ export default function AuditsPage() {
       const response = await fetch('/api/sdk/audits');
       const result = await response.json();
       
-      if (result.success && result.data) {
+      console.log('📊 Audits API Response:', result);
+      console.log('📊 Response success:', result.success);
+      console.log('📊 Response data:', result.data);
+      console.log('📊 Data length:', result.data?.length);
+      
+      if (result.success && result.data && Array.isArray(result.data)) {
+        console.log('✅ Setting audits:', result.data);
+        setAudits(result.data);
+      } else if (result.data && Array.isArray(result.data)) {
+        // Fallback: si no hay success pero hay data
+        console.log('⚠️ No success flag but data exists, using data anyway');
         setAudits(result.data);
       } else {
+        console.log('❌ No valid data received');
         setAudits([]);
       }
     } catch (error) {
@@ -76,15 +87,30 @@ export default function AuditsPage() {
     // Apply year filter
     if (filters.year) {
       filtered = filtered.filter(audit => {
-        const auditYear = audit.createdAt?.toDate?.().getFullYear?.() || new Date(audit.createdAt).getFullYear();
-        return auditYear === filters.year;
+        try {
+          let auditYear: number;
+          const createdAt = audit.createdAt as any;
+          if (createdAt && typeof createdAt === 'object' && 'toDate' in createdAt) {
+            // Firestore Timestamp
+            auditYear = createdAt.toDate().getFullYear();
+          } else if (createdAt instanceof Date) {
+            auditYear = createdAt.getFullYear();
+          } else if (typeof createdAt === 'string') {
+            auditYear = new Date(createdAt).getFullYear();
+          } else {
+            return false;
+          }
+          return auditYear === filters.year;
+        } catch (e) {
+          return false;
+        }
       });
     }
 
     setFilteredAudits(filtered);
   };
 
-  const handleCreateAudit = () => {
+  const handleCreateAudit = async () => {
     router.push('/auditorias/crear');
   };
 

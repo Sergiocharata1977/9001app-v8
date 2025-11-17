@@ -1,7 +1,7 @@
-import { authMiddleware } from '@/lib/sdk/middleware/auth';
+import { withAuth } from '@/lib/sdk/middleware/auth';
 import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { NotificationService } from '@/lib/sdk/modules/calendar/NotificationService';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const notificationSchema = z.object({
@@ -13,16 +13,11 @@ const notificationSchema = z.object({
   status: z.enum(['pending', 'sent', 'read', 'archived']).optional(),
   relatedId: z.string().optional(),
   relatedType: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request) => {
   try {
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const status = searchParams.get('status');
@@ -53,20 +48,18 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return errorHandler(error);
   }
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request) => {
   try {
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const body = await request.json();
     const validated = notificationSchema.parse(body);
 
     const notificationService = new NotificationService();
-    const notification = await notificationService.createNotification(validated);
+    const notification = await notificationService.createNotification({
+      ...validated,
+      status: validated.status || 'pending',
+    });
 
     return NextResponse.json({
       success: true,
@@ -75,4 +68,4 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return errorHandler(error);
   }
-}
+});

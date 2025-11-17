@@ -67,10 +67,10 @@ export function withAuth(handler: AuthenticatedHandler) {
 
       // Extract user info and custom claims
       const user: UserContext = {
-        uid: decodedToken.uid,
-        email: decodedToken.email || '',
-        role: (decodedToken.role as UserContext['role']) || 'empleado',
-        permissions: decodedToken.permissions || [],
+        uid: (decodedToken as any).uid,
+        email: (decodedToken as any).email || '',
+        role: ((decodedToken as any).role as UserContext['role']) || 'empleado',
+        permissions: (decodedToken as any).permissions || [],
       };
 
       // Validate required fields (organizationId removed - not multi-tenant)
@@ -154,7 +154,12 @@ export function withAuth(handler: AuthenticatedHandler) {
 }
 
 /**
- * Verify Firebase ID token
+* Alias for withAuth for backward compatibility
+*/
+export const authMiddleware = withAuth;
+
+/**
+* Verify Firebase ID token
  * @param token - Firebase ID token
  * @returns Decoded token with user info
  */
@@ -173,7 +178,7 @@ export async function verifyToken(token: string) {
  * @param decodedToken - Decoded Firebase token
  * @returns User context
  */
-export function extractUserFromToken(decodedToken: unknown): UserContext {
+export function extractUserFromToken(decodedToken: any): UserContext {
   return {
     uid: decodedToken.uid,
     email: decodedToken.email || '',

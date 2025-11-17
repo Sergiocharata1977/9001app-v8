@@ -10,6 +10,7 @@ export interface AuditFiltersState {
   searchText?: string;
   status?: AuditStatus[];
   auditType?: AuditType[];
+  type?: AuditType[];
   dateRange?: { start: Date; end: Date };
   year?: number;
 }

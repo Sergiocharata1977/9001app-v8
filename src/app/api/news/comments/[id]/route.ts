@@ -1,4 +1,4 @@
-import { auth } from '@/firebase/admin';
+import { getAdminAuth } from '@/lib/firebase/admin';
 import { updateCommentSchema } from '@/lib/validations/news';
 import { CommentService } from '@/services/news/CommentService';
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,6 +22,7 @@ export async function PATCH(
     }
 
     const token = authHeader.split('Bearer ')[1];
+    const auth = getAdminAuth();
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
@@ -118,6 +119,7 @@ export async function DELETE(
     }
 
     const token = authHeader.split('Bearer ')[1];
+    const auth = getAdminAuth();
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 

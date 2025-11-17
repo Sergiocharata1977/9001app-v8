@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
     const validated = CreateFlujogramaSchema.parse(body);
 
     const service = new FlujogramaService();
-    const id = await service.createAndReturnId(validated, 'system');
+    const result = await service.create(validated, 'system');
+    const id = (result as any).id || result;
 
     return NextResponse.json(
       { id, message: 'Flujograma creado exitosamente' },

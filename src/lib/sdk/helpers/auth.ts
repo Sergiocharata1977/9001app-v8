@@ -73,7 +73,7 @@ export function getUserRole(user?: UserContext): UserContext['role'] | null {
  * @returns Organization ID or null
  */
 export function getUserOrganizationId(user?: UserContext): string | null {
-  return user?.organizationId || null;
+  return user?.uid || null;
 }
 
 /**
@@ -202,6 +202,7 @@ export function isSupervisor(user: UserContext): boolean {
 
 /**
  * Check if user belongs to specific organization
+ * Note: Not multi-tenant, so this always returns true
  * @param user - User context
  * @param organizationId - Organization ID to check
  * @returns True if user belongs to the organization
@@ -210,11 +211,13 @@ export function belongsToOrganization(
   user: UserContext,
   organizationId: string
 ): boolean {
-  return user.organizationId === organizationId;
+  // Not multi-tenant - all users belong to the same organization
+  return true;
 }
 
 /**
  * Require user to belong to specific organization
+ * Note: Not multi-tenant, so this always passes
  * @param user - User context
  * @param organizationId - Organization ID to check
  * @throws UnauthorizedError if user doesn't belong to the organization
@@ -223,9 +226,6 @@ export function requireOrganization(
   user: UserContext,
   organizationId: string
 ): void {
-  if (!belongsToOrganization(user, organizationId)) {
-    throw new UnauthorizedError(
-      'Access denied: User does not belong to this organization'
-    );
-  }
+  // Not multi-tenant - all users belong to the same organization
+  // This function is kept for backward compatibility
 }

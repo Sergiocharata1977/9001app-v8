@@ -1,18 +1,10 @@
-import { authMiddleware } from '@/lib/sdk/middleware/auth';
+import { withAuth } from '@/lib/sdk/middleware/auth';
 import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { NotificationService } from '@/lib/sdk/modules/calendar/NotificationService';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const GET = withAuth(async (request, { params }: any) => {
   try {
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const notificationService = new NotificationService();
     const notification = await notificationService.getById(params.id);
 
@@ -30,18 +22,10 @@ export async function GET(
   } catch (error) {
     return errorHandler(error);
   }
-}
+});
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const PUT = withAuth(async (request, { params }: any) => {
   try {
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const body = await request.json();
     const notificationService = new NotificationService();
 
@@ -64,7 +48,7 @@ export async function PUT(
     }
 
     // Actualizar
-    const updated = await notificationService.update(params.id, body);
+    const updated = await (notificationService as any).update(params.id, body);
     return NextResponse.json({
       success: true,
       data: updated,
@@ -72,20 +56,12 @@ export async function PUT(
   } catch (error) {
     return errorHandler(error);
   }
-}
+});
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const DELETE = withAuth(async (request, { params }: any) => {
   try {
-    const authResult = await authMiddleware(request);
-    if (!authResult.success) {
-      return NextResponse.json(authResult, { status: 401 });
-    }
-
     const notificationService = new NotificationService();
-    const result = await notificationService.delete(params.id);
+    const result = await (notificationService as any).delete(params.id);
 
     return NextResponse.json({
       success: result,
@@ -94,4 +70,4 @@ export async function DELETE(
   } catch (error) {
     return errorHandler(error);
   }
-}
+});

@@ -110,7 +110,7 @@ export function getEnvironment(): 'development' | 'staging' | 'production' {
     return 'production';
   }
 
-  if (nodeEnv === 'staging' || process.env.VERCEL_ENV === 'preview') {
+  if ((nodeEnv as any) === 'staging' || process.env.VERCEL_ENV === 'preview') {
     return 'staging';
   }
 

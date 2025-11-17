@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { Finding } from '@/types/findings';
+import type { Finding } from '@/lib/sdk/modules/findings/types';
 import { Loader2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -73,6 +73,9 @@ export function FindingForm({
           processName: finding.registration?.processName || '',
           severity: finding.registration?.severity || 'media',
           category: finding.registration?.category || 'no_conformidad',
+          origin: finding.registration?.origin || 'audit',
+          source: finding.registration?.source || 'audit',
+          sourceId: finding.registration?.sourceId || null,
         },
       };
 
@@ -135,6 +138,14 @@ export function FindingForm({
                 registration: {
                   ...finding.registration,
                   name: e.target.value,
+                  origin: finding.registration?.origin || 'audit',
+                  source: finding.registration?.source || 'audit',
+                  sourceId: finding.registration?.sourceId || null,
+                  description: finding.registration?.description || '',
+                  processId: finding.registration?.processId || null,
+                  processName: finding.registration?.processName || '',
+                  severity: finding.registration?.severity || 'media',
+                  category: finding.registration?.category || 'no_conformidad',
                 },
               })
             }
@@ -155,6 +166,14 @@ export function FindingForm({
                 registration: {
                   ...finding.registration,
                   description: e.target.value,
+                  origin: finding.registration?.origin || 'audit',
+                  source: finding.registration?.source || 'audit',
+                  sourceId: finding.registration?.sourceId || null,
+                  name: finding.registration?.name || '',
+                  processId: finding.registration?.processId || null,
+                  processName: finding.registration?.processName || '',
+                  severity: finding.registration?.severity || 'media',
+                  category: finding.registration?.category || 'no_conformidad',
                 },
               })
             }
@@ -179,6 +198,13 @@ export function FindingForm({
                     ...finding.registration,
                     processId: e.target.value,
                     processName: process?.name || '',
+                    origin: finding.registration?.origin || 'audit',
+                    source: finding.registration?.source || 'audit',
+                    sourceId: finding.registration?.sourceId || null,
+                    name: finding.registration?.name || '',
+                    description: finding.registration?.description || '',
+                    severity: finding.registration?.severity || 'media',
+                    category: finding.registration?.category || 'no_conformidad',
                   },
                 });
               }}
@@ -206,6 +232,14 @@ export function FindingForm({
                   registration: {
                     ...finding.registration,
                     severity: e.target.value,
+                    origin: finding.registration?.origin || 'audit',
+                    source: finding.registration?.source || 'audit',
+                    sourceId: finding.registration?.sourceId || null,
+                    name: finding.registration?.name || '',
+                    description: finding.registration?.description || '',
+                    processId: finding.registration?.processId || null,
+                    processName: finding.registration?.processName || '',
+                    category: finding.registration?.category || 'no_conformidad',
                   },
                 })
               }
@@ -231,6 +265,14 @@ export function FindingForm({
                 registration: {
                   ...finding.registration,
                   category: e.target.value,
+                  origin: finding.registration?.origin || 'audit',
+                  source: finding.registration?.source || 'audit',
+                  sourceId: finding.registration?.sourceId || null,
+                  name: finding.registration?.name || '',
+                  description: finding.registration?.description || '',
+                  processId: finding.registration?.processId || null,
+                  processName: finding.registration?.processName || '',
+                  severity: finding.registration?.severity || 'media',
                 },
               })
             }
@@ -257,7 +299,7 @@ export function FindingForm({
             onChange={e =>
               setFinding({
                 ...finding,
-                status: e.target.value,
+                status: e.target.value as any,
               })
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

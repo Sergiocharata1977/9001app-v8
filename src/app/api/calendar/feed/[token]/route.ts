@@ -74,27 +74,3 @@ export async function GET(
     );
   }
 }
-
-/**
- * Generar token de feed para un usuario
- * Esta función se usaría en el frontend para mostrar la URL del feed
- */
-export function generateFeedToken(
-  userId: string,
-  organizationId: string
-): string {
-  const data = `${userId}:${organizationId}`;
-  return Buffer.from(data).toString('base64');
-}
-
-/**
- * Generar URL completa del feed
- */
-export function generateFeedUrl(
-  userId: string,
-  organizationId: string,
-  baseUrl: string
-): string {
-  const token = generateFeedToken(userId, organizationId);
-  return `${baseUrl}/api/calendar/feed/${token}`;
-}

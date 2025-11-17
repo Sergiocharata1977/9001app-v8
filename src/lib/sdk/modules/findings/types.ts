@@ -41,13 +41,15 @@ export type FindingOrigin =
  * Información de registro del hallazgo (Fase 1)
  */
 export interface FindingRegistration {
-  origin: FindingOrigin;
+  origin: string;
   name: string;
   description: string;
   processId: string | null;
   processName: string | null;
   source: string;
   sourceId: string | null;
+  severity?: string;
+  category?: string;
 }
 
 /**

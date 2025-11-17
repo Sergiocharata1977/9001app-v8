@@ -12,6 +12,7 @@ export class PositionService extends BaseService<Position> {
 
     const positionData: Omit<Position, 'id'> = {
       ...validated,
+      requiredCompetencies: validated.requiredCompetencies || [],
       isActive: true,
       createdBy: userId,
       createdAt: Timestamp.now(),

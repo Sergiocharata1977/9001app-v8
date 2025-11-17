@@ -144,6 +144,7 @@ export function requireAnyPermission(
 
 /**
  * Require user to belong to specific organization
+ * Note: Not multi-tenant, so this always passes
  * @param user - User context
  * @param organizationId - Required organization ID
  * @throws ForbiddenError if user doesn't belong to the organization
@@ -152,11 +153,8 @@ export function requireOrganization(
   user: UserContext,
   organizationId: string
 ): void {
-  if (user.organizationId !== organizationId) {
-    throw new ForbiddenError(
-      'Access denied: You do not belong to this organization'
-    );
-  }
+  // Not multi-tenant - all users belong to the same organization
+  // This function is kept for backward compatibility
 }
 
 /**

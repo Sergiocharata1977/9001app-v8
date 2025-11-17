@@ -23,6 +23,8 @@ export class DocumentService extends BaseService<Document> {
       status: 'draft',
       currentVersion: 1,
       versions: [initialVersion],
+      tags: validated.tags || [],
+      isActive: true,
       createdBy: userId,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
@@ -379,7 +381,11 @@ export class DocumentService extends BaseService<Document> {
           published: documents.filter(d => d.status === 'published').length,
         },
         recentlyUpdated: documents
-          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+          .sort((a, b) => {
+            const dateA = a.updatedAt instanceof Timestamp ? a.updatedAt.toDate() : new Date(a.updatedAt);
+            const dateB = b.updatedAt instanceof Timestamp ? b.updatedAt.toDate() : new Date(b.updatedAt);
+            return dateB.getTime() - dateA.getTime();
+          })
           .slice(0, 5),
       };
 
@@ -578,7 +584,11 @@ export class DocumentService extends BaseService<Document> {
           (current.accessCount || 0) > (prev.accessCount || 0) ? current : prev
         ),
         recentlyUpdated: documents
-          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+          .sort((a, b) => {
+            const dateA = a.updatedAt instanceof Timestamp ? a.updatedAt.toDate() : new Date(a.updatedAt);
+            const dateB = b.updatedAt instanceof Timestamp ? b.updatedAt.toDate() : new Date(b.updatedAt);
+            return dateB.getTime() - dateA.getTime();
+          })
           .slice(0, 5),
       };
 
