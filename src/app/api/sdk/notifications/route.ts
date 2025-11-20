@@ -6,7 +6,14 @@ import { z } from 'zod';
 
 const notificationSchema = z.object({
   userId: z.string().min(1),
-  type: z.enum(['audit_scheduled', 'audit_upcoming', 'action_due', 'action_overdue', 'conformity_alert', 'finding_registered']),
+  type: z.enum([
+    'audit_scheduled',
+    'audit_upcoming',
+    'action_due',
+    'action_overdue',
+    'conformity_alert',
+    'finding_registered',
+  ]),
   title: z.string().min(1).max(200),
   message: z.string().min(1).max(1000),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
@@ -16,7 +23,7 @@ const notificationSchema = z.object({
   metadata: z.record(z.string(), z.any()).optional(),
 });
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async request => {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
@@ -34,9 +41,15 @@ export const GET = withAuth(async (request) => {
 
     let notifications;
     if (type) {
-      notifications = await notificationService.getNotificationsByType(userId, type as any);
+      notifications = await notificationService.getNotificationsByType(
+        userId,
+        type as any
+      );
     } else if (status) {
-      notifications = await notificationService.getNotificationsByUser(userId, status as any);
+      notifications = await notificationService.getNotificationsByUser(
+        userId,
+        status as any
+      );
     } else {
       notifications = await notificationService.getNotificationsByUser(userId);
     }
@@ -50,7 +63,7 @@ export const GET = withAuth(async (request) => {
   }
 });
 
-export const POST = withAuth(async (request) => {
+export const POST = withAuth(async request => {
   try {
     const body = await request.json();
     const validated = notificationSchema.parse(body);

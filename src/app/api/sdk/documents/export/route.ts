@@ -9,13 +9,16 @@ const ExportSchema = z.object({
   format: z.enum(['json', 'markdown', 'html', 'pdf']).default('json'),
 });
 
-export const POST = withAuth(async (req) => {
+export const POST = withAuth(async req => {
   try {
     const body = await req.json();
     const validated = ExportSchema.parse(body);
 
     const documentService = new DocumentService();
-    const exported = await documentService.exportDocument(validated.documentId, validated.format);
+    const exported = await documentService.exportDocument(
+      validated.documentId,
+      validated.format
+    );
 
     // Set appropriate content type based on format
     const contentTypes: Record<string, string> = {

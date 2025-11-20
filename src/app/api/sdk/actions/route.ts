@@ -25,8 +25,12 @@ export async function GET(request: NextRequest) {
 
     // Extract pagination options
     const options = {
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100,
-      offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!)
+        : 100,
+      offset: searchParams.get('offset')
+        ? parseInt(searchParams.get('offset')!)
+        : 0,
     };
 
     // Initialize service and list actions
@@ -40,7 +44,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/actions:', error);
     return NextResponse.json(
-      { error: 'Error al obtener acciones', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener acciones',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -79,7 +86,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Error al crear acción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear acción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

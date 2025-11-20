@@ -7,10 +7,19 @@ export class TrainingService extends BaseService<Training> {
   protected collectionName = 'trainings';
   protected schema = CreateTrainingSchema;
 
-  async createAndReturnId(data: CreateTrainingInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateTrainingInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
-    const startDate = validated.startDate instanceof Date ? validated.startDate : new Date(validated.startDate);
-    const endDate = validated.endDate instanceof Date ? validated.endDate : new Date(validated.endDate);
+    const startDate =
+      validated.startDate instanceof Date
+        ? validated.startDate
+        : new Date(validated.startDate);
+    const endDate =
+      validated.endDate instanceof Date
+        ? validated.endDate
+        : new Date(validated.endDate);
 
     const trainingData: Omit<Training, 'id'> = {
       ...validated,
@@ -25,13 +34,17 @@ export class TrainingService extends BaseService<Training> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(trainingData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(trainingData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Training[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.status) {
         query = query.where('status', '==', filters.status);
@@ -47,7 +60,9 @@ export class TrainingService extends BaseService<Training> {
       query = query.orderBy('startDate', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Training));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Training
+      );
     } catch (error) {
       console.error('Error listing trainings', error);
       throw error;
@@ -83,9 +98,14 @@ export class TrainingService extends BaseService<Training> {
         .orderBy('startDate', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Training));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Training
+      );
     } catch (error) {
-      console.error(`Error getting trainings for personnel ${personnelId}`, error);
+      console.error(
+        `Error getting trainings for personnel ${personnelId}`,
+        error
+      );
       throw error;
     }
   }
@@ -98,9 +118,14 @@ export class TrainingService extends BaseService<Training> {
         .where('deletedAt', '==', null)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Training));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Training
+      );
     } catch (error) {
-      console.error(`Error getting trainings for competency ${competencyId}`, error);
+      console.error(
+        `Error getting trainings for competency ${competencyId}`,
+        error
+      );
       throw error;
     }
   }

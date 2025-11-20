@@ -1,6 +1,6 @@
 /**
  * Calendar Statistics API Route - SDK Unified
- * 
+ *
  * GET /api/sdk/calendar/stats - Get calendar statistics
  */
 
@@ -16,7 +16,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/calendar/stats:', error);
     return NextResponse.json(
-      { error: 'Error al obtener estadísticas de calendario', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener estadísticas de calendario',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

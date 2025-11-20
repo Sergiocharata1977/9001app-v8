@@ -1,10 +1,22 @@
 import { z } from 'zod';
 
 export const CreateDocumentSchema = z.object({
-  title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(1000),
-  content: z.string().min(20, 'El contenido debe tener al menos 20 caracteres').max(50000),
-  category: z.string().min(2, 'La categoría debe tener al menos 2 caracteres').max(100),
+  title: z
+    .string()
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(200),
+  description: z
+    .string()
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .max(1000),
+  content: z
+    .string()
+    .min(20, 'El contenido debe tener al menos 20 caracteres')
+    .max(50000),
+  category: z
+    .string()
+    .min(2, 'La categoría debe tener al menos 2 caracteres')
+    .max(100),
   tags: z.array(z.string()).optional(),
   attachments: z.array(z.string()).optional(),
   relatedDocuments: z.array(z.string().uuid()).optional(),
@@ -21,8 +33,14 @@ export const UpdateDocumentSchema = z.object({
 });
 
 export const CreateVersionSchema = z.object({
-  content: z.string().min(20, 'El contenido debe tener al menos 20 caracteres').max(50000),
-  changesSummary: z.string().min(5, 'El resumen de cambios debe tener al menos 5 caracteres').max(500),
+  content: z
+    .string()
+    .min(20, 'El contenido debe tener al menos 20 caracteres')
+    .max(50000),
+  changesSummary: z
+    .string()
+    .min(5, 'El resumen de cambios debe tener al menos 5 caracteres')
+    .max(500),
 });
 
 export const UpdateStatusSchema = z.object({
@@ -31,7 +49,9 @@ export const UpdateStatusSchema = z.object({
 });
 
 export const DocumentFiltersSchema = z.object({
-  status: z.enum(['draft', 'review', 'approved', 'published', 'archived']).optional(),
+  status: z
+    .enum(['draft', 'review', 'approved', 'published', 'archived'])
+    .optional(),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
   createdBy: z.string().uuid().optional(),

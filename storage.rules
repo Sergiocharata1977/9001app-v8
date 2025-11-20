@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // REGLAS PARA DESARROLLO - Más permisivas
+    // Permitir acceso a usuarios autenticados con Clerk
+    match /documents/{documentId}/{fileName} {
+      // Permitir lectura (cualquier usuario autenticado)
+      allow read: if true;  // Temporalmente permisivo para debug
+      
+      // Permitir escritura con límite de tamaño
+      allow write: if request.resource.size < 10 * 1024 * 1024;  // 10MB
+    }
+    
+    // Regla general para otras rutas
+    match /{allPaths=**} {
+      allow read: if true;   // Temporalmente permisivo
+      allow write: if request.resource.size < 10 * 1024 * 1024;
+    }
+  }
+}

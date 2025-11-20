@@ -7,7 +7,10 @@ export class CompetenceService extends BaseService<Competence> {
   protected collectionName = 'competences';
   protected schema = CreateCompetenceSchema;
 
-  async createAndReturnId(data: CreateCompetenceInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateCompetenceInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const competenceData: Omit<Competence, 'id'> = {
@@ -20,13 +23,17 @@ export class CompetenceService extends BaseService<Competence> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(competenceData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(competenceData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Competence[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.category) {
         query = query.where('category', '==', filters.category);
@@ -42,7 +49,9 @@ export class CompetenceService extends BaseService<Competence> {
       query = query.orderBy('name', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Competence));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Competence
+      );
     } catch (error) {
       console.error('Error listing competences', error);
       throw error;
@@ -78,7 +87,9 @@ export class CompetenceService extends BaseService<Competence> {
         .orderBy('name', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Competence));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Competence
+      );
     } catch (error) {
       console.error(`Error getting competences by category ${category}`, error);
       throw error;
@@ -94,7 +105,9 @@ export class CompetenceService extends BaseService<Competence> {
         .orderBy('name', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Competence));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Competence
+      );
     } catch (error) {
       console.error(`Error getting competences by level ${level}`, error);
       throw error;

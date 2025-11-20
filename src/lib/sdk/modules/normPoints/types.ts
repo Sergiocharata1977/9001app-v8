@@ -1,7 +1,11 @@
 import type { BaseDocument } from '../../base/types';
 import { Timestamp } from 'firebase-admin/firestore';
 
-export type ComplianceStatus = 'compliant' | 'non_compliant' | 'partial' | 'not_applicable';
+export type ComplianceStatus =
+  | 'compliant'
+  | 'non_compliant'
+  | 'partial'
+  | 'not_applicable';
 
 export interface NormPoint extends BaseDocument {
   chapter: string;

@@ -142,7 +142,16 @@ async function seedAudits() {
         plannedDate: Timestamp.fromDate(new Date('2024-12-01')),
         leadAuditor: 'Pedro Martínez',
         leadAuditorId: null,
-        selectedNormPoints: ['4.4', '5.1', '6.2', '7.5', '8.1', '8.7', '9.1', '10.2'],
+        selectedNormPoints: [
+          '4.4',
+          '5.1',
+          '6.2',
+          '7.5',
+          '8.1',
+          '8.7',
+          '9.1',
+          '10.2',
+        ],
         status: 'completed',
         executionDate: Timestamp.fromDate(new Date('2024-12-05')),
         normPointsVerification: [

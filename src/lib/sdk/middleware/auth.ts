@@ -154,12 +154,12 @@ export function withAuth(handler: AuthenticatedHandler) {
 }
 
 /**
-* Alias for withAuth for backward compatibility
-*/
+ * Alias for withAuth for backward compatibility
+ */
 export const authMiddleware = withAuth;
 
 /**
-* Verify Firebase ID token
+ * Verify Firebase ID token
  * @param token - Firebase ID token
  * @returns Decoded token with user info
  */

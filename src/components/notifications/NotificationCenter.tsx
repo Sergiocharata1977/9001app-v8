@@ -23,7 +23,10 @@ interface NotificationCenterProps {
   onNotificationClick?: (notification: Notification) => void;
 }
 
-export function NotificationCenter({ userId, onNotificationClick }: NotificationCenterProps) {
+export function NotificationCenter({
+  userId,
+  onNotificationClick,
+}: NotificationCenterProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -58,9 +61,11 @@ export function NotificationCenter({ userId, onNotificationClick }: Notification
       });
 
       if (response.ok) {
-        setNotifications(notifications.map(n =>
-          n.id === notificationId ? { ...n, status: 'read' } : n
-        ));
+        setNotifications(
+          notifications.map(n =>
+            n.id === notificationId ? { ...n, status: 'read' } : n
+          )
+        );
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -90,7 +95,9 @@ export function NotificationCenter({ userId, onNotificationClick }: Notification
   });
 
   const unreadCount = notifications.filter(n => n.status === 'pending').length;
-  const criticalCount = notifications.filter(n => n.priority === 'critical').length;
+  const criticalCount = notifications.filter(
+    n => n.priority === 'critical'
+  ).length;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -142,7 +149,9 @@ export function NotificationCenter({ userId, onNotificationClick }: Notification
         <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl z-50 max-h-96 overflow-hidden flex flex-col">
           {/* Header */}
           <div className="bg-gray-50 border-b p-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Notificaciones</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Notificaciones
+            </h3>
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-500 hover:text-gray-700"
@@ -163,7 +172,11 @@ export function NotificationCenter({ userId, onNotificationClick }: Notification
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                {f === 'all' ? 'Todas' : f === 'unread' ? `No leídas (${unreadCount})` : `Críticas (${criticalCount})`}
+                {f === 'all'
+                  ? 'Todas'
+                  : f === 'unread'
+                    ? `No leídas (${unreadCount})`
+                    : `Críticas (${criticalCount})`}
               </button>
             ))}
           </div>
@@ -194,13 +207,17 @@ export function NotificationCenter({ userId, onNotificationClick }: Notification
                     }}
                   >
                     <div className="flex items-start gap-3">
-                      <span className="text-2xl">{getTypeIcon(notification.type)}</span>
+                      <span className="text-2xl">
+                        {getTypeIcon(notification.type)}
+                      </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold text-gray-900 truncate">
                             {notification.title}
                           </h4>
-                          <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${getPriorityColor(notification.priority)}`}>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${getPriorityColor(notification.priority)}`}
+                          >
                             {notification.priority}
                           </span>
                         </div>
@@ -209,12 +226,14 @@ export function NotificationCenter({ userId, onNotificationClick }: Notification
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           {notification.createdAt
-                            ? new Date(notification.createdAt).toLocaleString('es-ES')
+                            ? new Date(notification.createdAt).toLocaleString(
+                                'es-ES'
+                              )
                             : 'Hace poco'}
                         </p>
                       </div>
                       <button
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           handleArchive(notification.id);
                         }}

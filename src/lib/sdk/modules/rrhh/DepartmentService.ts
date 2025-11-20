@@ -7,7 +7,10 @@ export class DepartmentService extends BaseService<Department> {
   protected collectionName = 'departments';
   protected schema = CreateDepartmentSchema;
 
-  async createAndReturnId(data: CreateDepartmentInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateDepartmentInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const departmentData: Omit<Department, 'id'> = {
@@ -20,13 +23,17 @@ export class DepartmentService extends BaseService<Department> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(departmentData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(departmentData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Department[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       const limit = options.limit || 100;
       const offset = options.offset || 0;
@@ -34,7 +41,9 @@ export class DepartmentService extends BaseService<Department> {
       query = query.orderBy('name', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Department));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Department
+      );
     } catch (error) {
       console.error('Error listing departments', error);
       throw error;
@@ -69,7 +78,9 @@ export class DepartmentService extends BaseService<Department> {
         .where('deletedAt', '==', null)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Department));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Department
+      );
     } catch (error) {
       console.error(`Error getting departments by manager ${managerId}`, error);
       throw error;

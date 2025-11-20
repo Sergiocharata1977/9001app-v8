@@ -46,6 +46,7 @@ export interface Document {
   file_path?: string;
   file_size?: number;
   mime_type?: string;
+  download_url?: string; // URL de descarga de Firebase Storage
 
   // Fechas
   effective_date?: Date;

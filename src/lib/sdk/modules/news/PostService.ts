@@ -7,7 +7,10 @@ export class PostService extends BaseService<Post> {
   protected collectionName = 'posts';
   protected schema = CreatePostSchema;
 
-  async createAndReturnId(data: CreatePostInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreatePostInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const postData: Omit<Post, 'id'> = {
@@ -32,19 +35,27 @@ export class PostService extends BaseService<Post> {
     try {
       PostFiltersSchema.parse(filters);
 
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.author) {
         query = query.where('author', '==', filters.author);
       }
 
       if (filters.dateFrom) {
-        const fromDate = filters.dateFrom instanceof Date ? filters.dateFrom : new Date(filters.dateFrom);
+        const fromDate =
+          filters.dateFrom instanceof Date
+            ? filters.dateFrom
+            : new Date(filters.dateFrom);
         query = query.where('createdAt', '>=', Timestamp.fromDate(fromDate));
       }
 
       if (filters.dateTo) {
-        const toDate = filters.dateTo instanceof Date ? filters.dateTo : new Date(filters.dateTo);
+        const toDate =
+          filters.dateTo instanceof Date
+            ? filters.dateTo
+            : new Date(filters.dateTo);
         query = query.where('createdAt', '<=', Timestamp.fromDate(toDate));
       }
 
@@ -54,7 +65,9 @@ export class PostService extends BaseService<Post> {
       query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      let posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      let posts = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Post
+      );
 
       if (filters.tags && filters.tags.length > 0) {
         posts = posts.filter(post =>
@@ -64,9 +77,10 @@ export class PostService extends BaseService<Post> {
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        posts = posts.filter(post =>
-          post.title.toLowerCase().includes(searchLower) ||
-          post.content.toLowerCase().includes(searchLower)
+        posts = posts.filter(
+          post =>
+            post.title.toLowerCase().includes(searchLower) ||
+            post.content.toLowerCase().includes(searchLower)
         );
       }
 
@@ -106,7 +120,7 @@ export class PostService extends BaseService<Post> {
         .limit(limit)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Post);
     } catch (error) {
       console.error(`Error getting feed for user ${userId}`, error);
       throw error;
@@ -122,7 +136,7 @@ export class PostService extends BaseService<Post> {
         .orderBy('createdAt', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Post);
     } catch (error) {
       console.error(`Error getting posts by author ${authorId}`, error);
       throw error;
@@ -138,12 +152,15 @@ export class PostService extends BaseService<Post> {
         .get();
 
       const queryLower = query.toLowerCase();
-      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      const posts = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Post
+      );
 
-      return posts.filter(post =>
-        post.title.toLowerCase().includes(queryLower) ||
-        post.content.toLowerCase().includes(queryLower) ||
-        post.tags.some(tag => tag.toLowerCase().includes(queryLower))
+      return posts.filter(
+        post =>
+          post.title.toLowerCase().includes(queryLower) ||
+          post.content.toLowerCase().includes(queryLower) ||
+          post.tags.some(tag => tag.toLowerCase().includes(queryLower))
       );
     } catch (error) {
       console.error(`Error searching posts with query ${query}`, error);
@@ -164,9 +181,12 @@ export class PostService extends BaseService<Post> {
 
   async incrementLikes(id: string): Promise<void> {
     try {
-      await this.db.collection(this.collectionName).doc(id).update({
-        likes: (await this.getById(id))?.likes || 0 + 1,
-      });
+      await this.db
+        .collection(this.collectionName)
+        .doc(id)
+        .update({
+          likes: (await this.getById(id))?.likes || 0 + 1,
+        });
     } catch (error) {
       console.error(`Error incrementing likes for post ${id}`, error);
       throw error;
@@ -175,9 +195,12 @@ export class PostService extends BaseService<Post> {
 
   async incrementComments(id: string): Promise<void> {
     try {
-      await this.db.collection(this.collectionName).doc(id).update({
-        comments: (await this.getById(id))?.comments || 0 + 1,
-      });
+      await this.db
+        .collection(this.collectionName)
+        .doc(id)
+        .update({
+          comments: (await this.getById(id))?.comments || 0 + 1,
+        });
     } catch (error) {
       console.error(`Error incrementing comments for post ${id}`, error);
       throw error;
@@ -201,7 +224,7 @@ export class PostService extends BaseService<Post> {
         .limit(limit)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Post);
     } catch (error) {
       console.error('Error getting trending posts', error);
       throw error;
@@ -221,7 +244,7 @@ export class PostService extends BaseService<Post> {
         .limit(limit)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Post);
     } catch (error) {
       console.error('Error getting featured posts', error);
       throw error;
@@ -273,7 +296,7 @@ export class PostService extends BaseService<Post> {
         .limit(limit)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Post);
     } catch (error) {
       console.error(`Error getting posts by category ${category}`, error);
       throw error;
@@ -298,7 +321,9 @@ export class PostService extends BaseService<Post> {
         .where('deletedAt', '==', null)
         .get();
 
-      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      const posts = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Post
+      );
 
       if (posts.length === 0) {
         return {
@@ -312,8 +337,14 @@ export class PostService extends BaseService<Post> {
         };
       }
 
-      const totalLikes = posts.reduce((sum, post) => sum + (post.likes || 0), 0);
-      const totalComments = posts.reduce((sum, post) => sum + (post.comments || 0), 0);
+      const totalLikes = posts.reduce(
+        (sum, post) => sum + (post.likes || 0),
+        0
+      );
+      const totalComments = posts.reduce(
+        (sum, post) => sum + (post.comments || 0),
+        0
+      );
 
       const mostLikedPost = posts.reduce((prev, current) =>
         (current.likes || 0) > (prev.likes || 0) ? current : prev
@@ -348,7 +379,9 @@ export class PostService extends BaseService<Post> {
         .where('deletedAt', '==', null)
         .get();
 
-      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      const posts = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Post
+      );
 
       // Calcular engagement score (likes + comments)
       const postsWithScore = posts.map(post => ({
@@ -378,7 +411,7 @@ export class PostService extends BaseService<Post> {
         .limit(limit)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Post);
     } catch (error) {
       console.error('Error getting recent posts', error);
       throw error;

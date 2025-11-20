@@ -71,7 +71,9 @@ export function AuditCard({ audit }: AuditCardProps) {
 
   return (
     <Link href={`/auditorias/${audit.id}`}>
-      <div className={`bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-2 ${getBorderColor()} cursor-pointer`}>
+      <div
+        className={`bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-2 ${getBorderColor()} cursor-pointer`}
+      >
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
@@ -103,16 +105,14 @@ export function AuditCard({ audit }: AuditCardProps) {
               {audit.status === 'planned' ? 'Estado' : 'Progreso'}
             </span>
             <span className="text-xs font-semibold text-gray-900">
-              {audit.status === 'planned'
-                ? 'Pendiente'
-                : `${progress}%`}
+              {audit.status === 'planned' ? 'Pendiente' : `${progress}%`}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className={`${getProgressColor()} h-2 rounded-full transition-all`}
               style={{
-                width: audit.status === 'planned' ? '0%' : `${progress}%`
+                width: audit.status === 'planned' ? '0%' : `${progress}%`,
               }}
             />
           </div>

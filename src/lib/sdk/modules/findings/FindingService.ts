@@ -44,7 +44,10 @@ export class FindingService extends BaseService<Finding> {
    * @param userId - ID of user creating the finding
    * @returns Created finding ID
    */
-  async createAndReturnId(data: CreateFindingInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateFindingInput,
+    userId: string
+  ): Promise<string> {
     try {
       // Validate data
       const validated = CreateFindingSchema.parse(data);
@@ -93,7 +96,9 @@ export class FindingService extends BaseService<Finding> {
         isActive: true,
       };
 
-      const docRef = await this.db.collection(this.collectionName).add(findingData);
+      const docRef = await this.db
+        .collection(this.collectionName)
+        .add(findingData);
       return docRef.id;
     } catch (error) {
       console.error('Error creating finding:', error);
@@ -161,7 +166,9 @@ export class FindingService extends BaseService<Finding> {
         return findings.filter(
           finding =>
             finding.registration?.name?.toLowerCase().includes(searchLower) ||
-            finding.registration?.description?.toLowerCase().includes(searchLower) ||
+            finding.registration?.description
+              ?.toLowerCase()
+              .includes(searchLower) ||
             finding.findingNumber?.toLowerCase().includes(searchLower)
         );
       }

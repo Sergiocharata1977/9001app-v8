@@ -35,9 +35,15 @@ export async function GET(
 
     return NextResponse.json({ data: objective }, { status: 200 });
   } catch (error) {
-    console.error(`Error in GET /api/sdk/quality/objectives/${params.id}:`, error);
+    console.error(
+      `Error in GET /api/sdk/quality/objectives/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al obtener objetivo de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener objetivo de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -59,7 +65,7 @@ export async function PUT(
     }
 
     const service = new QualityObjectiveService();
-    
+
     // Si se proporciona progress, usar el método específico
     if (body.progress !== undefined) {
       await service.updateProgress(id, body.progress, 'system');
@@ -72,9 +78,15 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/quality/objectives/${params.id}:`, error);
+    console.error(
+      `Error in PUT /api/sdk/quality/objectives/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al actualizar objetivo de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar objetivo de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -102,9 +114,15 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in DELETE /api/sdk/quality/objectives/${params.id}:`, error);
+    console.error(
+      `Error in DELETE /api/sdk/quality/objectives/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al eliminar objetivo de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar objetivo de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

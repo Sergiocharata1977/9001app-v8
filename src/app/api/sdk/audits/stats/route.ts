@@ -3,7 +3,7 @@ import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { AuditService } from '@/lib/sdk/modules/audits/AuditService';
 import { NextResponse } from 'next/server';
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async request => {
   try {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month';
@@ -12,7 +12,7 @@ export const GET = withAuth(async (request) => {
 
     // Calcular fechas según el período
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
 
     switch (period) {
       case 'quarter':
@@ -65,7 +65,8 @@ export const GET = withAuth(async (request) => {
     // Contar por estado y tipo
     let totalProgress = 0;
     let conformingAudits = 0;
-    const processCounts: Record<string, { count: number; conforming: number }> = {};
+    const processCounts: Record<string, { count: number; conforming: number }> =
+      {};
     const findingCategories: Record<string, number> = {};
 
     for (const audit of audits) {
@@ -85,7 +86,9 @@ export const GET = withAuth(async (request) => {
 
     // Calcular promedios
     stats.conformityRate =
-      audits.length > 0 ? Math.round((conformingAudits / audits.length) * 100) : 0;
+      audits.length > 0
+        ? Math.round((conformingAudits / audits.length) * 100)
+        : 0;
     stats.averageProgress =
       audits.length > 0 ? Math.round(totalProgress / audits.length) : 0;
 
@@ -100,7 +103,8 @@ export const GET = withAuth(async (request) => {
       .map(([name, data]) => ({
         name,
         auditCount: data.count,
-        conformityRate: data.count > 0 ? Math.round((data.conforming / data.count) * 100) : 0,
+        conformityRate:
+          data.count > 0 ? Math.round((data.conforming / data.count) * 100) : 0,
       }))
       .sort((a, b) => b.auditCount - a.auditCount)
       .slice(0, 5);
@@ -110,13 +114,21 @@ export const GET = withAuth(async (request) => {
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now);
       date.setMonth(date.getMonth() - i);
-      const monthKey = date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+      const monthKey = date.toLocaleDateString('es-ES', {
+        month: 'long',
+        year: 'numeric',
+      });
       trends[monthKey] = { completed: 0, pending: 0 };
     }
 
     for (const audit of audits) {
-      const auditDate = (audit.createdAt as any)?.toDate?.() || new Date((audit.createdAt as any));
-      const monthKey = auditDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+      const auditDate =
+        (audit.createdAt as any)?.toDate?.() ||
+        new Date(audit.createdAt as any);
+      const monthKey = auditDate.toLocaleDateString('es-ES', {
+        month: 'long',
+        year: 'numeric',
+      });
 
       if (monthKey in trends) {
         if ((audit.status as any) === 'completed') {

@@ -32,7 +32,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/rrhh/positions:', error);
     return NextResponse.json(
-      { error: 'Error al obtener posiciones', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener posiciones',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -53,7 +56,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/rrhh/positions:', error);
     return NextResponse.json(
-      { error: 'Error al crear posición', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear posición',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -19,7 +19,7 @@ const userProfileSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async request => {
   try {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
@@ -46,7 +46,7 @@ export const GET = withAuth(async (request) => {
   }
 });
 
-export const POST = withAuth(async (request) => {
+export const POST = withAuth(async request => {
   try {
     const body = await request.json();
     const validated = userProfileSchema.parse(body);

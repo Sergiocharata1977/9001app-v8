@@ -66,7 +66,9 @@ export function AuditAdvancedFilters({
 
     // Remove undefined values
     Object.keys(filters).forEach(
-      key => filters[key as keyof AuditFiltersState] === undefined && delete filters[key as keyof AuditFiltersState]
+      key =>
+        filters[key as keyof AuditFiltersState] === undefined &&
+        delete filters[key as keyof AuditFiltersState]
     );
 
     onFiltersChange(filters);
@@ -81,7 +83,10 @@ export function AuditAdvancedFilters({
   };
 
   const hasActiveFilters =
-    searchText || selectedStatus.length > 0 || selectedType.length > 0 || selectedYear;
+    searchText ||
+    selectedStatus.length > 0 ||
+    selectedType.length > 0 ||
+    selectedYear;
 
   return (
     <div className="space-y-4">
@@ -126,24 +131,26 @@ export function AuditAdvancedFilters({
               Estado
             </label>
             <div className="flex flex-wrap gap-2">
-              {(['planned', 'in_progress', 'completed'] as AuditStatus[]).map(status => (
-                <button
-                  key={status}
-                  onClick={() => toggleStatus(status)}
-                  disabled={isLoading}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    selectedStatus.includes(status)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border border-gray-300 text-gray-700 hover:border-blue-600'
-                  }`}
-                >
-                  {status === 'planned'
-                    ? 'Planificada'
-                    : status === 'in_progress'
-                      ? 'En Progreso'
-                      : 'Completada'}
-                </button>
-              ))}
+              {(['planned', 'in_progress', 'completed'] as AuditStatus[]).map(
+                status => (
+                  <button
+                    key={status}
+                    onClick={() => toggleStatus(status)}
+                    disabled={isLoading}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      selectedStatus.includes(status)
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white border border-gray-300 text-gray-700 hover:border-blue-600'
+                    }`}
+                  >
+                    {status === 'planned'
+                      ? 'Planificada'
+                      : status === 'in_progress'
+                        ? 'En Progreso'
+                        : 'Completada'}
+                  </button>
+                )
+              )}
             </div>
           </div>
 
@@ -177,12 +184,19 @@ export function AuditAdvancedFilters({
             </label>
             <select
               value={selectedYear ?? ''}
-              onChange={e => handleYearChange(e.target.value ? parseInt(e.target.value) : undefined)}
+              onChange={e =>
+                handleYearChange(
+                  e.target.value ? parseInt(e.target.value) : undefined
+                )
+              }
               disabled={isLoading}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="">Todos los años</option>
-              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+              {Array.from(
+                { length: 5 },
+                (_, i) => new Date().getFullYear() - i
+              ).map(year => (
                 <option key={year} value={year}>
                   {year}
                 </option>

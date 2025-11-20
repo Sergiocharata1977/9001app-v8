@@ -4,11 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ChatSession } from '@/types/chat';
-import { Clock, Loader2, MessageSquare, Search, Trash2, X } from 'lucide-react';
+import {
+  Clock,
+  Loader2,
+  MessageSquare,
+  Play,
+  Search,
+  Trash2,
+  X,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 export default function HistorialConversacionesPage() {
   const { usuario } = useCurrentUser();
+  const router = useRouter();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +97,13 @@ export default function HistorialConversacionesPage() {
     } catch (error) {
       console.error('[HistorialConversaciones] Error deleting session:', error);
     }
+  };
+
+  const handleContinueSession = (sessionId: string) => {
+    // Save session ID to localStorage so DonCandidoChat can load it
+    localStorage.setItem('resumeSessionId', sessionId);
+    // Redirect to dashboard where Don Cándido will open automatically
+    router.push('/dashboard?openChat=true');
   };
 
   const getModules = () => {
@@ -198,7 +215,13 @@ export default function HistorialConversacionesPage() {
                           {session.estado}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      {/* Show title if available, otherwise show last message */}
+                      {session.titulo ? (
+                        <p className="text-sm font-medium text-gray-800 mb-1">
+                          {session.titulo}
+                        </p>
+                      ) : null}
+                      <p className="text-xs text-gray-500 line-clamp-2">
                         {session.mensajes[
                           session.mensajes.length - 1
                         ]?.contenido?.substring(0, 80) || 'Sin mensajes'}
@@ -248,7 +271,7 @@ export default function HistorialConversacionesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-800">
-                    Conversación
+                    {selectedSession.titulo || 'Conversación'}
                   </h2>
                   <p className="text-sm text-gray-500">
                     {new Date(selectedSession.created_at).toLocaleString(
@@ -256,13 +279,24 @@ export default function HistorialConversacionesPage() {
                     )}
                   </p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedSession(null)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleContinueSession(selectedSession.id)}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Continuar conversación
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedSession(null)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
 

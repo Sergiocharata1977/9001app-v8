@@ -1,6 +1,6 @@
 /**
  * News Post by ID API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/news/posts/[id] - Get post by ID
  * DELETE /api/sdk/news/posts/[id] - Delete post
  */
@@ -36,7 +36,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/news/posts/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener post', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener post',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -75,7 +78,10 @@ export async function DELETE(
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/news/posts/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar post', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar post',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

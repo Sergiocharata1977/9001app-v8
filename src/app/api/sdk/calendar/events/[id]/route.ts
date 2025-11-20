@@ -1,6 +1,6 @@
 /**
  * Calendar Event by ID API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/calendar/events/[id] - Get event by ID
  * PUT /api/sdk/calendar/events/[id] - Update event
  * DELETE /api/sdk/calendar/events/[id] - Delete event
@@ -37,7 +37,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/calendar/events/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener evento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener evento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -55,7 +58,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/calendar/events/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar evento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar evento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -92,9 +98,15 @@ export async function DELETE(
       id,
     });
   } catch (error) {
-    console.error(`Error in DELETE /api/sdk/calendar/events/${params.id}:`, error);
+    console.error(
+      `Error in DELETE /api/sdk/calendar/events/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al eliminar evento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar evento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

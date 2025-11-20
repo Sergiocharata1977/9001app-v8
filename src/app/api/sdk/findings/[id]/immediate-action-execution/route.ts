@@ -1,6 +1,6 @@
 /**
  * Finding Immediate Action Execution API Route - SDK Unified
- * 
+ *
  * PUT /api/sdk/findings/[id]/immediate-action-execution - Update Phase 3
  */
 
@@ -24,7 +24,8 @@ export async function PUT(
     }
 
     // Validate data using SDK schema
-    const validatedData = UpdateFindingImmediateActionExecutionSchema.parse(body);
+    const validatedData =
+      UpdateFindingImmediateActionExecutionSchema.parse(body);
 
     const userId = body.userId || 'system';
 
@@ -48,7 +49,10 @@ export async function PUT(
       progress: 50,
     });
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/findings/${params.id}/immediate-action-execution:`, error);
+    console.error(
+      `Error in PUT /api/sdk/findings/${params.id}/immediate-action-execution:`,
+      error
+    );
 
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
@@ -58,7 +62,10 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: 'Error al actualizar ejecución de acción inmediata', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar ejecución de acción inmediata',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

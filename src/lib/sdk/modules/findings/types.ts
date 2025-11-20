@@ -1,6 +1,6 @@
 /**
  * Finding Module Types
- * 
+ *
  * Tipos e interfaces para la gestión de hallazgos (findings)
  * con soporte para 4 fases: registro, acción inmediata, ejecución, análisis
  */
@@ -10,7 +10,7 @@ import type { BaseDocument } from '../../base/types';
 /**
  * Fases del hallazgo
  */
-export type FindingPhase = 
+export type FindingPhase =
   | 'registered'
   | 'immediate_action_planned'
   | 'immediate_action_executed'
@@ -20,7 +20,7 @@ export type FindingPhase =
 /**
  * Estados del hallazgo
  */
-export type FindingStatus = 
+export type FindingStatus =
   | 'registrado'
   | 'accion_planificada'
   | 'accion_ejecutada'
@@ -30,7 +30,7 @@ export type FindingStatus =
 /**
  * Origen del hallazgo
  */
-export type FindingOrigin = 
+export type FindingOrigin =
   | 'audit'
   | 'internal'
   | 'customer'
@@ -88,24 +88,24 @@ export interface FindingRootCauseAnalysis {
  */
 export interface Finding extends BaseDocument {
   findingNumber: string;
-  
+
   // Fase 1: Registro
   registration: FindingRegistration;
-  
+
   // Fase 2: Planificación de acción inmediata
   immediateActionPlanning: FindingImmediateActionPlanning | null;
-  
+
   // Fase 3: Ejecución de acción inmediata
   immediateActionExecution: FindingImmediateActionExecution | null;
-  
+
   // Fase 4: Análisis de causa raíz
   rootCauseAnalysis: FindingRootCauseAnalysis | null;
-  
+
   // Estado y progreso
   status: FindingStatus;
   currentPhase: FindingPhase;
   progress: number; // 0-100
-  
+
   // Auditoría
   createdByName: string;
   updatedByName: string | null;

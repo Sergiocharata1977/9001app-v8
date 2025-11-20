@@ -3,7 +3,7 @@ import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { AuditService } from '@/lib/sdk/modules/audits/AuditService';
 import { NextResponse } from 'next/server';
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async request => {
   try {
     const { searchParams } = new URL(request.url);
     const reportType = searchParams.get('type') || 'summary';
@@ -34,7 +34,12 @@ export const GET = withAuth(async (request) => {
     } else if (format === 'excel') {
       return generateExcelReport(auditData, reportType);
     } else if (format === 'pdf') {
-      return generatePDFReport(auditData, reportType, includeCharts, includeForecast);
+      return generatePDFReport(
+        auditData,
+        reportType,
+        includeCharts,
+        includeForecast
+      );
     } else {
       return NextResponse.json(
         { success: false, error: 'Formato no soportado' },
@@ -75,7 +80,8 @@ function generateCSVReport(data: any, reportType: string) {
           audit.conformityStatus || '',
           audit.progress || 0,
           audit.responsible || '',
-          audit.createdAt?.toDate?.().toISOString() || new Date(audit.createdAt).toISOString(),
+          audit.createdAt?.toDate?.().toISOString() ||
+            new Date(audit.createdAt).toISOString(),
         ]
           .map(cell => `"${cell}"`)
           .join(',')
@@ -108,7 +114,8 @@ function generateExcelReport(data: any, reportType: string) {
 
   return new NextResponse(content, {
     headers: {
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename="audit-report-${reportType}-${new Date().toISOString().split('T')[0]}.xlsx"`,
     },
   });
@@ -121,7 +128,12 @@ function generatePDFReport(
   includeForecast: boolean
 ) {
   // Simulación de PDF - en producción usar librería como pdfkit o html2pdf
-  const content = generatePDFContent(data, reportType, includeCharts, includeForecast);
+  const content = generatePDFContent(
+    data,
+    reportType,
+    includeCharts,
+    includeForecast
+  );
 
   return new NextResponse(content, {
     headers: {
@@ -167,7 +179,9 @@ function generateAuditDetailCSV(audit: any, reportType: string): string {
   if (reportType === 'actions' || reportType === 'detailed') {
     lines.push('ACCIONES');
     if (audit.actions && Array.isArray(audit.actions)) {
-      lines.push('ID,Descripción,Tipo,Estado,Responsable,Prioridad,Fecha Límite,Progreso');
+      lines.push(
+        'ID,Descripción,Tipo,Estado,Responsable,Prioridad,Fecha Límite,Progreso'
+      );
       audit.actions.forEach((action: any) => {
         lines.push(
           `${action.id},${action.description},${action.type},${action.status},${action.responsible},${action.priority},${action.dueDate},${action.progress}%`
@@ -241,7 +255,10 @@ function generatePDFContent(
     lines.push(`Descripción: ${data.description}`);
     lines.push('');
 
-    if ((reportType === 'findings' || reportType === 'detailed') && data.findings) {
+    if (
+      (reportType === 'findings' || reportType === 'detailed') &&
+      data.findings
+    ) {
       lines.push('HALLAZGOS ENCONTRADOS');
       lines.push('-'.repeat(80));
       data.findings.forEach((finding: any, index: number) => {
@@ -254,7 +271,10 @@ function generatePDFContent(
       });
     }
 
-    if ((reportType === 'actions' || reportType === 'detailed') && data.actions) {
+    if (
+      (reportType === 'actions' || reportType === 'detailed') &&
+      data.actions
+    ) {
       lines.push('ACCIONES CORRECTIVAS/PREVENTIVAS');
       lines.push('-'.repeat(80));
       data.actions.forEach((action: any, index: number) => {

@@ -25,7 +25,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/processes:', error);
     return NextResponse.json(
-      { error: 'Error al obtener procesos', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener procesos',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -46,7 +49,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/processes:', error);
     return NextResponse.json(
-      { error: 'Error al crear proceso', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear proceso',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

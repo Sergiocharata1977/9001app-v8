@@ -1,4 +1,5 @@
 import { db } from '@/firebase/config';
+import { getAdminStorage } from '@/lib/firebase/admin';
 import { EventPublisher } from '@/services/calendar/EventPublisher';
 import {
   Document,
@@ -12,7 +13,9 @@ import {
   PaginatedResponse,
   PaginationParams,
 } from '@/types/documents';
+import { randomUUID } from 'crypto';
 import {
+  Timestamp,
   addDoc,
   collection,
   deleteDoc,
@@ -21,7 +24,6 @@ import {
   getDocs,
   orderBy,
   query,
-  Timestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
@@ -652,7 +654,25 @@ export class DocumentService {
   // FILE MANAGEMENT
   // ============================================
 
-  static async uploadFile(documentId: string, file: File): Promise<string> {
+  static getStorageBucket() {
+    return getAdminStorage().bucket();
+  }
+
+  static buildDownloadURL(bucketName: string, filePath: string, token: string) {
+    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(
+      filePath
+    )}?alt=media&token=${token}`;
+  }
+
+  static sanitizeFileName(fileName: string) {
+    return fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  }
+
+  static async uploadFile(
+    documentId: string,
+    file: File,
+    userId: string
+  ): Promise<string> {
     try {
       console.log('[Service] Iniciando upload de archivo:', {
         documentId,
@@ -689,35 +709,49 @@ export class DocumentService {
         '[Service] Validaciones pasadas, importando Firebase Storage...'
       );
 
-      // Upload to Firebase Storage
-      const { ref, uploadBytes, getDownloadURL } = await import(
-        'firebase/storage'
-      );
-      const { storage } = await import('@/firebase/config');
+      const bucket = this.getStorageBucket();
+      const bucketName = bucket.name;
+      const sanitizedName = this.sanitizeFileName(file.name);
+      const fileName = `documents/${documentId}/${Date.now()}_${sanitizedName}`;
+      const fileRef = bucket.file(fileName);
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const downloadToken = randomUUID();
 
       console.log(
         '[Service] Firebase Storage importado, creando referencia...'
       );
 
-      const fileName = `documents/${documentId}/${Date.now()}_${file.name}`;
-      const storageRef = ref(storage, fileName);
-
       console.log('[Service] Subiendo archivo a Storage:', fileName);
-      await uploadBytes(storageRef, file);
+      await fileRef.save(buffer, {
+        resumable: false,
+        metadata: {
+          contentType: file.type,
+          metadata: {
+            firebaseStorageDownloadTokens: downloadToken,
+            uploadedBy: userId,
+          },
+        },
+      });
 
-      console.log('[Service] Archivo subido, obteniendo URL de descarga...');
-      const downloadURL = await getDownloadURL(storageRef);
+      console.log('[Service] Archivo subido, generando URL segura...');
+      const downloadURL = this.buildDownloadURL(
+        bucketName,
+        fileName,
+        downloadToken
+      );
 
       console.log(
         '[Service] URL obtenida, actualizando documento en Firestore...'
       );
 
-      // Update document with file info
+      // Update document with file info including download URL
       const docRef = doc(db, COLLECTION_NAME, documentId);
       await updateDoc(docRef, {
         file_path: fileName,
         file_size: file.size,
         mime_type: file.type,
+        download_url: downloadURL, // Guardar URL para mejor performance
+        updated_by: userId,
         updated_at: Timestamp.now(),
       });
 
@@ -743,18 +777,49 @@ export class DocumentService {
         throw new Error('Archivo no encontrado');
       }
 
+      if (document.download_url) {
+        // Incrementar descargas y devolver URL cacheada
+        const docRef = doc(db, COLLECTION_NAME, documentId);
+        await updateDoc(docRef, {
+          download_count: document.download_count + 1,
+          updated_at: Timestamp.now(),
+        });
+        return document.download_url;
+      }
+
       // Increment download count
       const docRef = doc(db, COLLECTION_NAME, documentId);
       await updateDoc(docRef, {
         download_count: document.download_count + 1,
+        updated_at: Timestamp.now(),
       });
 
-      // Get download URL
-      const { ref, getDownloadURL } = await import('firebase/storage');
-      const { storage } = await import('@/firebase/config');
+      const bucket = this.getStorageBucket();
+      const fileRef = bucket.file(document.file_path);
+      const [metadata] = await fileRef.getMetadata();
+      let token =
+        metadata.metadata?.firebaseStorageDownloadTokens ||
+        metadata.metadata?.firebaseStorageDownloadToken;
 
-      const storageRef = ref(storage, document.file_path);
-      const downloadURL = await getDownloadURL(storageRef);
+      if (!token) {
+        token = randomUUID();
+        await fileRef.setMetadata({
+          metadata: {
+            ...(metadata.metadata || {}),
+            firebaseStorageDownloadTokens: token,
+          },
+        });
+      }
+
+      const downloadURL = this.buildDownloadURL(
+        bucket.name,
+        document.file_path,
+        String(token)
+      );
+
+      await updateDoc(docRef, {
+        download_url: downloadURL,
+      });
 
       return downloadURL;
     } catch (error) {
@@ -770,12 +835,9 @@ export class DocumentService {
         return;
       }
 
-      // Delete from Storage
-      const { ref, deleteObject } = await import('firebase/storage');
-      const { storage } = await import('@/firebase/config');
-
-      const storageRef = ref(storage, document.file_path);
-      await deleteObject(storageRef);
+      const bucket = this.getStorageBucket();
+      const fileRef = bucket.file(document.file_path);
+      await fileRef.delete({ ignoreNotFound: true });
 
       // Update document
       const docRef = doc(db, COLLECTION_NAME, documentId);
@@ -783,6 +845,7 @@ export class DocumentService {
         file_path: null,
         file_size: null,
         mime_type: null,
+        download_url: null,
         updated_at: Timestamp.now(),
       });
     } catch (error) {

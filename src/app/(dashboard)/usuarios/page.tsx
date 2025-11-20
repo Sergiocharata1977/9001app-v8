@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { UserProfileService, UserProfile, UserRole } from '@/lib/sdk/modules/rrhh/UserProfileService';
+import {
+  UserProfileService,
+  UserProfile,
+  UserRole,
+} from '@/lib/sdk/modules/rrhh/UserProfileService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,7 +32,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
@@ -38,7 +48,9 @@ export default function UsuariosPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -105,7 +117,11 @@ export default function UsuariosPage() {
   // Cambiar estado
   const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      await userService.toggleUserStatus(userId, !currentStatus, 'current-user-id');
+      await userService.toggleUserStatus(
+        userId,
+        !currentStatus,
+        'current-user-id'
+      );
       toast({
         title: 'Éxito',
         description: `Usuario ${!currentStatus ? 'activado' : 'desactivado'}`,
@@ -175,7 +191,9 @@ export default function UsuariosPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gestión de Usuarios</h1>
-          <p className="text-gray-500 mt-1">Administra los usuarios del sistema</p>
+          <p className="text-gray-500 mt-1">
+            Administra los usuarios del sistema
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -186,7 +204,9 @@ export default function UsuariosPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{isEditMode ? 'Editar Usuario' : 'Crear Usuario'}</DialogTitle>
+              <DialogTitle>
+                {isEditMode ? 'Editar Usuario' : 'Crear Usuario'}
+              </DialogTitle>
               <DialogDescription>
                 {isEditMode
                   ? 'Modifica los datos del usuario'
@@ -202,7 +222,9 @@ export default function UsuariosPage() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Usuarios
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -213,7 +235,9 @@ export default function UsuariosPage() {
             <CardTitle className="text-sm font-medium">Activos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -221,15 +245,21 @@ export default function UsuariosPage() {
             <CardTitle className="text-sm font-medium">Inactivos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.inactive}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.inactive}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Administradores</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Administradores
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.admins}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.admins}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -237,7 +267,9 @@ export default function UsuariosPage() {
             <CardTitle className="text-sm font-medium">Auditores</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.auditors}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.auditors}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -260,7 +292,10 @@ export default function UsuariosPage() {
             </div>
             <div>
               <label className="text-sm font-medium">Rol</label>
-              <Select value={roleFilter} onValueChange={v => setRoleFilter(v as UserRole | 'all')}>
+              <Select
+                value={roleFilter}
+                onValueChange={v => setRoleFilter(v as UserRole | 'all')}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -276,7 +311,10 @@ export default function UsuariosPage() {
             </div>
             <div>
               <label className="text-sm font-medium">Estado</label>
-              <Select value={statusFilter} onValueChange={v => setStatusFilter(v as any)}>
+              <Select
+                value={statusFilter}
+                onValueChange={v => setStatusFilter(v as any)}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -316,21 +354,28 @@ export default function UsuariosPage() {
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-gray-500"
+                    >
                       No se encontraron usuarios
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredUsers.map(user => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.email}</TableCell>
+                      <TableCell className="font-medium">
+                        {user.email}
+                      </TableCell>
                       <TableCell>
                         {user.firstName} {user.lastName}
                       </TableCell>
                       <TableCell>
                         <Select
                           value={user.role}
-                          onValueChange={role => handleChangeRole(user.userId, role as UserRole)}
+                          onValueChange={role =>
+                            handleChangeRole(user.userId, role as UserRole)
+                          }
                         >
                           <SelectTrigger className="w-32">
                             <SelectValue />
@@ -349,7 +394,9 @@ export default function UsuariosPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleToggleStatus(user.userId, user.isActive)}
+                          onClick={() =>
+                            handleToggleStatus(user.userId, user.isActive)
+                          }
                         >
                           {user.isActive ? (
                             <>

@@ -7,9 +7,15 @@ export class EvaluationService extends BaseService<Evaluation> {
   protected collectionName = 'evaluations';
   protected schema = CreateEvaluationSchema;
 
-  async createAndReturnId(data: CreateEvaluationInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateEvaluationInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
-    const evaluationDate = validated.evaluationDate instanceof Date ? validated.evaluationDate : new Date(validated.evaluationDate);
+    const evaluationDate =
+      validated.evaluationDate instanceof Date
+        ? validated.evaluationDate
+        : new Date(validated.evaluationDate);
 
     const evaluationData: Omit<Evaluation, 'id'> = {
       ...validated,
@@ -22,13 +28,17 @@ export class EvaluationService extends BaseService<Evaluation> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(evaluationData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(evaluationData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Evaluation[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.personnelId) {
         query = query.where('personnelId', '==', filters.personnelId);
@@ -41,10 +51,15 @@ export class EvaluationService extends BaseService<Evaluation> {
       const limit = options.limit || 100;
       const offset = options.offset || 0;
 
-      query = query.orderBy('evaluationDate', 'desc').limit(limit).offset(offset);
+      query = query
+        .orderBy('evaluationDate', 'desc')
+        .limit(limit)
+        .offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Evaluation));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Evaluation
+      );
     } catch (error) {
       console.error('Error listing evaluations', error);
       throw error;
@@ -80,9 +95,14 @@ export class EvaluationService extends BaseService<Evaluation> {
         .orderBy('evaluationDate', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Evaluation));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Evaluation
+      );
     } catch (error) {
-      console.error(`Error getting evaluations for personnel ${personnelId}`, error);
+      console.error(
+        `Error getting evaluations for personnel ${personnelId}`,
+        error
+      );
       throw error;
     }
   }
@@ -96,9 +116,14 @@ export class EvaluationService extends BaseService<Evaluation> {
         .orderBy('evaluationDate', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Evaluation));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Evaluation
+      );
     } catch (error) {
-      console.error(`Error getting evaluations by evaluator ${evaluatorId}`, error);
+      console.error(
+        `Error getting evaluations by evaluator ${evaluatorId}`,
+        error
+      );
       throw error;
     }
   }

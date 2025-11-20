@@ -1,6 +1,6 @@
 /**
  * Document Version API Route - SDK Unified
- * 
+ *
  * POST /api/sdk/documents/[id]/version - Create new document version
  * GET /api/sdk/documents/[id]/version - Get version history
  */
@@ -49,7 +49,10 @@ export async function POST(
       versionNumber: document.currentVersion + 1,
     });
   } catch (error) {
-    console.error(`Error in POST /api/sdk/documents/${params.id}/version:`, error);
+    console.error(
+      `Error in POST /api/sdk/documents/${params.id}/version:`,
+      error
+    );
 
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
@@ -59,7 +62,10 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { error: 'Error al crear versión del documento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear versión del documento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -88,9 +94,15 @@ export async function GET(
       count: versionHistory.length,
     });
   } catch (error) {
-    console.error(`Error in GET /api/sdk/documents/${params.id}/version:`, error);
+    console.error(
+      `Error in GET /api/sdk/documents/${params.id}/version:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al obtener historial de versiones', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener historial de versiones',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

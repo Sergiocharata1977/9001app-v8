@@ -9,9 +9,14 @@ interface AuditReportGeneratorProps {
   onClose?: () => void;
 }
 
-export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorProps) {
+export function AuditReportGenerator({
+  auditId,
+  onClose,
+}: AuditReportGeneratorProps) {
   const [loading, setLoading] = useState(false);
-  const [reportType, setReportType] = useState<'summary' | 'detailed' | 'findings' | 'actions'>('summary');
+  const [reportType, setReportType] = useState<
+    'summary' | 'detailed' | 'findings' | 'actions'
+  >('summary');
   const [format, setFormat] = useState<'pdf' | 'excel' | 'csv'>('pdf');
   const [includeCharts, setIncludeCharts] = useState(true);
   const [includeForecast, setIncludeForecast] = useState(false);
@@ -31,7 +36,9 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
         params.append('auditId', auditId);
       }
 
-      const response = await fetch(`/api/sdk/audits/report?${params.toString()}`);
+      const response = await fetch(
+        `/api/sdk/audits/report?${params.toString()}`
+      );
 
       if (!response.ok) {
         throw new Error('Error generating report');
@@ -43,7 +50,8 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
       a.href = url;
 
       const timestamp = new Date().toISOString().split('T')[0];
-      const extension = format === 'pdf' ? 'pdf' : format === 'excel' ? 'xlsx' : 'csv';
+      const extension =
+        format === 'pdf' ? 'pdf' : format === 'excel' ? 'xlsx' : 'csv';
       a.download = `audit-report-${reportType}-${timestamp}.${extension}`;
 
       document.body.appendChild(a);
@@ -65,10 +73,7 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Generar Reporte</h2>
-        <button
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
-        >
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
           <X className="w-6 h-6" />
         </button>
       </div>
@@ -80,10 +85,26 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
         </label>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { value: 'summary', label: 'Resumen Ejecutivo', desc: 'Visión general rápida' },
-            { value: 'detailed', label: 'Reporte Detallado', desc: 'Análisis completo' },
-            { value: 'findings', label: 'Hallazgos', desc: 'Enfoque en hallazgos' },
-            { value: 'actions', label: 'Acciones', desc: 'Seguimiento de acciones' },
+            {
+              value: 'summary',
+              label: 'Resumen Ejecutivo',
+              desc: 'Visión general rápida',
+            },
+            {
+              value: 'detailed',
+              label: 'Reporte Detallado',
+              desc: 'Análisis completo',
+            },
+            {
+              value: 'findings',
+              label: 'Hallazgos',
+              desc: 'Enfoque en hallazgos',
+            },
+            {
+              value: 'actions',
+              label: 'Acciones',
+              desc: 'Seguimiento de acciones',
+            },
           ].map(option => (
             <button
               key={option.value}
@@ -142,7 +163,10 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
             onChange={e => setIncludeCharts(e.target.checked)}
             className="w-4 h-4 rounded border-gray-300"
           />
-          <label htmlFor="charts" className="text-sm text-gray-700 cursor-pointer">
+          <label
+            htmlFor="charts"
+            className="text-sm text-gray-700 cursor-pointer"
+          >
             Incluir gráficos y visualizaciones
           </label>
         </div>
@@ -155,7 +179,10 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
             onChange={e => setIncludeForecast(e.target.checked)}
             className="w-4 h-4 rounded border-gray-300"
           />
-          <label htmlFor="forecast" className="text-sm text-gray-700 cursor-pointer">
+          <label
+            htmlFor="forecast"
+            className="text-sm text-gray-700 cursor-pointer"
+          >
             Incluir pronósticos y tendencias
           </label>
         </div>
@@ -165,8 +192,16 @@ export function AuditReportGenerator({ auditId, onClose }: AuditReportGeneratorP
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-900">
           <strong>Vista previa:</strong> Se generará un reporte de tipo{' '}
-          <strong>{reportType === 'summary' ? 'Resumen Ejecutivo' : reportType === 'detailed' ? 'Detallado' : reportType === 'findings' ? 'Hallazgos' : 'Acciones'}</strong> en formato{' '}
-          <strong>{format.toUpperCase()}</strong>
+          <strong>
+            {reportType === 'summary'
+              ? 'Resumen Ejecutivo'
+              : reportType === 'detailed'
+                ? 'Detallado'
+                : reportType === 'findings'
+                  ? 'Hallazgos'
+                  : 'Acciones'}
+          </strong>{' '}
+          en formato <strong>{format.toUpperCase()}</strong>
           {includeCharts && ' con gráficos'}
           {includeForecast && ' y pronósticos'}
         </p>

@@ -40,9 +40,15 @@ export async function POST(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in POST /api/sdk/news/posts/${params.id}/reactions:`, error);
+    console.error(
+      `Error in POST /api/sdk/news/posts/${params.id}/reactions:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al crear reacción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear reacción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

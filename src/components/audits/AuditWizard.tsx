@@ -14,13 +14,34 @@ interface AuditWizardProps {
 type WizardStep = 1 | 2 | 3 | 4;
 
 const NORM_POINTS = [
-  '4.1', '4.2', '4.3', '4.4',
-  '5.1', '5.2', '5.3',
-  '6.1', '6.2', '6.3',
-  '7.1', '7.2', '7.3', '7.4', '7.5',
-  '8.1', '8.2', '8.3', '8.4', '8.5', '8.6', '8.7',
-  '9.1', '9.2', '9.3',
-  '10.1', '10.2', '10.3',
+  '4.1',
+  '4.2',
+  '4.3',
+  '4.4',
+  '5.1',
+  '5.2',
+  '5.3',
+  '6.1',
+  '6.2',
+  '6.3',
+  '7.1',
+  '7.2',
+  '7.3',
+  '7.4',
+  '7.5',
+  '8.1',
+  '8.2',
+  '8.3',
+  '8.4',
+  '8.5',
+  '8.6',
+  '8.7',
+  '9.1',
+  '9.2',
+  '9.3',
+  '10.1',
+  '10.2',
+  '10.3',
 ];
 
 export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
@@ -61,7 +82,9 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
         return true;
       case 2:
         if (formData.auditType === 'partial' && selectedPoints.length === 0) {
-          setError('Debe seleccionar al menos un punto de norma para auditoría parcial');
+          setError(
+            'Debe seleccionar al menos un punto de norma para auditoría parcial'
+          );
           return false;
         }
         return true;
@@ -101,11 +124,14 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
       try {
         const dataToSubmit = {
           ...formData,
-          selectedNormPoints: formData.auditType === 'partial' ? selectedPoints : [],
+          selectedNormPoints:
+            formData.auditType === 'partial' ? selectedPoints : [],
         };
         await onSubmit(dataToSubmit);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al crear la auditoría');
+        setError(
+          err instanceof Error ? err.message : 'Error al crear la auditoría'
+        );
       }
     }
   };
@@ -174,13 +200,18 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
               </label>
               <div className="flex gap-4">
                 {['complete', 'partial'].map(type => (
-                  <label key={type} className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    key={type}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
                       type="radio"
                       name="auditType"
                       value={type}
                       checked={formData.auditType === type}
-                      onChange={e => handleInputChange('auditType', e.target.value)}
+                      onChange={e =>
+                        handleInputChange('auditType', e.target.value)
+                      }
                       disabled={isLoading}
                     />
                     <span className="text-sm text-gray-700">
@@ -233,7 +264,8 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
             {formData.auditType === 'complete' && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  Se auditarán todos los {NORM_POINTS.length} puntos de norma ISO 9001
+                  Se auditarán todos los {NORM_POINTS.length} puntos de norma
+                  ISO 9001
                 </p>
               </div>
             )}
@@ -269,10 +301,14 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
               </label>
               <input
                 type="date"
-                value={formData.plannedDate instanceof Date
-                  ? formData.plannedDate.toISOString().split('T')[0]
-                  : ''}
-                onChange={e => handleInputChange('plannedDate', new Date(e.target.value))}
+                value={
+                  formData.plannedDate instanceof Date
+                    ? formData.plannedDate.toISOString().split('T')[0]
+                    : ''
+                }
+                onChange={e =>
+                  handleInputChange('plannedDate', new Date(e.target.value))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 disabled={isLoading}
               />
@@ -294,7 +330,9 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
             <div className="bg-gray-50 rounded-lg p-6 space-y-4">
               <div>
                 <p className="text-sm text-gray-600">Título</p>
-                <p className="text-lg font-semibold text-gray-900">{formData.title}</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {formData.title}
+                </p>
               </div>
 
               <div>
@@ -359,11 +397,7 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
 
         <div className="flex gap-2">
           {currentStep < 4 ? (
-            <Button
-              onClick={handleNext}
-              disabled={isLoading}
-              className="gap-2"
-            >
+            <Button onClick={handleNext} disabled={isLoading} className="gap-2">
               Siguiente
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -373,9 +407,7 @@ export function AuditWizard({ onSubmit, isLoading = false }: AuditWizardProps) {
               disabled={isLoading}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : null}
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {isLoading ? 'Creando...' : 'Crear Auditoría'}
             </Button>
           )}

@@ -68,7 +68,11 @@ export const PUT = withAuth(async (req: AuthenticatedRequest, context: any) => {
     // Cambiar rol
     if (body.newRole) {
       const validated = ChangeRoleSchema.parse({ newRole: body.newRole });
-      await userService.changeUserRole(params.id, validated.newRole, req.user.uid);
+      await userService.changeUserRole(
+        params.id,
+        validated.newRole,
+        req.user.uid
+      );
 
       return NextResponse.json({
         success: true,
@@ -96,7 +100,11 @@ export const PUT = withAuth(async (req: AuthenticatedRequest, context: any) => {
     // Cambiar estado
     if (body.active !== undefined) {
       const validated = ToggleStatusSchema.parse({ active: body.active });
-      await userService.toggleUserStatus(params.id, validated.active, req.user.uid);
+      await userService.toggleUserStatus(
+        params.id,
+        validated.active,
+        req.user.uid
+      );
 
       return NextResponse.json({
         success: true,
@@ -126,17 +134,19 @@ export const PUT = withAuth(async (req: AuthenticatedRequest, context: any) => {
   }
 });
 
-export const DELETE = withAuth(async (req: AuthenticatedRequest, context: any) => {
-  try {
-    const { params } = context;
-    const userService = new UserProfileService();
-    await userService.deleteUserProfile(params.id);
+export const DELETE = withAuth(
+  async (req: AuthenticatedRequest, context: any) => {
+    try {
+      const { params } = context;
+      const userService = new UserProfileService();
+      await userService.deleteUserProfile(params.id);
 
-    return NextResponse.json({
-      success: true,
-      message: 'User deleted successfully',
-    });
-  } catch (error) {
-    return errorHandler(error);
+      return NextResponse.json({
+        success: true,
+        message: 'User deleted successfully',
+      });
+    } catch (error) {
+      return errorHandler(error);
+    }
   }
-});
+);

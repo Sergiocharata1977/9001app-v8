@@ -1,6 +1,6 @@
 /**
  * Finding Root Cause Analysis API Route - SDK Unified
- * 
+ *
  * PUT /api/sdk/findings/[id]/root-cause-analysis - Update Phase 4
  */
 
@@ -48,7 +48,10 @@ export async function PUT(
       progress: 75,
     });
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/findings/${params.id}/root-cause-analysis:`, error);
+    console.error(
+      `Error in PUT /api/sdk/findings/${params.id}/root-cause-analysis:`,
+      error
+    );
 
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
@@ -58,7 +61,10 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: 'Error al actualizar análisis de causa raíz', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar análisis de causa raíz',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

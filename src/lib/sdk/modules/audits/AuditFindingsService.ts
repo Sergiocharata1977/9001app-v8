@@ -116,7 +116,9 @@ export class AuditFindingsService extends BaseService<Finding> {
         isActive: true,
       };
 
-      const docRef = await this.db.collection(this.collectionName).add(findingData);
+      const docRef = await this.db
+        .collection(this.collectionName)
+        .add(findingData);
       return docRef.id;
     } catch (error) {
       console.error('Error creating finding from audit:', error);
@@ -171,7 +173,9 @@ export class AuditFindingsService extends BaseService<Finding> {
         return findings.filter(
           finding =>
             finding.registration?.name?.toLowerCase().includes(searchLower) ||
-            finding.registration?.description?.toLowerCase().includes(searchLower) ||
+            finding.registration?.description
+              ?.toLowerCase()
+              .includes(searchLower) ||
             finding.findingNumber?.toLowerCase().includes(searchLower)
         );
       }
@@ -221,7 +225,10 @@ export class AuditFindingsService extends BaseService<Finding> {
   async linkFindingToAudit(findingId: string, auditId: string): Promise<void> {
     try {
       // Validate finding exists
-      const findingDoc = await this.db.collection(this.collectionName).doc(findingId).get();
+      const findingDoc = await this.db
+        .collection(this.collectionName)
+        .doc(findingId)
+        .get();
 
       if (!findingDoc.exists) {
         throw new Error('Hallazgo no encontrado');
@@ -289,8 +296,13 @@ export class AuditFindingsService extends BaseService<Finding> {
         }
 
         // Count by conformity status
-        if (finding.conformityStatus && finding.conformityStatus in stats.byConformityStatus) {
-          (stats.byConformityStatus as Record<string, number>)[finding.conformityStatus]++;
+        if (
+          finding.conformityStatus &&
+          finding.conformityStatus in stats.byConformityStatus
+        ) {
+          (stats.byConformityStatus as Record<string, number>)[
+            finding.conformityStatus
+          ]++;
         }
 
         // Total progress
@@ -322,7 +334,9 @@ export class AuditFindingsService extends BaseService<Finding> {
    * @param auditId - Audit ID
    * @returns Count by conformity status
    */
-  async getConformityStatusCounts(auditId: string): Promise<Record<string, number>> {
+  async getConformityStatusCounts(
+    auditId: string
+  ): Promise<Record<string, number>> {
     try {
       const findings = await this.listAuditFindings(auditId, { limit: 1000 });
 
@@ -353,7 +367,10 @@ export class AuditFindingsService extends BaseService<Finding> {
    */
   async deleteFinding(findingId: string): Promise<void> {
     try {
-      const findingDoc = await this.db.collection(this.collectionName).doc(findingId).get();
+      const findingDoc = await this.db
+        .collection(this.collectionName)
+        .doc(findingId)
+        .get();
 
       if (!findingDoc.exists) {
         throw new Error('Hallazgo no encontrado');
@@ -381,7 +398,10 @@ export class AuditFindingsService extends BaseService<Finding> {
     userId: string
   ): Promise<void> {
     try {
-      const findingDoc = await this.db.collection(this.collectionName).doc(findingId).get();
+      const findingDoc = await this.db
+        .collection(this.collectionName)
+        .doc(findingId)
+        .get();
 
       if (!findingDoc.exists) {
         throw new Error('Hallazgo no encontrado');

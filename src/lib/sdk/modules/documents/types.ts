@@ -1,7 +1,12 @@
 import type { BaseDocument } from '../../base/types';
 import { Timestamp } from 'firebase-admin/firestore';
 
-export type DocumentStatus = 'draft' | 'review' | 'approved' | 'published' | 'archived';
+export type DocumentStatus =
+  | 'draft'
+  | 'review'
+  | 'approved'
+  | 'published'
+  | 'archived';
 
 export interface DocumentVersion {
   versionNumber: number;

@@ -7,7 +7,10 @@ export class CommentService extends BaseService<Comment> {
   protected collectionName = 'comments';
   protected schema = CreateCommentSchema;
 
-  async createAndReturnId(data: CreateCommentInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateCommentInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const commentData: Omit<Comment, 'id'> = {
@@ -21,7 +24,9 @@ export class CommentService extends BaseService<Comment> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(commentData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(commentData);
     return docRef.id;
   }
 
@@ -34,7 +39,9 @@ export class CommentService extends BaseService<Comment> {
         .orderBy('createdAt', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Comment
+      );
     } catch (error) {
       console.error(`Error getting comments for post ${postId}`, error);
       throw error;
@@ -74,7 +81,9 @@ export class CommentService extends BaseService<Comment> {
 
   async list(filters: any = {}, options: any = {}): Promise<Comment[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       const limit = options.limit || 100;
       const offset = options.offset || 0;
@@ -82,7 +91,9 @@ export class CommentService extends BaseService<Comment> {
       query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Comment
+      );
     } catch (error) {
       console.error('Error listing comments', error);
       throw error;

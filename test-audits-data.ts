@@ -17,17 +17,17 @@ async function checkAuditsData() {
     if (snapshot.size === 0) {
       console.log('⚠️  No audits found in Firestore!');
       console.log('\nChecking if collection exists...');
-      
+
       // Try to get collection metadata
       const collections = await db.listCollections();
       const auditCollectionExists = collections.some(c => c.id === 'audits');
       console.log(`Collection 'audits' exists: ${auditCollectionExists}`);
-      
+
       console.log('\nAvailable collections:');
       collections.forEach(c => console.log(`  - ${c.id}`));
     } else {
       console.log('\n✅ Audits found! Listing first 5:\n');
-      
+
       let count = 0;
       snapshot.forEach(doc => {
         if (count < 5) {
@@ -36,7 +36,9 @@ async function checkAuditsData() {
           console.log(`  Title: ${data.title}`);
           console.log(`  Status: ${data.status}`);
           console.log(`  Type: ${data.auditType}`);
-          console.log(`  Created: ${data.createdAt?.toDate?.() || data.createdAt}`);
+          console.log(
+            `  Created: ${data.createdAt?.toDate?.() || data.createdAt}`
+          );
           console.log(`  isActive: ${data.isActive}`);
           console.log('');
           count++;
@@ -66,9 +68,10 @@ async function checkAuditsData() {
     console.log(`First 10 documents (all):`);
     allSnapshot.forEach(doc => {
       const data = doc.data();
-      console.log(`  - ${doc.id}: isActive=${data.isActive}, status=${data.status}`);
+      console.log(
+        `  - ${doc.id}: isActive=${data.isActive}, status=${data.status}`
+      );
     });
-
   } catch (error) {
     console.error('❌ Error:', error);
   } finally {

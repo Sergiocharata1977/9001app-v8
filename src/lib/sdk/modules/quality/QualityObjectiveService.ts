@@ -7,10 +7,19 @@ export class QualityObjectiveService extends BaseService<QualityObjective> {
   protected collectionName = 'qualityObjectives';
   protected schema = CreateQualityObjectiveSchema;
 
-  async createAndReturnId(data: CreateQualityObjectiveInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateQualityObjectiveInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
-    const startDate = validated.startDate instanceof Date ? validated.startDate : new Date(validated.startDate);
-    const endDate = validated.endDate instanceof Date ? validated.endDate : new Date(validated.endDate);
+    const startDate =
+      validated.startDate instanceof Date
+        ? validated.startDate
+        : new Date(validated.startDate);
+    const endDate =
+      validated.endDate instanceof Date
+        ? validated.endDate
+        : new Date(validated.endDate);
 
     const objectiveData: Omit<QualityObjective, 'id'> = {
       ...validated,
@@ -26,13 +35,20 @@ export class QualityObjectiveService extends BaseService<QualityObjective> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(objectiveData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(objectiveData);
     return docRef.id;
   }
 
-  async list(filters: any = {}, options: any = {}): Promise<QualityObjective[]> {
+  async list(
+    filters: any = {},
+    options: any = {}
+  ): Promise<QualityObjective[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.status) {
         query = query.where('status', '==', filters.status);
@@ -48,7 +64,9 @@ export class QualityObjectiveService extends BaseService<QualityObjective> {
       query = query.orderBy('startDate', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as QualityObjective));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as QualityObjective
+      );
     } catch (error) {
       console.error('Error listing quality objectives', error);
       throw error;
@@ -75,7 +93,11 @@ export class QualityObjectiveService extends BaseService<QualityObjective> {
     }
   }
 
-  async updateProgress(id: string, progress: number, userId: string): Promise<void> {
+  async updateProgress(
+    id: string,
+    progress: number,
+    userId: string
+  ): Promise<void> {
     try {
       await this.db.collection(this.collectionName).doc(id).update({
         currentValue: progress,
@@ -97,7 +119,9 @@ export class QualityObjectiveService extends BaseService<QualityObjective> {
         .orderBy('startDate', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as QualityObjective));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as QualityObjective
+      );
     } catch (error) {
       console.error(`Error getting objectives by status ${status}`, error);
       throw error;

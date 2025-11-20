@@ -1,6 +1,6 @@
 /**
  * Calendar Events API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/calendar/events - List calendar events
  * POST /api/sdk/calendar/events - Create calendar event
  */
@@ -25,8 +25,12 @@ export async function GET(request: NextRequest) {
     };
 
     const options = {
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100,
-      offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!)
+        : 100,
+      offset: searchParams.get('offset')
+        ? parseInt(searchParams.get('offset')!)
+        : 0,
     };
 
     const service = new CalendarService();
@@ -36,7 +40,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/calendar/events:', error);
     return NextResponse.json(
-      { error: 'Error al obtener eventos', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener eventos',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -59,7 +66,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/calendar/events:', error);
     return NextResponse.json(
-      { error: 'Error al crear evento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear evento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

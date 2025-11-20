@@ -7,7 +7,10 @@ export class ProcessService extends BaseService<Process> {
   protected collectionName = 'processes';
   protected schema = CreateProcessSchema;
 
-  async createAndReturnId(data: CreateProcessInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateProcessInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const processData: Omit<Process, 'id'> = {
@@ -22,13 +25,17 @@ export class ProcessService extends BaseService<Process> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(processData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(processData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Process[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.category) {
         query = query.where('category', '==', filters.category);
@@ -44,7 +51,9 @@ export class ProcessService extends BaseService<Process> {
       query = query.orderBy('name', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Process));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Process
+      );
     } catch (error) {
       console.error('Error listing processes', error);
       throw error;
@@ -80,7 +89,9 @@ export class ProcessService extends BaseService<Process> {
         .orderBy('name', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Process));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Process
+      );
     } catch (error) {
       console.error(`Error getting processes by category ${category}`, error);
       throw error;
@@ -96,7 +107,9 @@ export class ProcessService extends BaseService<Process> {
         .orderBy('name', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Process));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Process
+      );
     } catch (error) {
       console.error(`Error getting processes by owner ${owner}`, error);
       throw error;

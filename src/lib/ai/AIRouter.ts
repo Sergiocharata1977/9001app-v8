@@ -5,7 +5,10 @@
 
 import { ClaudeService } from '@/lib/claude/client';
 import { GroqMessage, GroqService } from '@/lib/groq/GroqService';
-import { IntentDetectionService, type DetectedIntent } from './IntentDetectionService';
+import {
+  IntentDetectionService,
+  type DetectedIntent,
+} from './IntentDetectionService';
 
 export type AIProvider = 'groq' | 'claude';
 export type AIMode = 'fast' | 'quality';
@@ -207,7 +210,9 @@ export class AIRouter {
       const intent = IntentDetectionService.detectIntent(mensaje, userContext);
 
       // Obtener prompt del sistema basado en intención
-      const systemPrompt = IntentDetectionService.getSystemPromptForIntent(intent.type);
+      const systemPrompt = IntentDetectionService.getSystemPromptForIntent(
+        intent.type
+      );
 
       // Enviar mensaje con prompt especializado
       const response = await this.chat(mensaje, historial, systemPrompt, mode);
@@ -251,10 +256,17 @@ export class AIRouter {
     const intent = IntentDetectionService.detectIntent(mensaje, userContext);
 
     // Obtener prompt del sistema basado en intención
-    const systemPrompt = IntentDetectionService.getSystemPromptForIntent(intent.type);
+    const systemPrompt = IntentDetectionService.getSystemPromptForIntent(
+      intent.type
+    );
 
     // Obtener stream con prompt especializado
-    const stream = await this.chatStream(mensaje, historial, systemPrompt, mode);
+    const stream = await this.chatStream(
+      mensaje,
+      historial,
+      systemPrompt,
+      mode
+    );
 
     return { stream, intent };
   }
@@ -333,4 +345,3 @@ export class AIRouter {
 }
 
 export type { AIAnalyticsEvent, AIMessage };
-

@@ -1,6 +1,6 @@
 /**
  * NormPoint by Chapter API Route - SDK Unified
- * 
+ *
  * GET /api/sdk/norm-points/chapter/[chapter] - Get norm points by chapter
  */
 
@@ -26,9 +26,15 @@ export async function GET(
 
     return NextResponse.json({ normPoints, count: normPoints.length });
   } catch (error) {
-    console.error(`Error in GET /api/sdk/norm-points/chapter/${params.chapter}:`, error);
+    console.error(
+      `Error in GET /api/sdk/norm-points/chapter/${params.chapter}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al obtener puntos de norma por capítulo', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener puntos de norma por capítulo',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

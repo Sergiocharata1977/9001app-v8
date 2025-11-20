@@ -1,7 +1,15 @@
 import { BaseService } from '../../base/BaseService';
 import { Timestamp } from 'firebase-admin/firestore';
-import type { CalendarEvent, CalendarEventFilters, CalendarStats } from './types';
-import { CreateCalendarEventSchema, UpdateCalendarEventSchema, CalendarEventFiltersSchema } from './validations';
+import type {
+  CalendarEvent,
+  CalendarEventFilters,
+  CalendarStats,
+} from './types';
+import {
+  CreateCalendarEventSchema,
+  UpdateCalendarEventSchema,
+  CalendarEventFiltersSchema,
+} from './validations';
 
 export class CalendarService extends BaseService<CalendarEvent> {
   protected collectionName = 'calendarEvents';
@@ -10,8 +18,14 @@ export class CalendarService extends BaseService<CalendarEvent> {
   async createAndReturnId(data: any, userId: string): Promise<string> {
     const validated = this.schema.parse(data);
 
-    const startDate = validated.startDate instanceof Date ? validated.startDate : new Date(validated.startDate);
-    const endDate = validated.endDate instanceof Date ? validated.endDate : new Date(validated.endDate);
+    const startDate =
+      validated.startDate instanceof Date
+        ? validated.startDate
+        : new Date(validated.startDate);
+    const endDate =
+      validated.endDate instanceof Date
+        ? validated.endDate
+        : new Date(validated.endDate);
 
     const eventData: Omit<CalendarEvent, 'id'> = {
       ...validated,
@@ -31,11 +45,16 @@ export class CalendarService extends BaseService<CalendarEvent> {
     return docRef.id;
   }
 
-  async list(filters: CalendarEventFilters = {}, options: any = {}): Promise<CalendarEvent[]> {
+  async list(
+    filters: CalendarEventFilters = {},
+    options: any = {}
+  ): Promise<CalendarEvent[]> {
     try {
       CalendarEventFiltersSchema.parse(filters);
 
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.eventType) {
         query = query.where('eventType', '==', filters.eventType);
@@ -50,12 +69,18 @@ export class CalendarService extends BaseService<CalendarEvent> {
       }
 
       if (filters.dateFrom) {
-        const fromDate = filters.dateFrom instanceof Date ? filters.dateFrom : new Date(filters.dateFrom);
+        const fromDate =
+          filters.dateFrom instanceof Date
+            ? filters.dateFrom
+            : new Date(filters.dateFrom);
         query = query.where('startDate', '>=', Timestamp.fromDate(fromDate));
       }
 
       if (filters.dateTo) {
-        const toDate = filters.dateTo instanceof Date ? filters.dateTo : new Date(filters.dateTo);
+        const toDate =
+          filters.dateTo instanceof Date
+            ? filters.dateTo
+            : new Date(filters.dateTo);
         query = query.where('endDate', '<=', Timestamp.fromDate(toDate));
       }
 
@@ -65,7 +90,9 @@ export class CalendarService extends BaseService<CalendarEvent> {
       query = query.orderBy('startDate', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      let events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CalendarEvent));
+      let events = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as CalendarEvent
+      );
 
       if (filters.userId) {
         events = events.filter(e => e.attendees.includes(filters.userId!));
@@ -73,9 +100,10 @@ export class CalendarService extends BaseService<CalendarEvent> {
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        events = events.filter(e =>
-          e.title.toLowerCase().includes(searchLower) ||
-          e.description.toLowerCase().includes(searchLower)
+        events = events.filter(
+          e =>
+            e.title.toLowerCase().includes(searchLower) ||
+            e.description.toLowerCase().includes(searchLower)
         );
       }
 
@@ -106,7 +134,10 @@ export class CalendarService extends BaseService<CalendarEvent> {
     }
   }
 
-  async getByDateRange(startDate: Date | string, endDate: Date | string): Promise<CalendarEvent[]> {
+  async getByDateRange(
+    startDate: Date | string,
+    endDate: Date | string
+  ): Promise<CalendarEvent[]> {
     try {
       const start = startDate instanceof Date ? startDate : new Date(startDate);
       const end = endDate instanceof Date ? endDate : new Date(endDate);
@@ -119,7 +150,9 @@ export class CalendarService extends BaseService<CalendarEvent> {
         .orderBy('startDate', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CalendarEvent));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as CalendarEvent
+      );
     } catch (error) {
       console.error('Error getting events by date range', error);
       throw error;
@@ -140,7 +173,9 @@ export class CalendarService extends BaseService<CalendarEvent> {
         .orderBy('startDate', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CalendarEvent));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as CalendarEvent
+      );
     } catch (error) {
       console.error('Error getting upcoming events', error);
       throw error;
@@ -156,7 +191,9 @@ export class CalendarService extends BaseService<CalendarEvent> {
         .orderBy('startDate', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CalendarEvent));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as CalendarEvent
+      );
     } catch (error) {
       console.error(`Error getting events for user ${userId}`, error);
       throw error;
@@ -172,7 +209,9 @@ export class CalendarService extends BaseService<CalendarEvent> {
         .orderBy('startDate', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CalendarEvent));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as CalendarEvent
+      );
     } catch (error) {
       console.error(`Error getting events for module ${module}`, error);
       throw error;
@@ -215,7 +254,10 @@ export class CalendarService extends BaseService<CalendarEvent> {
           other: events.filter(e => e.eventType === 'other').length,
         },
         upcomingCount: events.filter(e => {
-          const startDate = e.startDate instanceof Timestamp ? e.startDate.toDate() : new Date(e.startDate);
+          const startDate =
+            e.startDate instanceof Timestamp
+              ? e.startDate.toDate()
+              : new Date(e.startDate);
           return startDate > now && e.status === 'scheduled';
         }).length,
       };

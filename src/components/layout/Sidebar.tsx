@@ -1,13 +1,11 @@
 'use client';
 
-import { DonCandidoChat } from '@/components/ia/DonCandidoChat';
 import Logo from '@/components/ui/Logo';
 import {
   AlertTriangle,
   Award,
   BarChart3,
   BookOpen,
-  Bot,
   Briefcase,
   Building,
   Calendar,
@@ -20,6 +18,7 @@ import {
   FileSpreadsheet,
   FileText,
   GraduationCap,
+  History,
   Home,
   Kanban,
   MessageSquare,
@@ -45,6 +44,7 @@ interface MenuItem {
 const navigation: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Noticias', href: '/noticias', icon: MessageSquare },
+  { name: 'Historial IA', href: '/historial-conversaciones', icon: History },
   { name: 'Calendario', href: '/calendario', icon: Calendar },
   {
     name: 'Calidad',
@@ -172,7 +172,6 @@ export const Sidebar = memo(function Sidebar() {
     new Set(['RRHH', 'Procesos'])
   );
   const [isMounted, setIsMounted] = useState(false);
-  const [mostrarDonCandido, setMostrarDonCandido] = useState(false);
   const pathname = usePathname();
 
   // Evitar errores de hidratación renderizando solo en el cliente
@@ -391,26 +390,6 @@ export const Sidebar = memo(function Sidebar() {
           </div>
         )}
 
-        {/* Don Cándido Button */}
-        {!collapsed && (
-          <div className="px-4 pb-2">
-            <button
-              onClick={() => setMostrarDonCandido(true)}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                mostrarDonCandido
-                  ? 'bg-green-600 text-white shadow-lg'
-                  : 'bg-green-700 text-white hover:bg-green-600'
-              }`}
-            >
-              <Bot className="h-5 w-5" />
-              <span>Don Cándido</span>
-              {mostrarDonCandido && (
-                <span className="ml-auto w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-              )}
-            </button>
-          </div>
-        )}
-
         {!collapsed && (
           <div className="p-4 border-t border-slate-700 mt-auto bg-slate-800">
             <Link href="/usuarios" className="block">
@@ -442,14 +421,6 @@ export const Sidebar = memo(function Sidebar() {
           </div>
         )}
       </div>
-
-      {/* Don Cándido Chat Component */}
-      {mostrarDonCandido && (
-        <DonCandidoChat
-          onClose={() => setMostrarDonCandido(false)}
-          modulo={pathname.split('/')[2]}
-        />
-      )}
     </div>
   );
 });

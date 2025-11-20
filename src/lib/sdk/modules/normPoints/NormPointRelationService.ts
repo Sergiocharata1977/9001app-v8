@@ -1,7 +1,15 @@
 import { Timestamp } from 'firebase-admin/firestore';
 import { BaseService } from '../../base/BaseService';
-import type { ComplianceMatrix, NormPointRelation, NormPointRelationFilters } from './types';
-import { CreateNormPointRelationSchema, NormPointRelationFiltersSchema, UpdateComplianceStatusSchema } from './validations';
+import type {
+  ComplianceMatrix,
+  NormPointRelation,
+  NormPointRelationFilters,
+} from './types';
+import {
+  CreateNormPointRelationSchema,
+  NormPointRelationFiltersSchema,
+  UpdateComplianceStatusSchema,
+} from './validations';
 
 export class NormPointRelationService extends BaseService<NormPointRelation> {
   protected collectionName = 'normPointRelations';
@@ -25,15 +33,22 @@ export class NormPointRelationService extends BaseService<NormPointRelation> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(relationData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(relationData);
     return docRef.id;
   }
 
-  async list(filters: NormPointRelationFilters = {}, options: any = {}): Promise<NormPointRelation[]> {
+  async list(
+    filters: NormPointRelationFilters = {},
+    options: any = {}
+  ): Promise<NormPointRelation[]> {
     try {
       NormPointRelationFiltersSchema.parse(filters);
 
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.normPointId) {
         query = query.where('normPointId', '==', filters.normPointId);
@@ -57,7 +72,9 @@ export class NormPointRelationService extends BaseService<NormPointRelation> {
       query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NormPointRelation));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as NormPointRelation
+      );
     } catch (error) {
       console.error('Error listing norm point relations', error);
       throw error;
@@ -118,13 +135,23 @@ export class NormPointRelationService extends BaseService<NormPointRelation> {
         .where('deletedAt', '==', null)
         .get();
 
-      const relations = snapshot.docs.map(doc => doc.data() as NormPointRelation);
+      const relations = snapshot.docs.map(
+        doc => doc.data() as NormPointRelation
+      );
 
       const total = relations.length;
-      const compliant = relations.filter(r => r.complianceStatus === 'compliant').length;
-      const nonCompliant = relations.filter(r => r.complianceStatus === 'non_compliant').length;
-      const partial = relations.filter(r => r.complianceStatus === 'partial').length;
-      const notApplicable = relations.filter(r => r.complianceStatus === 'not_applicable').length;
+      const compliant = relations.filter(
+        r => r.complianceStatus === 'compliant'
+      ).length;
+      const nonCompliant = relations.filter(
+        r => r.complianceStatus === 'non_compliant'
+      ).length;
+      const partial = relations.filter(
+        r => r.complianceStatus === 'partial'
+      ).length;
+      const notApplicable = relations.filter(
+        r => r.complianceStatus === 'not_applicable'
+      ).length;
 
       const byCategory: Record<string, any> = {};
 
@@ -161,7 +188,8 @@ export class NormPointRelationService extends BaseService<NormPointRelation> {
         nonCompliant,
         partial,
         notApplicable,
-        compliancePercentage: total > 0 ? Math.round((compliant / total) * 100) : 0,
+        compliancePercentage:
+          total > 0 ? Math.round((compliant / total) * 100) : 0,
         byCategory,
       };
     } catch (error) {

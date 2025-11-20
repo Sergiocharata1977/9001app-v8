@@ -1,6 +1,6 @@
 /**
  * NormPoint API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/norm-points/[id] - Get norm point by ID
  * PUT /api/sdk/norm-points/[id] - Update norm point
  * DELETE /api/sdk/norm-points/[id] - Delete norm point
@@ -37,7 +37,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/norm-points/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener punto de norma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener punto de norma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -55,7 +58,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/norm-points/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar punto de norma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar punto de norma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -73,7 +79,10 @@ export async function DELETE(
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/norm-points/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar punto de norma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar punto de norma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 /**
  * Action Execution API Route - SDK Unified
- * 
+ *
  * PUT /api/sdk/actions/[id]/execution - Update action execution
  */
 
@@ -47,7 +47,10 @@ export async function PUT(
       status: 'in_progress',
     });
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/actions/${params.id}/execution:`, error);
+    console.error(
+      `Error in PUT /api/sdk/actions/${params.id}/execution:`,
+      error
+    );
 
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
@@ -57,7 +60,10 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: 'Error al actualizar ejecución de acción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar ejecución de acción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

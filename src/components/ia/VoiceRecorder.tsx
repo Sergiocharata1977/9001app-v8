@@ -1,138 +1,225 @@
 'use client';
 
-import { Mic, Square } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Loader2, Mic, Square } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface VoiceRecorderProps {
   onTranscript: (text: string) => void;
   disabled?: boolean;
+  onRecordingStart?: () => void;
+  onRecordingEnd?: () => void;
+  onTranscriptionStart?: () => void;
+  onTranscriptionEnd?: () => void;
+  onListeningChange?: (isListening: boolean) => void;
 }
 
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
+interface TranscriptionResponse {
+  text: string;
+  language?: string;
+  duration?: number;
+  latencyMs?: number;
 }
 
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
-
-interface SpeechRecognitionInstance {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-}
-
-export function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderProps) {
+export function VoiceRecorder({
+  onTranscript,
+  disabled,
+  onRecordingStart,
+  onRecordingEnd,
+  onTranscriptionStart,
+  onTranscriptionEnd,
+  onListeningChange,
+}: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSupported] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+    return (
+      'MediaRecorder' in window &&
+      'navigator' in window &&
+      'mediaDevices' in navigator
+    );
   });
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
-  useEffect(() => {
-    if (!isSupported) {
-      console.warn('[VoiceRecorder] Speech Recognition not supported');
-      return;
-    }
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
-    // Check if browser supports Speech Recognition
-    const SpeechRecognition =
-      (
-        window as typeof window & {
-          SpeechRecognition?: new () => SpeechRecognitionInstance;
-          webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
-        }
-      ).SpeechRecognition ||
-      (
-        window as typeof window & {
-          SpeechRecognition?: new () => SpeechRecognitionInstance;
-          webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
-        }
-      ).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      console.warn('[VoiceRecorder] Speech Recognition not available');
-      return;
-    }
-
-    // Initialize Speech Recognition
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'es-ES'; // Spanish
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = event.results[0][0].transcript;
-      console.log('[VoiceRecorder] Transcript:', transcript);
-      onTranscript(transcript);
-      setIsRecording(false);
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('[VoiceRecorder] Error:', event.error);
-      setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [onTranscript]);
-
-  const startRecording = () => {
-    if (!recognitionRef.current || disabled) return;
+  const stopRecordingAndTranscribe = useCallback(async () => {
+    if (!mediaRecorderRef.current || !streamRef.current) return;
 
     try {
-      recognitionRef.current.start();
+      // Stop recording
+      mediaRecorderRef.current.stop();
+      streamRef.current.getTracks().forEach(track => track.stop());
+
+      setIsRecording(false);
+      onListeningChange?.(false);
+      onRecordingEnd?.();
+
+      console.log(
+        '[VoiceRecorder] Recording stopped, starting transcription...'
+      );
+    } catch (error) {
+      console.error('[VoiceRecorder] Error stopping recording:', error);
+      setIsRecording(false);
+      onListeningChange?.(false);
+      onRecordingEnd?.();
+    }
+  }, [onRecordingEnd, onListeningChange]);
+
+  const startRecording = useCallback(async () => {
+    if (disabled || !isSupported) return;
+
+    try {
+      console.log('[VoiceRecorder] Requesting microphone access...');
+
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 16000, // Optimal for Whisper
+        },
+      });
+
+      streamRef.current = stream;
+      audioChunksRef.current = [];
+
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus', // Compatible with Whisper
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+
+      // Handle data available (audio chunks)
+      mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      // Handle recording stop
+      mediaRecorder.onstop = async () => {
+        try {
+          setIsTranscribing(true);
+          onTranscriptionStart?.();
+
+          console.log('[VoiceRecorder] Processing audio for transcription...');
+
+          // Create audio blob
+          const audioBlob = new Blob(audioChunksRef.current, {
+            type: 'audio/webm',
+          });
+
+          // Create FormData for API
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.webm');
+
+          // Send to Whisper API
+          const response = await fetch('/api/whisper/transcribe', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Transcription failed');
+          }
+
+          const result: TranscriptionResponse = await response.json();
+
+          console.log('[VoiceRecorder] Transcription successful:', result.text);
+          onTranscript(result.text);
+        } catch (error) {
+          console.error('[VoiceRecorder] Transcription error:', error);
+          // Could emit an error callback here if needed
+        } finally {
+          setIsTranscribing(false);
+          onTranscriptionEnd?.();
+        }
+      };
+
+      // Start recording
+      mediaRecorder.start();
       setIsRecording(true);
+      onListeningChange?.(true);
+      onRecordingStart?.();
+
       console.log('[VoiceRecorder] Recording started');
     } catch (error) {
       console.error('[VoiceRecorder] Error starting recording:', error);
-    }
-  };
 
-  const stopRecording = () => {
-    if (!recognitionRef.current) return;
-
-    try {
-      recognitionRef.current.stop();
-      setIsRecording(false);
-      console.log('[VoiceRecorder] Recording stopped');
-    } catch (error) {
-      console.error('[VoiceRecorder] Error stopping recording:', error);
+      // Handle specific errors
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          console.error('[VoiceRecorder] Microphone access denied');
+        } else if (error.name === 'NotFoundError') {
+          console.error('[VoiceRecorder] No microphone found');
+        }
+      }
     }
-  };
+  }, [
+    disabled,
+    isSupported,
+    onRecordingStart,
+    onTranscriptionStart,
+    onTranscriptionEnd,
+    onTranscript,
+    onListeningChange,
+  ]);
+
+  const stopRecording = useCallback(() => {
+    stopRecordingAndTranscribe();
+  }, [stopRecordingAndTranscribe]);
+
+  // Cleanup on unmount
+  const cleanup = useCallback(() => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === 'recording'
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+  }, []);
+
+  // Handle component unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
 
   if (!isSupported) {
     return null;
   }
 
+  const isProcessing = isRecording || isTranscribing;
+
   return (
     <button
       type="button"
       onClick={isRecording ? stopRecording : startRecording}
-      disabled={disabled}
-      className={`p-2 rounded-lg transition-colors ${
+      disabled={disabled || isTranscribing}
+      className={`p-2.5 rounded-full transition-all duration-200 ${
         isRecording
-          ? 'bg-red-500 text-white hover:bg-red-600'
-          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse shadow-lg shadow-red-500/50'
+          : isTranscribing
+            ? 'bg-blue-500 text-white cursor-not-allowed shadow-md'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:shadow-md'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-      title={isRecording ? 'Detener grabación' : 'Grabar mensaje de voz'}
+      title={
+        isTranscribing
+          ? 'Transcribiendo...'
+          : isRecording
+            ? 'Detener grabación'
+            : 'Grabar mensaje de voz'
+      }
     >
-      {isRecording ? (
+      {isTranscribing ? (
+        <Loader2 className="w-5 h-5 animate-spin" />
+      ) : isRecording ? (
         <Square className="w-5 h-5" />
       ) : (
         <Mic className="w-5 h-5" />

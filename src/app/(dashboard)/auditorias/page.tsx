@@ -1,6 +1,9 @@
 'use client';
 
-import { AuditAdvancedFilters, type AuditFiltersState } from '@/components/audits/AuditAdvancedFilters';
+import {
+  AuditAdvancedFilters,
+  type AuditFiltersState,
+} from '@/components/audits/AuditAdvancedFilters';
 import { AuditExportButton } from '@/components/audits/AuditExportButton';
 import { AuditFormDialog } from '@/components/audits/AuditFormDialog';
 import { AuditKanban } from '@/components/audits/AuditKanban';
@@ -35,12 +38,12 @@ export default function AuditsPage() {
       setLoading(true);
       const response = await fetch('/api/sdk/audits');
       const result = await response.json();
-      
+
       console.log('📊 Audits API Response:', result);
       console.log('📊 Response success:', result.success);
       console.log('📊 Response data:', result.data);
       console.log('📊 Data length:', result.data?.length);
-      
+
       if (result.success && result.data && Array.isArray(result.data)) {
         console.log('✅ Setting audits:', result.data);
         setAudits(result.data);
@@ -76,12 +79,16 @@ export default function AuditsPage() {
 
     // Apply status filter
     if (filters.status && filters.status.length > 0) {
-      filtered = filtered.filter(audit => filters.status?.includes(audit.status));
+      filtered = filtered.filter(audit =>
+        filters.status?.includes(audit.status)
+      );
     }
 
     // Apply type filter
     if (filters.auditType && filters.auditType.length > 0) {
-      filtered = filtered.filter(audit => filters.auditType?.includes(audit.auditType));
+      filtered = filtered.filter(audit =>
+        filters.auditType?.includes(audit.auditType)
+      );
     }
 
     // Apply year filter
@@ -90,7 +97,11 @@ export default function AuditsPage() {
         try {
           let auditYear: number;
           const createdAt = audit.createdAt as any;
-          if (createdAt && typeof createdAt === 'object' && 'toDate' in createdAt) {
+          if (
+            createdAt &&
+            typeof createdAt === 'object' &&
+            'toDate' in createdAt
+          ) {
             // Firestore Timestamp
             auditYear = createdAt.toDate().getFullYear();
           } else if (createdAt instanceof Date) {
@@ -171,16 +182,15 @@ export default function AuditsPage() {
       </div>
 
       {/* Filters */}
-      <AuditAdvancedFilters
-        onFiltersChange={setFilters}
-        isLoading={loading}
-      />
+      <AuditAdvancedFilters onFiltersChange={setFilters} isLoading={loading} />
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Total</p>
-          <p className="text-2xl font-bold text-gray-900">{filteredAudits.length}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {filteredAudits.length}
+          </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Planificadas</p>
@@ -206,7 +216,9 @@ export default function AuditsPage() {
       <div className="bg-white rounded-lg shadow p-6">
         {filteredAudits.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No hay auditorías que coincidan con los filtros</p>
+            <p className="text-gray-600">
+              No hay auditorías que coincidan con los filtros
+            </p>
           </div>
         ) : viewMode === 'kanban' ? (
           <AuditKanban audits={filteredAudits} />

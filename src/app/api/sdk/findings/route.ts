@@ -1,6 +1,6 @@
 /**
  * Finding API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/findings - List findings
  * POST /api/sdk/findings - Create finding
  */
@@ -14,37 +14,46 @@ import type { FindingStatus } from '@/lib/sdk/modules/findings/types';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Extract filters from query parameters
     const filters = {
       status: (searchParams.get('status') as FindingStatus) || undefined,
       processId: searchParams.get('processId') || undefined,
       sourceId: searchParams.get('sourceId') || undefined,
-      year: searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined,
+      year: searchParams.get('year')
+        ? parseInt(searchParams.get('year')!)
+        : undefined,
       search: searchParams.get('search') || undefined,
-      requiresAction: searchParams.get('requiresAction') 
-        ? searchParams.get('requiresAction') === 'true' 
+      requiresAction: searchParams.get('requiresAction')
+        ? searchParams.get('requiresAction') === 'true'
         : undefined,
     };
 
     // Extract pagination options
     const options = {
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100,
-      offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!)
+        : 100,
+      offset: searchParams.get('offset')
+        ? parseInt(searchParams.get('offset')!)
+        : 0,
     };
 
     // Initialize service and list findings
     const service = new FindingService();
     const findings = await service.list(filters, options);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       findings,
       count: findings.length,
     });
   } catch (error) {
     console.error('Error in GET /api/sdk/findings:', error);
     return NextResponse.json(
-      { error: 'Error al obtener hallazgos', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener hallazgos',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -66,7 +75,7 @@ export async function POST(request: NextRequest) {
     const findingId = await service.createAndReturnId(validatedData, userId);
 
     return NextResponse.json(
-      { 
+      {
         id: findingId,
         message: 'Hallazgo creado exitosamente',
       },
@@ -74,7 +83,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error in POST /api/sdk/findings:', error);
-    
+
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
         { error: 'Datos inválidos', details: error.message },
@@ -83,7 +92,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Error al crear hallazgo', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear hallazgo',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -74,19 +74,26 @@ export function NewsFeed({
     loadPosts(page + 1);
   };
 
-  const handleCreatePost = async (content: string) => {
+  const handleCreatePost = async (content: string, imageFiles: File[]) => {
     try {
       const token = await getAuthToken();
+
+      // Crear FormData
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('organizationId', organizationId);
+
+      // Agregar archivos de imagen
+      imageFiles.forEach((file, index) => {
+        formData.append(`images[${index}]`, file);
+      });
+
       const response = await fetch('/api/news/posts', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          content,
-          organizationId,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {

@@ -1,20 +1,67 @@
 'use client';
 
+import { DocumentFormDialog } from '@/components/documents/DocumentFormDialog';
+import { DocumentListWithActions } from '@/components/documents/DocumentListWithActions';
 import { DocumentSearch } from '@/components/documents/DocumentSearch';
 import { DocumentStats } from '@/components/documents/DocumentStats';
+import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import type { Document } from '@/lib/sdk/modules/documents/types';
-import { BarChart3, FileText, Search, Share2 } from 'lucide-react';
-import { useState } from 'react';
+import type { Document as LegacyDocument } from '@/types/documents';
+import {
+  BarChart3,
+  FileText,
+  Mic,
+  MicOff,
+  Plus,
+  Search,
+  Share2,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-type TabType = 'search' | 'stats' | 'shared' | 'recent' | 'accessed';
+type TabType = 'all' | 'search' | 'stats' | 'shared' | 'recent' | 'accessed';
 
 export default function DocumentosPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('search');
+  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [allDocuments, setAllDocuments] = useState<Document[]>([]);
   const [searchResults, setSearchResults] = useState<Document[]>([]);
   const [sharedDocuments, setSharedDocuments] = useState<Document[]>([]);
   const [recentDocuments, setRecentDocuments] = useState<Document[]>([]);
   const [accessedDocuments, setAccessedDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] =
+    useState<LegacyDocument | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+
+  // Cargar todos los documentos al iniciar
+  useEffect(() => {
+    loadAllDocuments();
+  }, []);
+
+  const loadAllDocuments = async () => {
+    setLoading(true);
+    try {
+      console.log('[DocumentosPage] Cargando documentos...');
+      const response = await fetch('/api/documents');
+      console.log('[DocumentosPage] Response status:', response.status);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[DocumentosPage] Data recibida:', data);
+        console.log('[DocumentosPage] Documentos:', data.data);
+        console.log('[DocumentosPage] Cantidad:', data.data?.length);
+        setAllDocuments(data.data || []);
+      } else {
+        console.error(
+          '[DocumentosPage] Error en response:',
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLoadShared = async () => {
     setLoading(true);
@@ -61,75 +108,164 @@ export default function DocumentosPage() {
     }
   };
 
-  const renderDocumentList = (documents: Document[], title: string) => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-      {documents.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">No hay documentos para mostrar</p>
-      ) : (
-        <div className="space-y-3">
-          {documents.map((doc) => (
-            <div
-              key={doc.id}
-              className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{doc.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
-                  <div className="flex gap-2 mt-3 flex-wrap">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
-                      {doc.status}
-                    </span>
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                      {doc.category}
-                    </span>
-                    {doc.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-4 mt-3 text-xs text-gray-500">
-                    <span>Versión: {doc.currentVersion}</span>
-                    <span>Accesos: {doc.accessCount || 0}</span>
-                    <span>
-                      Creado: {(doc.createdAt as any).toDate?.().toLocaleDateString() || new Date().toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-                <FileText className="h-8 w-8 text-blue-600 flex-shrink-0 ml-4" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const handleCreateDocument = () => {
+    setSelectedDocument(null);
+    setDialogOpen(true);
+  };
+
+  const handleEditDocument = (document: Document) => {
+    // Convertir Document SDK a LegacyDocument para el formulario
+    const convertTimestamp = (value: any): Date => {
+      if (!value) return new Date();
+      if (typeof value === 'object' && 'toDate' in value) {
+        return value.toDate();
+      }
+      return new Date(value);
+    };
+
+    const legacyDoc: LegacyDocument = {
+      id: document.id,
+      code: `DOC-${document.id.substring(0, 8)}`,
+      title: document.title,
+      description: document.description,
+      type: 'manual',
+      category: document.category,
+      status: 'aprobado',
+      version: `${document.currentVersion}`,
+      responsible_user_id: document.createdBy || '',
+      file_path: '',
+      file_size: 0,
+      mime_type: 'text/plain',
+      effective_date: convertTimestamp(document.createdAt),
+      review_date: convertTimestamp(document.updatedAt),
+      approved_at: document.approvedAt
+        ? convertTimestamp(document.approvedAt)
+        : undefined,
+      approved_by: document.approvedBy,
+      download_count: document.accessCount || 0,
+      is_archived: false,
+      created_at: convertTimestamp(document.createdAt),
+      updated_at: convertTimestamp(document.updatedAt),
+      created_by: document.createdBy || '',
+      updated_by: document.updatedBy || '',
+      keywords: document.tags,
+    };
+    setSelectedDocument(legacyDoc);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      const response = await fetch(`/api/documents/${documentId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar documento');
+      }
+
+      // Recargar documentos
+      await loadAllDocuments();
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      throw error;
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setDialogOpen(false);
+    setSelectedDocument(null);
+    loadAllDocuments();
+  };
+
+  // Integrar comandos de voz
+  useVoiceCommands({
+    enabled: voiceEnabled,
+    commands: [
+      {
+        command: 'crear-documento',
+        keywords: ['crear', 'nuevo', 'documento'],
+        action: handleCreateDocument,
+      },
+      {
+        command: 'escuchar-tarea',
+        keywords: ['escuchar', 'tarea', 'leer'],
+        action: () => {
+          console.log('Comando de escucha activado');
+        },
+      },
+      {
+        command: 'buscar',
+        keywords: ['buscar', 'search'],
+        action: () => {
+          setActiveTab('search');
+        },
+      },
+    ],
+    language: 'es-ES',
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <FileText className="h-8 w-8 text-blue-600" />
-            Gestión de Documentos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Busca, comparte y gestiona tus documentos con features avanzadas
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <FileText className="h-8 w-8 text-blue-600" />
+              Gestión de Documentos
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Busca, comparte y gestiona tus documentos con features avanzadas
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setVoiceEnabled(!voiceEnabled)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                voiceEnabled
+                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              title="Activar/Desactivar comandos de voz"
+            >
+              {voiceEnabled ? (
+                <>
+                  <Mic className="h-4 w-4" />
+                  Escuchando...
+                </>
+              ) : (
+                <>
+                  <MicOff className="h-4 w-4" />
+                  Voz
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleCreateDocument}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Crear Documento
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           <button
-            onClick={() => {
-              setActiveTab('search');
-            }}
+            onClick={() => setActiveTab('all')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <FileText className="h-4 w-4" />
+            Todos
+          </button>
+          <button
+            onClick={() => setActiveTab('search')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
               activeTab === 'search'
                 ? 'bg-blue-600 text-white'
@@ -140,9 +276,7 @@ export default function DocumentosPage() {
             Buscar
           </button>
           <button
-            onClick={() => {
-              setActiveTab('stats');
-            }}
+            onClick={() => setActiveTab('stats')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
               activeTab === 'stats'
                 ? 'bg-blue-600 text-white'
@@ -198,6 +332,15 @@ export default function DocumentosPage() {
 
         {/* Content */}
         <div className="bg-white rounded-lg shadow-sm p-6">
+          {activeTab === 'all' && (
+            <DocumentListWithActions
+              documents={allDocuments}
+              onEdit={handleEditDocument}
+              onDelete={handleDeleteDocument}
+              loading={loading}
+            />
+          )}
+
           {activeTab === 'search' && (
             <div className="space-y-6">
               <DocumentSearch
@@ -205,7 +348,12 @@ export default function DocumentosPage() {
                 onLoading={setLoading}
               />
               {searchResults.length > 0 && (
-                renderDocumentList(searchResults, 'Resultados de Búsqueda')
+                <DocumentListWithActions
+                  documents={searchResults}
+                  onEdit={handleEditDocument}
+                  onDelete={handleDeleteDocument}
+                  loading={loading}
+                />
               )}
             </div>
           )}
@@ -213,24 +361,41 @@ export default function DocumentosPage() {
           {activeTab === 'stats' && <DocumentStats />}
 
           {activeTab === 'shared' && (
-            renderDocumentList(sharedDocuments, 'Documentos Compartidos Contigo')
+            <DocumentListWithActions
+              documents={sharedDocuments}
+              onEdit={handleEditDocument}
+              onDelete={handleDeleteDocument}
+              loading={loading}
+            />
           )}
 
           {activeTab === 'recent' && (
-            renderDocumentList(recentDocuments, 'Documentos Recientes')
+            <DocumentListWithActions
+              documents={recentDocuments}
+              onEdit={handleEditDocument}
+              onDelete={handleDeleteDocument}
+              loading={loading}
+            />
           )}
 
           {activeTab === 'accessed' && (
-            renderDocumentList(accessedDocuments, 'Documentos Más Accedidos')
-          )}
-
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
+            <DocumentListWithActions
+              documents={accessedDocuments}
+              onEdit={handleEditDocument}
+              onDelete={handleDeleteDocument}
+              loading={loading}
+            />
           )}
         </div>
       </div>
+
+      {/* Formulario de creación/edición */}
+      <DocumentFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        document={selectedDocument}
+        onSuccess={handleFormSuccess}
+      />
     </div>
   );
 }

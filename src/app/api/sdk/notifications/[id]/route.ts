@@ -40,7 +40,9 @@ export const PUT = withAuth(async (request, { params }: any) => {
 
     // Archivar
     if (body.action === 'archive') {
-      const notification = await notificationService.archiveNotification(params.id);
+      const notification = await notificationService.archiveNotification(
+        params.id
+      );
       return NextResponse.json({
         success: true,
         data: notification,

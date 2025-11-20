@@ -35,9 +35,15 @@ export async function GET(
 
     return NextResponse.json({ data: competency }, { status: 200 });
   } catch (error) {
-    console.error(`Error in GET /api/sdk/rrhh/competencies/${params.id}:`, error);
+    console.error(
+      `Error in GET /api/sdk/rrhh/competencies/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al obtener competencia', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener competencia',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -66,9 +72,15 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/rrhh/competencies/${params.id}:`, error);
+    console.error(
+      `Error in PUT /api/sdk/rrhh/competencies/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al actualizar competencia', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar competencia',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -96,9 +108,15 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in DELETE /api/sdk/rrhh/competencies/${params.id}:`, error);
+    console.error(
+      `Error in DELETE /api/sdk/rrhh/competencies/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al eliminar competencia', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar competencia',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

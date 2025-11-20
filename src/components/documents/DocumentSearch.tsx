@@ -52,7 +52,7 @@ export function DocumentSearch({ onSearch, onLoading }: DocumentSearchProps) {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value)}
             placeholder="Buscar documentos..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -79,7 +79,7 @@ export function DocumentSearch({ onSearch, onLoading }: DocumentSearchProps) {
             Se encontraron {results.length} documento(s)
           </p>
           <div className="space-y-2">
-            {results.map((doc) => (
+            {results.map(doc => (
               <div
                 key={doc.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -87,7 +87,7 @@ export function DocumentSearch({ onSearch, onLoading }: DocumentSearchProps) {
                 <h3 className="font-semibold text-gray-900">{doc.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
                 <div className="flex gap-2 mt-2">
-                  {doc.tags?.map((tag) => (
+                  {doc.tags?.map(tag => (
                     <span
                       key={tag}
                       className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded"

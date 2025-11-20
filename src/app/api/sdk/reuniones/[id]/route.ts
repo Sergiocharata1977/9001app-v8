@@ -37,7 +37,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/reuniones/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener reunión', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener reunión',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -68,7 +71,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/reuniones/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar reunión', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar reunión',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -98,7 +104,10 @@ export async function DELETE(
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/reuniones/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar reunión', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar reunión',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

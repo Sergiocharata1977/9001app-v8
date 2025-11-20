@@ -25,7 +25,9 @@ export function FindingForm({
     status: 'registrado',
     progress: 0,
   });
-  const [processes, setProcesses] = useState<Array<{ id: string; name: string }>>([]);
+  const [processes, setProcesses] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
 
   useEffect(() => {
     fetchProcesses();
@@ -123,7 +125,9 @@ export function FindingForm({
 
       {/* Basic Information */}
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Información Básica</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          Información Básica
+        </h3>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -204,7 +208,8 @@ export function FindingForm({
                     name: finding.registration?.name || '',
                     description: finding.registration?.description || '',
                     severity: finding.registration?.severity || 'media',
-                    category: finding.registration?.category || 'no_conformidad',
+                    category:
+                      finding.registration?.category || 'no_conformidad',
                   },
                 });
               }}
@@ -239,7 +244,8 @@ export function FindingForm({
                     description: finding.registration?.description || '',
                     processId: finding.registration?.processId || null,
                     processName: finding.registration?.processName || '',
-                    category: finding.registration?.category || 'no_conformidad',
+                    category:
+                      finding.registration?.category || 'no_conformidad',
                   },
                 })
               }
@@ -288,7 +294,9 @@ export function FindingForm({
 
       {/* Status and Progress */}
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Estado y Progreso</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          Estado y Progreso
+        </h3>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

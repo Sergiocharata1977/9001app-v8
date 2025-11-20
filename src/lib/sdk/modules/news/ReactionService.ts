@@ -7,7 +7,11 @@ export class ReactionService extends BaseService<Reaction> {
   protected collectionName = 'reactions';
   protected schema = CreateReactionSchema;
 
-  async toggle(postId: string, userId: string, reactionType: string): Promise<void> {
+  async toggle(
+    postId: string,
+    userId: string,
+    reactionType: string
+  ): Promise<void> {
     try {
       const snapshot = await this.db
         .collection(this.collectionName)
@@ -53,7 +57,9 @@ export class ReactionService extends BaseService<Reaction> {
         .where('deletedAt', '==', null)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reaction));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Reaction
+      );
     } catch (error) {
       console.error(`Error getting reactions for post ${postId}`, error);
       throw error;
@@ -117,7 +123,9 @@ export class ReactionService extends BaseService<Reaction> {
 
   async list(filters: any = {}, options: any = {}): Promise<Reaction[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       const limit = options.limit || 100;
       const offset = options.offset || 0;
@@ -125,7 +133,9 @@ export class ReactionService extends BaseService<Reaction> {
       query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reaction));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Reaction
+      );
     } catch (error) {
       console.error('Error listing reactions', error);
       throw error;

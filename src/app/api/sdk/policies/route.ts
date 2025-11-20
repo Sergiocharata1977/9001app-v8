@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/policies:', error);
     return NextResponse.json(
-      { error: 'Error al obtener políticas', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener políticas',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -44,7 +47,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/policies:', error);
     return NextResponse.json(
-      { error: 'Error al crear política', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear política',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

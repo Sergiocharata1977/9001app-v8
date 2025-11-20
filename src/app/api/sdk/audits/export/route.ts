@@ -3,7 +3,7 @@ import { errorHandler } from '@/lib/sdk/middleware/errorHandler';
 import { AuditService } from '@/lib/sdk/modules/audits/AuditService';
 import { NextResponse } from 'next/server';
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async request => {
   try {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month';
@@ -13,7 +13,7 @@ export const GET = withAuth(async (request) => {
 
     // Calcular fechas según el período
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
 
     switch (period) {
       case 'quarter':
@@ -70,8 +70,10 @@ function exportToCSV(audits: any[]) {
     audit.processName || '',
     audit.conformityStatus || '',
     audit.progress || 0,
-    audit.createdAt?.toDate?.().toISOString() || new Date(audit.createdAt).toISOString(),
-    audit.updatedAt?.toDate?.().toISOString() || new Date(audit.updatedAt).toISOString(),
+    audit.createdAt?.toDate?.().toISOString() ||
+      new Date(audit.createdAt).toISOString(),
+    audit.updatedAt?.toDate?.().toISOString() ||
+      new Date(audit.updatedAt).toISOString(),
     audit.responsible || '',
     (audit.description || '').replace(/"/g, '""'),
   ]);
@@ -103,8 +105,12 @@ function exportToJSON(audits: any[]) {
       processName: audit.processName,
       conformityStatus: audit.conformityStatus,
       progress: audit.progress,
-      createdAt: audit.createdAt?.toDate?.().toISOString() || new Date(audit.createdAt).toISOString(),
-      updatedAt: audit.updatedAt?.toDate?.().toISOString() || new Date(audit.updatedAt).toISOString(),
+      createdAt:
+        audit.createdAt?.toDate?.().toISOString() ||
+        new Date(audit.createdAt).toISOString(),
+      updatedAt:
+        audit.updatedAt?.toDate?.().toISOString() ||
+        new Date(audit.updatedAt).toISOString(),
       responsible: audit.responsible,
       description: audit.description,
       findings: audit.findings || [],

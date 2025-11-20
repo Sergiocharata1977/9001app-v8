@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
       context = await UserContextService.getUserFullContext(userId);
     }
 
-    return NextResponse.json(
-      { data: context },
-      { status: 200 }
-    );
+    return NextResponse.json({ data: context }, { status: 200 });
   } catch (error) {
     console.error('Error in GET /api/context/user:', error);
     return NextResponse.json(
-      { error: 'Error al obtener contexto del usuario', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener contexto del usuario',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { DocumentService } from '@/services/documents/DocumentService';
+import { NextRequest, NextResponse } from 'next/server';
 
 // POST /api/documents/[id]/file - Upload file
 export async function POST(
@@ -30,7 +30,7 @@ export async function POST(
       );
     }
 
-    const downloadURL = await DocumentService.uploadFile(id, file);
+    const downloadURL = await DocumentService.uploadFile(id, file, userId);
     console.log('[API] Archivo subido exitosamente:', downloadURL);
 
     return NextResponse.json({ url: downloadURL });

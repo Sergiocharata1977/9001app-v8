@@ -24,7 +24,9 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'critical'>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'priority'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'priority'>(
+    'newest'
+  );
 
   useEffect(() => {
     fetchNotifications();
@@ -57,9 +59,11 @@ export default function NotificationsPage() {
       });
 
       if (response.ok) {
-        setNotifications(notifications.map(n =>
-          n.id === notificationId ? { ...n, status: 'read' } : n
-        ));
+        setNotifications(
+          notifications.map(n =>
+            n.id === notificationId ? { ...n, status: 'read' } : n
+          )
+        );
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -104,9 +108,15 @@ export default function NotificationsPage() {
 
   const sortedNotifications = [...filteredNotifications].sort((a, b) => {
     if (sortBy === 'newest') {
-      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      return (
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime()
+      );
     } else if (sortBy === 'oldest') {
-      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      return (
+        new Date(a.createdAt || 0).getTime() -
+        new Date(b.createdAt || 0).getTime()
+      );
     } else {
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
       return priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -114,7 +124,9 @@ export default function NotificationsPage() {
   });
 
   const unreadCount = notifications.filter(n => n.status === 'pending').length;
-  const criticalCount = notifications.filter(n => n.priority === 'critical').length;
+  const criticalCount = notifications.filter(
+    n => n.priority === 'critical'
+  ).length;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -195,7 +207,9 @@ export default function NotificationsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Total</p>
-          <p className="text-2xl font-bold text-gray-900">{notifications.length}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {notifications.length}
+          </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">No leídas</p>
@@ -231,7 +245,11 @@ export default function NotificationsPage() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {f === 'all' ? 'Todas' : f === 'unread' ? `No leídas (${unreadCount})` : `Críticas (${criticalCount})`}
+                  {f === 'all'
+                    ? 'Todas'
+                    : f === 'unread'
+                      ? `No leídas (${unreadCount})`
+                      : `Críticas (${criticalCount})`}
                 </button>
               ))}
             </div>
@@ -267,14 +285,18 @@ export default function NotificationsPage() {
               className={`bg-white rounded-lg shadow p-6 ${getPriorityColor(notification.priority)} transition-all hover:shadow-lg`}
             >
               <div className="flex items-start gap-4">
-                <span className="text-3xl">{getTypeIcon(notification.type)}</span>
+                <span className="text-3xl">
+                  {getTypeIcon(notification.type)}
+                </span>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">
                       {notification.title}
                     </h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${getPriorityBadge(notification.priority)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${getPriorityBadge(notification.priority)}`}
+                    >
                       {notification.priority.toUpperCase()}
                     </span>
                     {notification.status === 'pending' && (
@@ -284,21 +306,23 @@ export default function NotificationsPage() {
                     )}
                   </div>
 
-                  <p className="text-gray-700 mb-3">
-                    {notification.message}
-                  </p>
+                  <p className="text-gray-700 mb-3">{notification.message}</p>
 
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <div>
                       <span>Tipo: {notification.type}</span>
                       {notification.relatedType && (
-                        <span className="ml-4">Relacionado: {notification.relatedType}</span>
+                        <span className="ml-4">
+                          Relacionado: {notification.relatedType}
+                        </span>
                       )}
                     </div>
                     <div>
                       {notification.createdAt && (
                         <span>
-                          {new Date(notification.createdAt).toLocaleString('es-ES')}
+                          {new Date(notification.createdAt).toLocaleString(
+                            'es-ES'
+                          )}
                         </span>
                       )}
                     </div>

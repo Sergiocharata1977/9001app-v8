@@ -1,8 +1,18 @@
 import type { BaseDocument } from '../../base/types';
 import { Timestamp } from 'firebase-admin/firestore';
 
-export type EventType = 'audit' | 'meeting' | 'training' | 'deadline' | 'review' | 'other';
-export type EventStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+export type EventType =
+  | 'audit'
+  | 'meeting'
+  | 'training'
+  | 'deadline'
+  | 'review'
+  | 'other';
+export type EventStatus =
+  | 'scheduled'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled';
 
 export interface CalendarEvent extends BaseDocument {
   title: string;

@@ -121,11 +121,26 @@ export async function POST(request: NextRequest) {
     const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
-    // Obtener datos del body
-    const body = await request.json();
+    // Obtener datos del FormData
+    const formData = await request.formData();
 
-    // Validar datos
-    const validationResult = createPostSchema.safeParse(body);
+    // Extraer campos del formulario
+    const content = formData.get('content') as string;
+    const organizationId = formData.get('organizationId') as string;
+
+    // Extraer archivos de imagen
+    const imageFiles: File[] = [];
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('images[') && value instanceof File) {
+        imageFiles.push(value);
+      }
+    }
+
+    // Validar datos básicos
+    const validationResult = createPostSchema.safeParse({
+      content,
+      organizationId,
+    });
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -140,23 +155,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validar archivos de imagen (máximo 5)
+    if (imageFiles.length > 5) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'TOO_MANY_IMAGES',
+            message: 'Máximo 5 imágenes permitidas',
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     // Obtener información del usuario
     const userRecord = await auth.getUser(userId);
     const userName = userRecord.displayName || 'Usuario';
     const userPhotoURL = userRecord.photoURL || null;
 
-    // Crear post
-    const postData: PostCreateData = {
-      content: validationResult.data.content,
-      authorId: userId,
-      authorName: userName,
-      authorPhotoURL: userPhotoURL,
-      organizationId: validationResult.data.organizationId,
-      images: [], // Fase 2
-      attachments: [], // Fase 2
-    };
-
-    const postId = await PostService.create(postData);
+    // Crear post con archivos
+    const postId = await PostService.createWithFiles(
+      validationResult.data.content,
+      imageFiles,
+      userId,
+      userName,
+      userPhotoURL,
+      validationResult.data.organizationId
+    );
 
     // Obtener el post creado
     const createdPost = await PostService.getById(postId);

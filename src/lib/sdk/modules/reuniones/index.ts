@@ -1,2 +1,6 @@
 export { ReunionTrabajoService } from './ReunionTrabajoService';
-export type { ReunionTrabajo, CreateReunionTrabajoInput, UpdateReunionTrabajoInput } from './types';
+export type {
+  ReunionTrabajo,
+  CreateReunionTrabajoInput,
+  UpdateReunionTrabajoInput,
+} from './types';

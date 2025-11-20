@@ -7,7 +7,10 @@ export class PositionService extends BaseService<Position> {
   protected collectionName = 'positions';
   protected schema = CreatePositionSchema;
 
-  async createAndReturnId(data: CreatePositionInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreatePositionInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const positionData: Omit<Position, 'id'> = {
@@ -21,13 +24,17 @@ export class PositionService extends BaseService<Position> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(positionData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(positionData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Position[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.departmentId) {
         query = query.where('departmentId', '==', filters.departmentId);
@@ -43,7 +50,9 @@ export class PositionService extends BaseService<Position> {
       query = query.orderBy('title', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Position));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Position
+      );
     } catch (error) {
       console.error('Error listing positions', error);
       throw error;
@@ -78,9 +87,14 @@ export class PositionService extends BaseService<Position> {
         .where('deletedAt', '==', null)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Position));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Position
+      );
     } catch (error) {
-      console.error(`Error getting positions by department ${departmentId}`, error);
+      console.error(
+        `Error getting positions by department ${departmentId}`,
+        error
+      );
       throw error;
     }
   }

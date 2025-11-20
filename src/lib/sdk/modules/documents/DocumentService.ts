@@ -1,13 +1,28 @@
 import { BaseService } from '../../base/BaseService';
 import { Timestamp } from 'firebase-admin/firestore';
-import type { Document, CreateDocumentInput, DocumentFilters, DocumentStats, DocumentVersion } from './types';
-import { CreateDocumentSchema, UpdateDocumentSchema, CreateVersionSchema, UpdateStatusSchema, DocumentFiltersSchema } from './validations';
+import type {
+  Document,
+  CreateDocumentInput,
+  DocumentFilters,
+  DocumentStats,
+  DocumentVersion,
+} from './types';
+import {
+  CreateDocumentSchema,
+  UpdateDocumentSchema,
+  CreateVersionSchema,
+  UpdateStatusSchema,
+  DocumentFiltersSchema,
+} from './validations';
 
 export class DocumentService extends BaseService<Document> {
   protected collectionName = 'documents';
   protected schema = CreateDocumentSchema;
 
-  async createAndReturnId(data: CreateDocumentInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateDocumentInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const initialVersion: DocumentVersion = {
@@ -32,15 +47,22 @@ export class DocumentService extends BaseService<Document> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(documentData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(documentData);
     return docRef.id;
   }
 
-  async list(filters: DocumentFilters = {}, options: any = {}): Promise<Document[]> {
+  async list(
+    filters: DocumentFilters = {},
+    options: any = {}
+  ): Promise<Document[]> {
     try {
       DocumentFiltersSchema.parse(filters);
 
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.status) {
         query = query.where('status', '==', filters.status);
@@ -55,12 +77,18 @@ export class DocumentService extends BaseService<Document> {
       }
 
       if (filters.dateFrom) {
-        const fromDate = filters.dateFrom instanceof Date ? filters.dateFrom : new Date(filters.dateFrom);
+        const fromDate =
+          filters.dateFrom instanceof Date
+            ? filters.dateFrom
+            : new Date(filters.dateFrom);
         query = query.where('createdAt', '>=', Timestamp.fromDate(fromDate));
       }
 
       if (filters.dateTo) {
-        const toDate = filters.dateTo instanceof Date ? filters.dateTo : new Date(filters.dateTo);
+        const toDate =
+          filters.dateTo instanceof Date
+            ? filters.dateTo
+            : new Date(filters.dateTo);
         query = query.where('createdAt', '<=', Timestamp.fromDate(toDate));
       }
 
@@ -70,7 +98,9 @@ export class DocumentService extends BaseService<Document> {
       query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      let documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      let documents = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
 
       if (filters.tags && filters.tags.length > 0) {
         documents = documents.filter(doc =>
@@ -80,10 +110,11 @@ export class DocumentService extends BaseService<Document> {
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        documents = documents.filter(doc =>
-          doc.title.toLowerCase().includes(searchLower) ||
-          doc.description.toLowerCase().includes(searchLower) ||
-          doc.content.toLowerCase().includes(searchLower)
+        documents = documents.filter(
+          doc =>
+            doc.title.toLowerCase().includes(searchLower) ||
+            doc.description.toLowerCase().includes(searchLower) ||
+            doc.content.toLowerCase().includes(searchLower)
         );
       }
 
@@ -146,7 +177,11 @@ export class DocumentService extends BaseService<Document> {
     }
   }
 
-  async updateStatus(id: string, newStatus: string, userId: string): Promise<void> {
+  async updateStatus(
+    id: string,
+    newStatus: string,
+    userId: string
+  ): Promise<void> {
     try {
       const updateData: Record<string, any> = {
         status: newStatus,
@@ -199,7 +234,9 @@ export class DocumentService extends BaseService<Document> {
 
   async getStats(filters: any = {}): Promise<DocumentStats> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.category) {
         query = query.where('category', '==', filters.category);
@@ -215,10 +252,19 @@ export class DocumentService extends BaseService<Document> {
         approved: documents.filter(d => d.status === 'approved').length,
         published: documents.filter(d => d.status === 'published').length,
         archived: documents.filter(d => d.status === 'archived').length,
-        totalVersions: documents.reduce((sum, d) => sum + (d.versions?.length || 0), 0),
-        averageVersionsPerDocument: documents.length > 0
-          ? Math.round(documents.reduce((sum, d) => sum + (d.versions?.length || 0), 0) / documents.length)
-          : 0,
+        totalVersions: documents.reduce(
+          (sum, d) => sum + (d.versions?.length || 0),
+          0
+        ),
+        averageVersionsPerDocument:
+          documents.length > 0
+            ? Math.round(
+                documents.reduce(
+                  (sum, d) => sum + (d.versions?.length || 0),
+                  0
+                ) / documents.length
+              )
+            : 0,
       };
 
       return stats;
@@ -267,14 +313,20 @@ export class DocumentService extends BaseService<Document> {
   /**
    * Revocar acceso a documento
    */
-  async revokeDocumentAccess(documentId: string, userId: string, revokedBy: string): Promise<void> {
+  async revokeDocumentAccess(
+    documentId: string,
+    userId: string,
+    revokedBy: string
+  ): Promise<void> {
     try {
       const document = await this.getById(documentId);
       if (!document) {
         throw new Error(`Document ${documentId} not found`);
       }
 
-      const updatedShares = (document.sharedWith || []).filter(share => share.userId !== userId);
+      const updatedShares = (document.sharedWith || []).filter(
+        share => share.userId !== userId
+      );
 
       await this.db.collection(this.collectionName).doc(documentId).update({
         sharedWith: updatedShares,
@@ -297,7 +349,9 @@ export class DocumentService extends BaseService<Document> {
         .where('deletedAt', '==', null)
         .get();
 
-      const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      const documents = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
 
       return documents.filter(doc =>
         doc.sharedWith?.some(share => share.userId === userId)
@@ -318,7 +372,9 @@ export class DocumentService extends BaseService<Document> {
         .where('deletedAt', '==', null)
         .get();
 
-      const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      const documents = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
       const queryLower = query.toLowerCase();
 
       const scored = documents
@@ -354,7 +410,10 @@ export class DocumentService extends BaseService<Document> {
 
       return scored;
     } catch (error) {
-      console.error(`Error performing full-text search with query ${query}`, error);
+      console.error(
+        `Error performing full-text search with query ${query}`,
+        error
+      );
       throw error;
     }
   }
@@ -362,7 +421,9 @@ export class DocumentService extends BaseService<Document> {
   /**
    * Obtener documentos por categoría con estadísticas
    */
-  async getByCategory(category: string): Promise<{ documents: Document[]; stats: any }> {
+  async getByCategory(
+    category: string
+  ): Promise<{ documents: Document[]; stats: any }> {
     try {
       const snapshot = await this.db
         .collection(this.collectionName)
@@ -370,7 +431,9 @@ export class DocumentService extends BaseService<Document> {
         .where('deletedAt', '==', null)
         .get();
 
-      const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      const documents = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
 
       const stats = {
         total: documents.length,
@@ -382,8 +445,14 @@ export class DocumentService extends BaseService<Document> {
         },
         recentlyUpdated: documents
           .sort((a, b) => {
-            const dateA = a.updatedAt instanceof Timestamp ? a.updatedAt.toDate() : new Date(a.updatedAt);
-            const dateB = b.updatedAt instanceof Timestamp ? b.updatedAt.toDate() : new Date(b.updatedAt);
+            const dateA =
+              a.updatedAt instanceof Timestamp
+                ? a.updatedAt.toDate()
+                : new Date(a.updatedAt);
+            const dateB =
+              b.updatedAt instanceof Timestamp
+                ? b.updatedAt.toDate()
+                : new Date(b.updatedAt);
             return dateB.getTime() - dateA.getTime();
           })
           .slice(0, 5),
@@ -401,14 +470,30 @@ export class DocumentService extends BaseService<Document> {
    */
   async getRecentDocuments(limit: number = 10): Promise<Document[]> {
     try {
+      // Query without orderBy to avoid composite index requirement
       const snapshot = await this.db
         .collection(this.collectionName)
         .where('deletedAt', '==', null)
-        .orderBy('updatedAt', 'desc')
-        .limit(limit)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      const documents = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
+
+      // Sort by updatedAt on the client side
+      return documents
+        .sort((a, b) => {
+          const dateA =
+            a.updatedAt instanceof Timestamp
+              ? a.updatedAt.toDate()
+              : new Date(a.updatedAt);
+          const dateB =
+            b.updatedAt instanceof Timestamp
+              ? b.updatedAt.toDate()
+              : new Date(b.updatedAt);
+          return dateB.getTime() - dateA.getTime();
+        })
+        .slice(0, limit);
     } catch (error) {
       console.error('Error getting recent documents', error);
       throw error;
@@ -425,7 +510,9 @@ export class DocumentService extends BaseService<Document> {
         .where('deletedAt', '==', null)
         .get();
 
-      const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      const documents = snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
 
       return documents
         .sort((a, b) => (b.accessCount || 0) - (a.accessCount || 0))
@@ -446,12 +533,18 @@ export class DocumentService extends BaseService<Document> {
         throw new Error(`Document ${documentId} not found`);
       }
 
-      await this.db.collection(this.collectionName).doc(documentId).update({
-        accessCount: (document.accessCount || 0) + 1,
-        lastAccessedAt: Timestamp.now(),
-      });
+      await this.db
+        .collection(this.collectionName)
+        .doc(documentId)
+        .update({
+          accessCount: (document.accessCount || 0) + 1,
+          lastAccessedAt: Timestamp.now(),
+        });
     } catch (error) {
-      console.error(`Error incrementing access count for document ${documentId}`, error);
+      console.error(
+        `Error incrementing access count for document ${documentId}`,
+        error
+      );
       throw error;
     }
   }
@@ -469,7 +562,9 @@ export class DocumentService extends BaseService<Document> {
         .orderBy('createdAt', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
     } catch (error) {
       console.error('Error getting documents by date range', error);
       throw error;
@@ -538,7 +633,9 @@ export class DocumentService extends BaseService<Document> {
         .orderBy('createdAt', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Document));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Document
+      );
     } catch (error) {
       console.error(`Error getting documents by author ${authorId}`, error);
       throw error;
@@ -566,27 +663,50 @@ export class DocumentService extends BaseService<Document> {
           published: documents.filter(d => d.status === 'published').length,
           archived: documents.filter(d => d.status === 'archived').length,
         },
-        byCategory: documents.reduce((acc, doc) => {
-          acc[doc.category] = (acc[doc.category] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
-        totalVersions: documents.reduce((sum, d) => sum + (d.versions?.length || 0), 0),
+        byCategory: documents.reduce(
+          (acc, doc) => {
+            acc[doc.category] = (acc[doc.category] || 0) + 1;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+        totalVersions: documents.reduce(
+          (sum, d) => sum + (d.versions?.length || 0),
+          0
+        ),
         averageVersionsPerDocument:
           documents.length > 0
-            ? Math.round(documents.reduce((sum, d) => sum + (d.versions?.length || 0), 0) / documents.length)
+            ? Math.round(
+                documents.reduce(
+                  (sum, d) => sum + (d.versions?.length || 0),
+                  0
+                ) / documents.length
+              )
             : 0,
-        totalAccess: documents.reduce((sum, d) => sum + (d.accessCount || 0), 0),
+        totalAccess: documents.reduce(
+          (sum, d) => sum + (d.accessCount || 0),
+          0
+        ),
         averageAccessPerDocument:
           documents.length > 0
-            ? Math.round(documents.reduce((sum, d) => sum + (d.accessCount || 0), 0) / documents.length)
+            ? Math.round(
+                documents.reduce((sum, d) => sum + (d.accessCount || 0), 0) /
+                  documents.length
+              )
             : 0,
         mostAccessedDocument: documents.reduce((prev, current) =>
           (current.accessCount || 0) > (prev.accessCount || 0) ? current : prev
         ),
         recentlyUpdated: documents
           .sort((a, b) => {
-            const dateA = a.updatedAt instanceof Timestamp ? a.updatedAt.toDate() : new Date(a.updatedAt);
-            const dateB = b.updatedAt instanceof Timestamp ? b.updatedAt.toDate() : new Date(b.updatedAt);
+            const dateA =
+              a.updatedAt instanceof Timestamp
+                ? a.updatedAt.toDate()
+                : new Date(a.updatedAt);
+            const dateB =
+              b.updatedAt instanceof Timestamp
+                ? b.updatedAt.toDate()
+                : new Date(b.updatedAt);
             return dateB.getTime() - dateA.getTime();
           })
           .slice(0, 5),

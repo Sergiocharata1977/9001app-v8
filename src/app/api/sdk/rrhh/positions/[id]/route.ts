@@ -37,7 +37,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/rrhh/positions/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener posición', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener posición',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -68,7 +71,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/rrhh/positions/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar posición', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar posición',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -96,9 +102,15 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in DELETE /api/sdk/rrhh/positions/${params.id}:`, error);
+    console.error(
+      `Error in DELETE /api/sdk/rrhh/positions/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al eliminar posición', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar posición',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

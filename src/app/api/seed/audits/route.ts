@@ -141,7 +141,16 @@ export async function POST(request: NextRequest) {
         plannedDate: Timestamp.fromDate(new Date('2024-12-01')),
         leadAuditor: 'Pedro Martínez',
         leadAuditorId: null,
-        selectedNormPoints: ['4.4', '5.1', '6.2', '7.5', '8.1', '8.7', '9.1', '10.2'],
+        selectedNormPoints: [
+          '4.4',
+          '5.1',
+          '6.2',
+          '7.5',
+          '8.1',
+          '8.7',
+          '9.1',
+          '10.2',
+        ],
         status: 'completed',
         executionDate: Timestamp.fromDate(new Date('2024-12-05')),
         normPointsVerification: [
@@ -328,20 +337,20 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         message: `Seed completed! Added ${count} audits`,
-        count 
+        count,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error('Error seeding audits:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: 'Error seeding audits', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+        error: 'Error seeding audits',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

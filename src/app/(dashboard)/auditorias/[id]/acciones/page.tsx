@@ -111,7 +111,9 @@ export default function AuditActionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Acciones de Auditoría</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Acciones de Auditoría
+          </h1>
           <p className="text-gray-600 mt-1">
             Seguimiento de acciones correctivas y preventivas
           </p>
@@ -163,7 +165,11 @@ export default function AuditActionsPage() {
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Vencidas</p>
           <p className="text-2xl font-bold text-red-600">
-            {actions.filter(a => isOverdue(a.dueDate) && a.status !== 'cancelled').length}
+            {
+              actions.filter(
+                a => isOverdue(a.dueDate) && a.status !== 'cancelled'
+              ).length
+            }
           </p>
         </div>
       </div>
@@ -213,65 +219,80 @@ export default function AuditActionsPage() {
                       <h3 className="text-lg font-semibold text-gray-900">
                         {action.description}
                       </h3>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(action.status)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(action.status)}`}
+                      >
                         {getStatusLabel(action.status)}
                       </span>
-                      {isOverdue(action.dueDate) && (action.status as any) !== 'cancelled' && (
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                          Vencida
-                        </span>
-                      )}
+                      {isOverdue(action.dueDate) &&
+                        (action.status as any) !== 'cancelled' && (
+                          <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                            Vencida
+                          </span>
+                        )}
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {action.title}
-                    </p>
+                    <p className="text-sm text-gray-600">{action.title}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Progreso</p>
                     <div className="w-24 h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
                       <div
                         className="h-full bg-green-600 transition-all"
-                        style={{ width: `${(action as any).progressPercentage || 0}%` }}
+                        style={{
+                          width: `${(action as any).progressPercentage || 0}%`,
+                        }}
                       />
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">{(action as any).progressPercentage || 0}%</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {(action as any).progressPercentage || 0}%
+                    </p>
                   </div>
                 </div>
 
-                <p className="text-gray-700 mb-3">
-                  {action.details}
-                </p>
+                <p className="text-gray-700 mb-3">{action.details}</p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
                     <p className="text-gray-600">Responsable</p>
-                    <p className="font-medium text-gray-900">{action.responsible}</p>
+                    <p className="font-medium text-gray-900">
+                      {action.responsible}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-600">Prioridad</p>
-                    <p className={`font-medium ${getPriorityColor(action.priority)}`}>
-                      {action.priority?.charAt(0).toUpperCase() + action.priority?.slice(1)}
+                    <p
+                      className={`font-medium ${getPriorityColor(action.priority)}`}
+                    >
+                      {action.priority?.charAt(0).toUpperCase() +
+                        action.priority?.slice(1)}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-600">Fecha Límite</p>
                     <p className="font-medium text-gray-900">
                       {action.dueDate
-                        ? (action.dueDate.toDate?.() || new Date(action.dueDate)).toLocaleDateString('es-ES')
+                        ? (
+                            action.dueDate.toDate?.() ||
+                            new Date(action.dueDate)
+                          ).toLocaleDateString('es-ES')
                         : 'Sin fecha'}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-600">Tipo</p>
                     <p className="font-medium text-gray-900">
-                      {action.type === 'correctiva' ? 'Correctiva' : 'Preventiva'}
+                      {action.type === 'correctiva'
+                        ? 'Correctiva'
+                        : 'Preventiva'}
                     </p>
                   </div>
                 </div>
 
                 {action.evidence && (
                   <div className="mt-3 pt-3 border-t">
-                    <p className="text-sm text-gray-600">Evidencia: {action.evidence}</p>
+                    <p className="text-sm text-gray-600">
+                      Evidencia: {action.evidence}
+                    </p>
                   </div>
                 )}
               </div>
@@ -389,7 +410,9 @@ function ActionForm({ auditId, onSuccess, onCancel }: ActionFormProps) {
           <input
             type="text"
             value={action.responsible}
-            onChange={e => setAction({ ...action, responsible: e.target.value })}
+            onChange={e =>
+              setAction({ ...action, responsible: e.target.value })
+            }
             placeholder="Nombre del responsable"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             required

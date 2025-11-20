@@ -1,6 +1,6 @@
 /**
  * Finding Immediate Action Planning API Route - SDK Unified
- * 
+ *
  * PUT /api/sdk/findings/[id]/immediate-action-planning - Update Phase 2
  */
 
@@ -24,7 +24,8 @@ export async function PUT(
     }
 
     // Validate data using SDK schema
-    const validatedData = UpdateFindingImmediateActionPlanningSchema.parse(body);
+    const validatedData =
+      UpdateFindingImmediateActionPlanningSchema.parse(body);
 
     const userId = body.userId || 'system';
 
@@ -48,7 +49,10 @@ export async function PUT(
       progress: 25,
     });
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/findings/${params.id}/immediate-action-planning:`, error);
+    console.error(
+      `Error in PUT /api/sdk/findings/${params.id}/immediate-action-planning:`,
+      error
+    );
 
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
@@ -58,7 +62,10 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: 'Error al actualizar planificación de acción inmediata', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar planificación de acción inmediata',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 /**
  * News Posts API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/news/posts - List posts
  * POST /api/sdk/news/posts - Create post
  */
@@ -25,8 +25,12 @@ export async function GET(request: NextRequest) {
     };
 
     const options = {
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100,
-      offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!)
+        : 100,
+      offset: searchParams.get('offset')
+        ? parseInt(searchParams.get('offset')!)
+        : 0,
     };
 
     const service = new PostService();
@@ -36,7 +40,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/news/posts:', error);
     return NextResponse.json(
-      { error: 'Error al obtener posts', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener posts',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -59,7 +66,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/news/posts:', error);
     return NextResponse.json(
-      { error: 'Error al crear post', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear post',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

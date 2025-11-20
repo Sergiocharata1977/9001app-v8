@@ -8,7 +8,7 @@ const AuthorSchema = z.object({
   authorId: z.string().min(1, 'Author ID is required'),
 });
 
-export const GET = withAuth(async (req) => {
+export const GET = withAuth(async req => {
   try {
     const { searchParams } = new URL(req.url);
     const authorId = searchParams.get('authorId');

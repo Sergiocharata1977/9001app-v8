@@ -266,8 +266,11 @@ export class ChatSessionService {
             timestamp: toDate(msg.timestamp),
           })),
           contexto_snapshot: data.contexto_snapshot,
+          titulo: data.titulo,
+          tags: data.tags || [],
           created_at: data.created_at?.toDate() || new Date(),
           updated_at: data.updated_at?.toDate() || new Date(),
+          last_accessed_at: data.last_accessed_at?.toDate(),
         } as ChatSession;
       });
     } catch (error) {
@@ -403,6 +406,89 @@ export class ChatSessionService {
         error
       );
       // Don't throw error, this is not critical
+    }
+  }
+
+  /**
+   * Update session title
+   * @param sessionId Session ID
+   * @param titulo Title to set
+   */
+  static async updateSessionTitle(
+    sessionId: string,
+    titulo: string
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, sessionId);
+
+      await updateDoc(docRef, {
+        titulo,
+        updated_at: serverTimestamp(),
+      });
+
+      console.log(
+        '[ChatSessionService] Updated session title:',
+        sessionId,
+        titulo
+      );
+    } catch (error) {
+      console.error(
+        '[ChatSessionService] Error updating session title:',
+        error
+      );
+      // Don't throw error, this is not critical
+    }
+  }
+
+  /**
+   * Update session tags
+   * @param sessionId Session ID
+   * @param tags Tags to set
+   */
+  static async updateSessionTags(
+    sessionId: string,
+    tags: string[]
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, sessionId);
+
+      await updateDoc(docRef, {
+        tags,
+        updated_at: serverTimestamp(),
+      });
+
+      console.log(
+        '[ChatSessionService] Updated session tags:',
+        sessionId,
+        tags
+      );
+    } catch (error) {
+      console.error('[ChatSessionService] Error updating session tags:', error);
+      // Don't throw error, this is not critical
+    }
+  }
+
+  /**
+   * Update form state
+   * @param sessionId Session ID
+   * @param formState Form state data
+   */
+  static async updateFormState(
+    sessionId: string,
+    formState: any
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, sessionId);
+
+      await updateDoc(docRef, {
+        form_state: formState,
+        updated_at: serverTimestamp(),
+      });
+
+      console.log('[ChatSessionService] Updated form state:', sessionId);
+    } catch (error) {
+      console.error('[ChatSessionService] Error updating form state:', error);
+      throw new Error('Failed to update form state');
     }
   }
 }

@@ -1,11 +1,22 @@
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  Timestamp,
+} from 'firebase/firestore';
 import { z } from 'zod';
 
 // Tipos de rol
 export type UserRole = 'admin' | 'auditor' | 'manager' | 'user' | 'viewer';
 
 // Permisos disponibles
-export type Permission = 
+export type Permission =
   | 'create_audit'
   | 'edit_audit'
   | 'delete_audit'
@@ -47,7 +58,11 @@ export interface UserChange {
   id?: string;
   userId: string;
   changedBy: string;
-  changeType: 'profile_update' | 'role_change' | 'permission_change' | 'status_change';
+  changeType:
+    | 'profile_update'
+    | 'role_change'
+    | 'permission_change'
+    | 'status_change';
   oldValue?: any;
   newValue?: any;
   description: string;
@@ -78,7 +93,9 @@ export class UserProfileService {
   /**
    * Crear perfil de usuario
    */
-  async createUserProfile(data: Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserProfile> {
+  async createUserProfile(
+    data: Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<UserProfile> {
     const validated = this.schema.parse(data);
     const db = getFirestore();
 
@@ -161,10 +178,13 @@ export class UserProfileService {
     }
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as UserProfile));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as UserProfile
+    );
   }
 
   /**
@@ -180,10 +200,13 @@ export class UserProfileService {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as UserProfile));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as UserProfile
+    );
   }
 
   /**
@@ -199,16 +222,22 @@ export class UserProfileService {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as UserProfile));
+    return snapshot.docs.map(
+      doc =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as UserProfile
+    );
   }
 
   /**
    * Actualizar perfil de usuario
    */
-  async updateUserProfile(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
+  async updateUserProfile(
+    userId: string,
+    data: Partial<UserProfile>
+  ): Promise<UserProfile> {
     const db = getFirestore();
     const profile = await this.getUserProfile(userId);
 
@@ -232,7 +261,11 @@ export class UserProfileService {
   /**
    * Cambiar rol de usuario
    */
-  async changeUserRole(userId: string, newRole: UserRole, changedBy: string): Promise<UserProfile> {
+  async changeUserRole(
+    userId: string,
+    newRole: UserRole,
+    changedBy: string
+  ): Promise<UserProfile> {
     const profile = await this.getUserProfile(userId);
     if (!profile) throw new Error('User profile not found');
 
@@ -255,7 +288,11 @@ export class UserProfileService {
   /**
    * Cambiar permisos de usuario
    */
-  async changeUserPermissions(userId: string, permissions: Permission[], changedBy: string): Promise<UserProfile> {
+  async changeUserPermissions(
+    userId: string,
+    permissions: Permission[],
+    changedBy: string
+  ): Promise<UserProfile> {
     const profile = await this.getUserProfile(userId);
     if (!profile) throw new Error('User profile not found');
 
@@ -278,7 +315,11 @@ export class UserProfileService {
   /**
    * Activar/Desactivar usuario
    */
-  async toggleUserStatus(userId: string, isActive: boolean, changedBy: string): Promise<UserProfile> {
+  async toggleUserStatus(
+    userId: string,
+    isActive: boolean,
+    changedBy: string
+  ): Promise<UserProfile> {
     const profile = await this.getUserProfile(userId);
     if (!profile) throw new Error('User profile not found');
 
@@ -299,7 +340,9 @@ export class UserProfileService {
   /**
    * Registrar cambio de usuario
    */
-  async recordUserChange(data: Omit<UserChange, 'id' | 'createdAt'>): Promise<UserChange> {
+  async recordUserChange(
+    data: Omit<UserChange, 'id' | 'createdAt'>
+  ): Promise<UserChange> {
     const db = getFirestore();
 
     const docRef = await addDoc(collection(db, this.changesCollectionName), {
@@ -317,7 +360,10 @@ export class UserProfileService {
   /**
    * Obtener historial de cambios de usuario
    */
-  async getUserChangeHistory(userId: string, limit: number = 50): Promise<UserChange[]> {
+  async getUserChangeHistory(
+    userId: string,
+    limit: number = 50
+  ): Promise<UserChange[]> {
     const db = getFirestore();
     const q = query(
       collection(db, this.changesCollectionName),
@@ -326,13 +372,22 @@ export class UserProfileService {
 
     const snapshot = await getDocs(q);
     return snapshot.docs
-      .map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      } as UserChange))
+      .map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as UserChange
+      )
       .sort((a, b) => {
-        const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date(a.createdAt || 0);
-        const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+        const dateA =
+          a.createdAt instanceof Timestamp
+            ? a.createdAt.toDate()
+            : new Date(a.createdAt || 0);
+        const dateB =
+          b.createdAt instanceof Timestamp
+            ? b.createdAt.toDate()
+            : new Date(b.createdAt || 0);
         return dateB.getTime() - dateA.getTime();
       })
       .slice(0, limit);
@@ -341,7 +396,10 @@ export class UserProfileService {
   /**
    * Verificar si usuario tiene permiso
    */
-  async hasPermission(userId: string, permission: Permission): Promise<boolean> {
+  async hasPermission(
+    userId: string,
+    permission: Permission
+  ): Promise<boolean> {
     const profile = await this.getUserProfile(userId);
     if (!profile) return false;
 
@@ -367,27 +425,35 @@ export class UserProfileService {
   getPermissionsByRole(role: UserRole): Permission[] {
     const rolePermissions: Record<UserRole, Permission[]> = {
       admin: [
-        'create_audit', 'edit_audit', 'delete_audit', 'view_audit',
-        'create_finding', 'edit_finding', 'delete_finding',
-        'create_action', 'edit_action', 'delete_action',
-        'manage_users', 'view_reports', 'export_data', 'manage_roles',
+        'create_audit',
+        'edit_audit',
+        'delete_audit',
+        'view_audit',
+        'create_finding',
+        'edit_finding',
+        'delete_finding',
+        'create_action',
+        'edit_action',
+        'delete_action',
+        'manage_users',
+        'view_reports',
+        'export_data',
+        'manage_roles',
       ],
       auditor: [
-        'create_audit', 'edit_audit', 'view_audit',
-        'create_finding', 'edit_finding',
-        'create_action', 'edit_action',
-        'view_reports', 'export_data',
-      ],
-      manager: [
+        'create_audit',
+        'edit_audit',
         'view_audit',
-        'view_reports', 'export_data',
+        'create_finding',
+        'edit_finding',
+        'create_action',
+        'edit_action',
+        'view_reports',
+        'export_data',
       ],
-      user: [
-        'view_audit',
-      ],
-      viewer: [
-        'view_audit',
-      ],
+      manager: ['view_audit', 'view_reports', 'export_data'],
+      user: ['view_audit'],
+      viewer: ['view_audit'],
     };
 
     return rolePermissions[role] || [];

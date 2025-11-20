@@ -2,10 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { UserProfileService, UserProfile, UserChange } from '@/lib/sdk/modules/rrhh/UserProfileService';
+import {
+  UserProfileService,
+  UserProfile,
+  UserChange,
+} from '@/lib/sdk/modules/rrhh/UserProfileService';
 import { RolePermissionsManager } from '@/components/users/RolePermissionsManager';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -17,7 +27,14 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
+import {
+  Loader2,
+  ArrowLeft,
+  Mail,
+  Phone,
+  MapPin,
+  Briefcase,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function UserDetailPage() {
@@ -62,13 +79,16 @@ export default function UserDetailPage() {
     }
   };
 
-  const handleSaveRoleAndPermissions = async (newRole: any, newPermissions: any) => {
+  const handleSaveRoleAndPermissions = async (
+    newRole: any,
+    newPermissions: any
+  ) => {
     try {
       setIsSaving(true);
       // Aquí se llamaría a los métodos del servicio
       // await userService.changeUserRole(userId, newRole, 'current-user-id');
       // await userService.changeUserPermissions(userId, newPermissions, 'current-user-id');
-      
+
       toast({
         title: 'Éxito',
         description: 'Cambios guardados correctamente',
@@ -218,7 +238,9 @@ export default function UserDetailPage() {
                     </Badge>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500">Sin permisos específicos</p>
+                  <p className="text-sm text-gray-500">
+                    Sin permisos específicos
+                  </p>
                 )}
               </div>
             </div>
@@ -303,17 +325,27 @@ export default function UserDetailPage() {
                             ).toLocaleString()}
                           </TableCell>
                           <TableCell>
-                            <Badge className={getChangeTypeColor(change.changeType)}>
+                            <Badge
+                              className={getChangeTypeColor(change.changeType)}
+                            >
                               {getChangeTypeLabel(change.changeType)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-sm">{change.description}</TableCell>
-                          <TableCell className="text-sm">{change.changedBy}</TableCell>
                           <TableCell className="text-sm">
-                            {change.oldValue ? JSON.stringify(change.oldValue) : '-'}
+                            {change.description}
                           </TableCell>
                           <TableCell className="text-sm">
-                            {change.newValue ? JSON.stringify(change.newValue) : '-'}
+                            {change.changedBy}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {change.oldValue
+                              ? JSON.stringify(change.oldValue)
+                              : '-'}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {change.newValue
+                              ? JSON.stringify(change.newValue)
+                              : '-'}
                           </TableCell>
                         </TableRow>
                       ))}

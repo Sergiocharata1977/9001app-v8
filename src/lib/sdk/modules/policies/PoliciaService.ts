@@ -7,7 +7,10 @@ export class PoliciaService extends BaseService<Policy> {
   protected collectionName = 'policies';
   protected schema = CreatePolicySchema;
 
-  async createAndReturnId(data: CreatePolicyInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreatePolicyInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const policyData: Omit<Policy, 'id'> = {
@@ -22,13 +25,17 @@ export class PoliciaService extends BaseService<Policy> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(policyData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(policyData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Policy[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.category) {
         query = query.where('category', '==', filters.category);
@@ -44,7 +51,9 @@ export class PoliciaService extends BaseService<Policy> {
       query = query.orderBy('title', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Policy));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Policy
+      );
     } catch (error) {
       console.error('Error listing policies', error);
       throw error;

@@ -88,7 +88,10 @@ export class AuditActionsService extends BaseService<Action> {
   ): Promise<string> {
     try {
       // Validate finding exists
-      const findingDoc = await this.db.collection('findings').doc(data.findingId).get();
+      const findingDoc = await this.db
+        .collection('findings')
+        .doc(data.findingId)
+        .get();
 
       if (!findingDoc.exists) {
         throw new Error('Hallazgo no encontrado');
@@ -150,7 +153,9 @@ export class AuditActionsService extends BaseService<Action> {
         isActive: true,
       };
 
-      const docRef = await this.db.collection(this.collectionName).add(actionData);
+      const docRef = await this.db
+        .collection(this.collectionName)
+        .add(actionData);
       return docRef.id;
     } catch (error) {
       console.error('Error creating action from finding:', error);
@@ -186,7 +191,11 @@ export class AuditActionsService extends BaseService<Action> {
 
       // Apply responsible person filter
       if (filters.responsiblePersonId) {
-        query = query.where('responsiblePersonId', '==', filters.responsiblePersonId);
+        query = query.where(
+          'responsiblePersonId',
+          '==',
+          filters.responsiblePersonId
+        );
       }
 
       // Apply ordering
@@ -234,7 +243,10 @@ export class AuditActionsService extends BaseService<Action> {
     userId: string
   ): Promise<void> {
     try {
-      const actionDoc = await this.db.collection(this.collectionName).doc(actionId).get();
+      const actionDoc = await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .get();
 
       if (!actionDoc.exists) {
         throw new Error('Acción no encontrada');
@@ -263,7 +275,10 @@ export class AuditActionsService extends BaseService<Action> {
         updateData.comments = data.comments;
       }
 
-      await this.db.collection(this.collectionName).doc(actionId).update(updateData);
+      await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .update(updateData);
     } catch (error) {
       console.error('Error updating action status:', error);
       throw error;
@@ -282,7 +297,10 @@ export class AuditActionsService extends BaseService<Action> {
     userId: string
   ): Promise<void> {
     try {
-      const actionDoc = await this.db.collection(this.collectionName).doc(actionId).get();
+      const actionDoc = await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .get();
 
       if (!actionDoc.exists) {
         throw new Error('Acción no encontrada');
@@ -307,7 +325,10 @@ export class AuditActionsService extends BaseService<Action> {
         updateData.comments = data.comments;
       }
 
-      await this.db.collection(this.collectionName).doc(actionId).update(updateData);
+      await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .update(updateData);
     } catch (error) {
       console.error('Error tracking action progress:', error);
       throw error;
@@ -321,7 +342,10 @@ export class AuditActionsService extends BaseService<Action> {
    */
   async getActionProgress(actionId: string): Promise<ActionProgress> {
     try {
-      const actionDoc = await this.db.collection(this.collectionName).doc(actionId).get();
+      const actionDoc = await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .get();
 
       if (!actionDoc.exists) {
         throw new Error('Acción no encontrada');
@@ -362,22 +386,28 @@ export class AuditActionsService extends BaseService<Action> {
     userId: string
   ): Promise<void> {
     try {
-      const actionDoc = await this.db.collection(this.collectionName).doc(actionId).get();
+      const actionDoc = await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .get();
 
       if (!actionDoc.exists) {
         throw new Error('Acción no encontrada');
       }
 
-      await this.db.collection(this.collectionName).doc(actionId).update({
-        status: 'completada',
-        percentageComplete: 100,
-        evidence: data.evidence,
-        comments: data.comments || null,
-        completionDate: Timestamp.now(),
-        updatedAt: Timestamp.now(),
-        updatedBy: userId,
-        updatedByName: userId,
-      });
+      await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .update({
+          status: 'completada',
+          percentageComplete: 100,
+          evidence: data.evidence,
+          comments: data.comments || null,
+          completionDate: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          updatedBy: userId,
+          updatedByName: userId,
+        });
     } catch (error) {
       console.error('Error closing action:', error);
       throw error;
@@ -429,7 +459,8 @@ export class AuditActionsService extends BaseService<Action> {
         totalProgress += action.percentageComplete || 0;
 
         // Overdue count
-        const plannedDate = action.plannedDate?.toDate?.() || new Date(action.plannedDate);
+        const plannedDate =
+          action.plannedDate?.toDate?.() || new Date(action.plannedDate);
         if (plannedDate < today && action.status !== 'completada') {
           stats.overdueCount++;
         }
@@ -461,7 +492,8 @@ export class AuditActionsService extends BaseService<Action> {
       const today = new Date();
 
       return actions.filter((action: any) => {
-        const plannedDate = action.plannedDate?.toDate?.() || new Date(action.plannedDate);
+        const plannedDate =
+          action.plannedDate?.toDate?.() || new Date(action.plannedDate);
         return plannedDate < today && action.status !== 'completada';
       });
     } catch (error) {
@@ -476,7 +508,10 @@ export class AuditActionsService extends BaseService<Action> {
    */
   async deleteAction(actionId: string): Promise<void> {
     try {
-      const actionDoc = await this.db.collection(this.collectionName).doc(actionId).get();
+      const actionDoc = await this.db
+        .collection(this.collectionName)
+        .doc(actionId)
+        .get();
 
       if (!actionDoc.exists) {
         throw new Error('Acción no encontrada');

@@ -1,6 +1,6 @@
 /**
  * Finding Close API Route - SDK Unified
- * 
+ *
  * PUT /api/sdk/findings/[id]/close - Close finding
  */
 
@@ -46,7 +46,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/findings/${params.id}/close:`, error);
     return NextResponse.json(
-      { error: 'Error al cerrar hallazgo', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al cerrar hallazgo',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

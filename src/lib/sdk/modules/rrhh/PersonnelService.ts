@@ -7,9 +7,15 @@ export class PersonnelService extends BaseService<Personnel> {
   protected collectionName = 'personnel';
   protected schema = CreatePersonnelSchema;
 
-  async createAndReturnId(data: CreatePersonnelInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreatePersonnelInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
-    const hireDate = validated.hireDate instanceof Date ? validated.hireDate : new Date(validated.hireDate);
+    const hireDate =
+      validated.hireDate instanceof Date
+        ? validated.hireDate
+        : new Date(validated.hireDate);
 
     const personnelData: Omit<Personnel, 'id'> = {
       ...validated,
@@ -23,13 +29,17 @@ export class PersonnelService extends BaseService<Personnel> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(personnelData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(personnelData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Personnel[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.status) {
         query = query.where('status', '==', filters.status);
@@ -45,7 +55,9 @@ export class PersonnelService extends BaseService<Personnel> {
       query = query.orderBy('lastName', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Personnel));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Personnel
+      );
     } catch (error) {
       console.error('Error listing personnel', error);
       throw error;
@@ -80,7 +92,9 @@ export class PersonnelService extends BaseService<Personnel> {
         .where('deletedAt', '==', null)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Personnel));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Personnel
+      );
     } catch (error) {
       console.error(`Error getting personnel by position ${positionId}`, error);
       throw error;
@@ -95,9 +109,14 @@ export class PersonnelService extends BaseService<Personnel> {
         .where('deletedAt', '==', null)
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Personnel));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Personnel
+      );
     } catch (error) {
-      console.error(`Error getting personnel by department ${departmentId}`, error);
+      console.error(
+        `Error getting personnel by department ${departmentId}`,
+        error
+      );
       throw error;
     }
   }

@@ -8,10 +8,12 @@ const RecentSchema = z.object({
   limit: z.number().int().positive().default(10),
 });
 
-export const GET = withAuth(async (req) => {
+export const GET = withAuth(async req => {
   try {
     const { searchParams } = new URL(req.url);
-    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 10;
+    const limit = searchParams.get('limit')
+      ? parseInt(searchParams.get('limit')!)
+      : 10;
 
     const validated = RecentSchema.parse({ limit });
 

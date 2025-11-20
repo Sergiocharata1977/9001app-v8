@@ -36,7 +36,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/quality/measurements:', error);
     return NextResponse.json(
-      { error: 'Error al obtener mediciones', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener mediciones',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -57,7 +60,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/quality/measurements:', error);
     return NextResponse.json(
-      { error: 'Error al crear medición', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear medición',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

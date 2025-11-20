@@ -49,7 +49,10 @@ export class AuditService extends BaseService<Audit> {
    * @param userId - ID of user creating the audit
    * @returns Created audit ID
    */
-  async createAndReturnId(data: CreateAuditInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateAuditInput,
+    userId: string
+  ): Promise<string> {
     try {
       // Validate data
       const validated = CreateAuditSchema.parse(data);
@@ -70,8 +73,8 @@ export class AuditService extends BaseService<Audit> {
       }
 
       // Initialize norm point verifications
-      const normPointsVerification: NormPointVerification[] = normPointsToAudit.map(
-        code => ({
+      const normPointsVerification: NormPointVerification[] =
+        normPointsToAudit.map(code => ({
           normPointCode: code,
           normPointId: null,
           conformityStatus: null,
@@ -81,8 +84,7 @@ export class AuditService extends BaseService<Audit> {
           verifiedAt: null,
           verifiedBy: null,
           verifiedByName: null,
-        })
-      );
+        }));
 
       const now = Timestamp.now();
       const auditData: any = {
@@ -115,7 +117,9 @@ export class AuditService extends BaseService<Audit> {
         isActive: true,
       };
 
-      const docRef = await this.db.collection(this.collectionName).add(auditData);
+      const docRef = await this.db
+        .collection(this.collectionName)
+        .add(auditData);
       return docRef.id;
     } catch (error) {
       console.error('Error creating audit:', error);
@@ -233,7 +237,9 @@ export class AuditService extends BaseService<Audit> {
       }
 
       if (audit.status !== 'planned') {
-        throw new Error('Solo se pueden editar auditorías en estado planificado');
+        throw new Error(
+          'Solo se pueden editar auditorías en estado planificado'
+        );
       }
 
       // Validate partial data
@@ -310,8 +316,8 @@ export class AuditService extends BaseService<Audit> {
       const normPointCodes = audit.selectedNormPoints;
 
       // Create initial verifications
-      const normPointsVerification: NormPointVerification[] = normPointCodes.map(
-        code => ({
+      const normPointsVerification: NormPointVerification[] =
+        normPointCodes.map(code => ({
           normPointCode: code,
           normPointId: null,
           conformityStatus: null,
@@ -321,16 +327,18 @@ export class AuditService extends BaseService<Audit> {
           verifiedAt: null,
           verifiedBy: null,
           verifiedByName: null,
-        })
-      );
+        }));
 
-      await this.db.collection(this.collectionName).doc(id).update({
-        status: 'in_progress',
-        executionDate: Timestamp.fromDate(data.executionDate),
-        normPointsVerification,
-        updatedAt: Timestamp.now(),
-        updatedBy: userId,
-      });
+      await this.db
+        .collection(this.collectionName)
+        .doc(id)
+        .update({
+          status: 'in_progress',
+          executionDate: Timestamp.fromDate(data.executionDate),
+          normPointsVerification,
+          updatedAt: Timestamp.now(),
+          updatedBy: userId,
+        });
     } catch (error) {
       console.error('Error starting execution:', error);
       throw error;
@@ -638,8 +646,16 @@ export class AuditService extends BaseService<Audit> {
       // Apply date range filter
       if (filters.dateRange) {
         query = query
-          .where('plannedDate', '>=', Timestamp.fromDate(filters.dateRange.start))
-          .where('plannedDate', '<=', Timestamp.fromDate(filters.dateRange.end));
+          .where(
+            'plannedDate',
+            '>=',
+            Timestamp.fromDate(filters.dateRange.start)
+          )
+          .where(
+            'plannedDate',
+            '<=',
+            Timestamp.fromDate(filters.dateRange.end)
+          );
       }
 
       // Apply ordering and limit
@@ -669,7 +685,9 @@ export class AuditService extends BaseService<Audit> {
       if (filters.conformityStatus && filters.conformityStatus.length > 0) {
         return audits.filter(audit =>
           audit.normPointsVerification?.some(v =>
-            filters.conformityStatus?.includes(v.conformityStatus as ConformityStatus)
+            filters.conformityStatus?.includes(
+              v.conformityStatus as ConformityStatus
+            )
           )
         );
       }
@@ -784,7 +802,10 @@ export class AuditService extends BaseService<Audit> {
             // Calculate average conformity (CF = 100%, NCM/NCm = 0%, others = 50%)
             if (v.conformityStatus === 'CF') {
               totalConformity += 100;
-            } else if (v.conformityStatus === 'NCM' || v.conformityStatus === 'NCm') {
+            } else if (
+              v.conformityStatus === 'NCM' ||
+              v.conformityStatus === 'NCm'
+            ) {
               totalConformity += 0;
               stats.nonConformitiesCount++;
             } else {
@@ -856,7 +877,11 @@ export class AuditService extends BaseService<Audit> {
 
       for (let i = months - 1; i >= 0; i--) {
         const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const nextMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1);
+        const nextMonth = new Date(
+          monthDate.getFullYear(),
+          monthDate.getMonth() + 1,
+          1
+        );
 
         const audits = await this.getAuditsByDateRange(monthDate, nextMonth);
 
@@ -869,9 +894,13 @@ export class AuditService extends BaseService<Audit> {
           );
         }, 0);
 
-        const completedCount = audits.filter(a => a.status === 'completed').length;
+        const completedCount = audits.filter(
+          a => a.status === 'completed'
+        ).length;
         const completionRate =
-          audits.length > 0 ? Math.round((completedCount / audits.length) * 100) : 0;
+          audits.length > 0
+            ? Math.round((completedCount / audits.length) * 100)
+            : 0;
 
         trends.push({
           month: monthDate.toLocaleDateString('es-ES', {
@@ -916,9 +945,7 @@ export class AuditService extends BaseService<Audit> {
         v => v.conformityStatus === null
       );
       if (unverifiedPoints && unverifiedPoints.length > 0) {
-        errors.push(
-          `${unverifiedPoints.length} puntos de norma sin verificar`
-        );
+        errors.push(`${unverifiedPoints.length} puntos de norma sin verificar`);
       }
 
       // Check if opening meeting is recorded
@@ -953,7 +980,10 @@ export class AuditService extends BaseService<Audit> {
    * @param newStatus - New status
    * @returns True if transition is allowed
    */
-  async canTransitionStatus(id: string, newStatus: AuditStatus): Promise<boolean> {
+  async canTransitionStatus(
+    id: string,
+    newStatus: AuditStatus
+  ): Promise<boolean> {
     try {
       const audit = await this.getById(id);
 

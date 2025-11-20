@@ -32,7 +32,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/quality/indicators:', error);
     return NextResponse.json(
-      { error: 'Error al obtener indicadores de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener indicadores de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -53,7 +56,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/quality/indicators:', error);
     return NextResponse.json(
-      { error: 'Error al crear indicador de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear indicador de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

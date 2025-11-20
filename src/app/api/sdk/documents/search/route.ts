@@ -9,13 +9,16 @@ const SearchSchema = z.object({
   limit: z.number().int().positive().default(20),
 });
 
-export const POST = withAuth(async (req) => {
+export const POST = withAuth(async req => {
   try {
     const body = await req.json();
     const validated = SearchSchema.parse(body);
 
     const documentService = new DocumentService();
-    const results = await documentService.fullTextSearch(validated.query, validated.limit);
+    const results = await documentService.fullTextSearch(
+      validated.query,
+      validated.limit
+    );
 
     return NextResponse.json({
       success: true,

@@ -35,9 +35,15 @@ export async function GET(
 
     return NextResponse.json({ data: indicator }, { status: 200 });
   } catch (error) {
-    console.error(`Error in GET /api/sdk/quality/indicators/${params.id}:`, error);
+    console.error(
+      `Error in GET /api/sdk/quality/indicators/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al obtener indicador de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener indicador de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -59,7 +65,7 @@ export async function PUT(
     }
 
     const service = new QualityIndicatorService();
-    
+
     // Si se proporciona currentValue, usar el método específico
     if (body.currentValue !== undefined) {
       await service.updateCurrentValue(id, body.currentValue, 'system');
@@ -72,9 +78,15 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/quality/indicators/${params.id}:`, error);
+    console.error(
+      `Error in PUT /api/sdk/quality/indicators/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al actualizar indicador de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar indicador de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -102,9 +114,15 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in DELETE /api/sdk/quality/indicators/${params.id}:`, error);
+    console.error(
+      `Error in DELETE /api/sdk/quality/indicators/${params.id}:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al eliminar indicador de calidad', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar indicador de calidad',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

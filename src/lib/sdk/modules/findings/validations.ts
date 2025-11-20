@@ -1,6 +1,6 @@
 /**
  * Finding Module Validations
- * 
+ *
  * Esquemas Zod para validación de datos de hallazgos
  */
 
@@ -11,8 +11,13 @@ import { z } from 'zod';
  */
 export const CreateFindingSchema = z.object({
   origin: z.enum(['audit', 'internal', 'customer', 'supplier', 'other']),
-  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(255),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres'),
+  name: z
+    .string()
+    .min(3, 'El nombre debe tener al menos 3 caracteres')
+    .max(255),
+  description: z
+    .string()
+    .min(10, 'La descripción debe tener al menos 10 caracteres'),
   processId: z.string().optional().nullable(),
   processName: z.string().optional().nullable(),
   source: z.string().min(1, 'La fuente es requerida'),
@@ -23,8 +28,12 @@ export const CreateFindingSchema = z.object({
  * Schema para actualizar planificación de acción inmediata
  */
 export const UpdateFindingImmediateActionPlanningSchema = z.object({
-  responsiblePersonId: z.string().min(1, 'El ID de la persona responsable es requerido'),
-  responsiblePersonName: z.string().min(1, 'El nombre de la persona responsable es requerido'),
+  responsiblePersonId: z
+    .string()
+    .min(1, 'El ID de la persona responsable es requerido'),
+  responsiblePersonName: z
+    .string()
+    .min(1, 'El nombre de la persona responsable es requerido'),
   plannedDate: z.date(),
   comments: z.string().optional().nullable(),
 });
@@ -34,7 +43,9 @@ export const UpdateFindingImmediateActionPlanningSchema = z.object({
  */
 export const UpdateFindingImmediateActionExecutionSchema = z.object({
   executionDate: z.date(),
-  correction: z.string().min(10, 'La corrección debe tener al menos 10 caracteres'),
+  correction: z
+    .string()
+    .min(10, 'La corrección debe tener al menos 10 caracteres'),
 });
 
 /**
@@ -49,7 +60,15 @@ export const UpdateFindingRootCauseAnalysisSchema = z.object({
  * Schema para filtros de búsqueda
  */
 export const FindingFiltersSchema = z.object({
-  status: z.enum(['registrado', 'accion_planificada', 'accion_ejecutada', 'analisis_completado', 'cerrado']).optional(),
+  status: z
+    .enum([
+      'registrado',
+      'accion_planificada',
+      'accion_ejecutada',
+      'analisis_completado',
+      'cerrado',
+    ])
+    .optional(),
   processId: z.string().optional(),
   sourceId: z.string().optional(),
   year: z.number().int().min(2000).max(2100).optional(),

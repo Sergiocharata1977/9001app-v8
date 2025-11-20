@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import { Share2, Loader2, X } from 'lucide-react';
-import type { Document, DocumentShare } from '@/lib/sdk/modules/documents/types';
+import type {
+  Document,
+  DocumentShare,
+} from '@/lib/sdk/modules/documents/types';
 
 interface DocumentSharingProps {
   document: Document;
@@ -13,7 +16,9 @@ export function DocumentSharing({ document, onShare }: DocumentSharingProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [userIds, setUserIds] = useState<string[]>([]);
   const [newUserId, setNewUserId] = useState('');
-  const [permissions, setPermissions] = useState<'view' | 'comment' | 'edit'>('view');
+  const [permissions, setPermissions] = useState<'view' | 'comment' | 'edit'>(
+    'view'
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -26,7 +31,7 @@ export function DocumentSharing({ document, onShare }: DocumentSharingProps) {
   };
 
   const handleRemoveUser = (userId: string) => {
-    setUserIds(userIds.filter((id) => id !== userId));
+    setUserIds(userIds.filter(id => id !== userId));
   };
 
   const handleShare = async () => {
@@ -61,7 +66,7 @@ export function DocumentSharing({ document, onShare }: DocumentSharingProps) {
       }, 2000);
 
       onShare?.(
-        userIds.map((userId) => ({
+        userIds.map(userId => ({
           userId,
           permissions,
           sharedAt: new Date() as any,
@@ -119,7 +124,7 @@ export function DocumentSharing({ document, onShare }: DocumentSharingProps) {
                   <input
                     type="text"
                     value={newUserId}
-                    onChange={(e) => setNewUserId(e.target.value)}
+                    onChange={e => setNewUserId(e.target.value)}
                     placeholder="ID del usuario"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -133,7 +138,7 @@ export function DocumentSharing({ document, onShare }: DocumentSharingProps) {
 
                 {userIds.length > 0 && (
                   <div className="space-y-2">
-                    {userIds.map((userId) => (
+                    {userIds.map(userId => (
                       <div
                         key={userId}
                         className="flex items-center justify-between p-2 bg-gray-100 rounded"
@@ -157,7 +162,7 @@ export function DocumentSharing({ document, onShare }: DocumentSharingProps) {
                 </label>
                 <select
                   value={permissions}
-                  onChange={(e) => setPermissions(e.target.value as any)}
+                  onChange={e => setPermissions(e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="view">Ver</option>

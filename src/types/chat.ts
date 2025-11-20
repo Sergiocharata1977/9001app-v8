@@ -18,6 +18,9 @@ export interface ChatSession {
   duracion_minutos?: number;
   modo_continuo_usado?: boolean;
 
+  // Form state if type is 'formulario'
+  form_state?: any; // Should be FormSessionState but avoiding circular dependency
+
   created_at: Date;
   updated_at: Date;
   last_accessed_at?: Date;
@@ -65,4 +68,19 @@ export interface LimitStatus {
   consultas_restantes: number;
   tokens_restantes: number;
   costo_restante: number;
+}
+
+// Continuous Mode Types
+export type ContinuousModeState =
+  | 'idle'
+  | 'listening'
+  | 'processing'
+  | 'speaking';
+
+export interface ContinuousModeControllerProps {
+  onTranscript: (text: string) => void;
+  onResponse: (text: string) => void;
+  disabled?: boolean;
+  onStateChange?: (state: ContinuousModeState) => void;
+  responseText?: string;
 }

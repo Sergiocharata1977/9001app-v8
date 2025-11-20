@@ -1,6 +1,6 @@
 /**
  * Mandatory NormPoints API Route - SDK Unified
- * 
+ *
  * GET /api/sdk/norm-points/mandatory - Get mandatory norm points
  */
 
@@ -16,7 +16,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/norm-points/mandatory:', error);
     return NextResponse.json(
-      { error: 'Error al obtener puntos de norma obligatorios', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener puntos de norma obligatorios',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

@@ -74,7 +74,9 @@ export function DocumentStats() {
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <BarChart3 className="h-6 w-6 text-blue-600" />
-        <h2 className="text-2xl font-bold text-gray-900">Estadísticas de Documentos</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Estadísticas de Documentos
+        </h2>
       </div>
 
       {/* Overview Cards */}
@@ -85,7 +87,9 @@ export function DocumentStats() {
         </div>
         <div className="p-4 bg-white border border-gray-200 rounded-lg">
           <p className="text-sm text-gray-600">Total de Versiones</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalVersions}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {stats.totalVersions}
+          </p>
         </div>
         <div className="p-4 bg-white border border-gray-200 rounded-lg">
           <p className="text-sm text-gray-600">Promedio de Versiones</p>
@@ -95,20 +99,28 @@ export function DocumentStats() {
         </div>
         <div className="p-4 bg-white border border-gray-200 rounded-lg">
           <p className="text-sm text-gray-600">Total de Accesos</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalAccess}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {stats.totalAccess}
+          </p>
         </div>
       </div>
 
       {/* Status Distribution */}
       <div className="p-6 bg-white border border-gray-200 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribución por Estado</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Distribución por Estado
+        </h3>
         <div className="space-y-3">
           {Object.entries(stats.byStatus).map(([status, count]) => (
             <div key={status}>
               <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700 capitalize">{status}</span>
+                <span className="text-sm font-medium text-gray-700 capitalize">
+                  {status}
+                </span>
                 <span className="text-sm text-gray-600">
-                  {count} ({statusPercentages[status as keyof typeof statusPercentages]}%)
+                  {count} (
+                  {statusPercentages[status as keyof typeof statusPercentages]}
+                  %)
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -127,7 +139,9 @@ export function DocumentStats() {
       {/* Categories */}
       {Object.keys(stats.byCategory).length > 0 && (
         <div className="p-6 bg-white border border-gray-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Documentos por Categoría</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Documentos por Categoría
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(stats.byCategory).map(([category, count]) => (
               <div key={category} className="p-3 bg-gray-50 rounded-lg">
@@ -142,10 +156,16 @@ export function DocumentStats() {
       {/* Most Accessed */}
       {stats.mostAccessedDocument && (
         <div className="p-6 bg-white border border-gray-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Documento Más Accedido</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Documento Más Accedido
+          </h3>
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="font-semibold text-gray-900">{stats.mostAccessedDocument.title}</p>
-            <p className="text-sm text-gray-600 mt-1">{stats.mostAccessedDocument.description}</p>
+            <p className="font-semibold text-gray-900">
+              {stats.mostAccessedDocument.title}
+            </p>
+            <p className="text-sm text-gray-600 mt-1">
+              {stats.mostAccessedDocument.description}
+            </p>
             <p className="text-sm text-blue-600 font-medium mt-2">
               {stats.mostAccessedDocument.accessCount || 0} accesos
             </p>
@@ -156,7 +176,9 @@ export function DocumentStats() {
       {/* Recently Updated */}
       {stats.recentlyUpdated && stats.recentlyUpdated.length > 0 && (
         <div className="p-6 bg-white border border-gray-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Documentos Actualizados Recientemente</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Documentos Actualizados Recientemente
+          </h3>
           <div className="space-y-3">
             {stats.recentlyUpdated.slice(0, 5).map((doc: any, idx: number) => (
               <div key={idx} className="p-3 border border-gray-200 rounded-lg">

@@ -1,9 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { UserRole, Permission } from '@/lib/sdk/modules/rrhh/UserProfileService';
+import {
+  UserRole,
+  Permission,
+} from '@/lib/sdk/modules/rrhh/UserProfileService';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,55 +35,44 @@ const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
 };
 
 const PERMISSION_GROUPS: Record<string, Permission[]> = {
-  'Auditorías': [
-    'create_audit',
-    'edit_audit',
-    'delete_audit',
-    'view_audit',
-  ],
-  'Hallazgos': [
-    'create_finding',
-    'edit_finding',
-    'delete_finding',
-  ],
-  'Acciones': [
-    'create_action',
-    'edit_action',
-    'delete_action',
-  ],
-  'Administración': [
-    'manage_users',
-    'manage_roles',
-  ],
-  'Reportes': [
-    'view_reports',
-    'export_data',
-  ],
+  Auditorías: ['create_audit', 'edit_audit', 'delete_audit', 'view_audit'],
+  Hallazgos: ['create_finding', 'edit_finding', 'delete_finding'],
+  Acciones: ['create_action', 'edit_action', 'delete_action'],
+  Administración: ['manage_users', 'manage_roles'],
+  Reportes: ['view_reports', 'export_data'],
 };
 
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: [
-    'create_audit', 'edit_audit', 'delete_audit', 'view_audit',
-    'create_finding', 'edit_finding', 'delete_finding',
-    'create_action', 'edit_action', 'delete_action',
-    'manage_users', 'view_reports', 'export_data', 'manage_roles',
+    'create_audit',
+    'edit_audit',
+    'delete_audit',
+    'view_audit',
+    'create_finding',
+    'edit_finding',
+    'delete_finding',
+    'create_action',
+    'edit_action',
+    'delete_action',
+    'manage_users',
+    'view_reports',
+    'export_data',
+    'manage_roles',
   ],
   auditor: [
-    'create_audit', 'edit_audit', 'view_audit',
-    'create_finding', 'edit_finding',
-    'create_action', 'edit_action',
-    'view_reports', 'export_data',
-  ],
-  manager: [
+    'create_audit',
+    'edit_audit',
     'view_audit',
-    'view_reports', 'export_data',
+    'create_finding',
+    'edit_finding',
+    'create_action',
+    'edit_action',
+    'view_reports',
+    'export_data',
   ],
-  user: [
-    'view_audit',
-  ],
-  viewer: [
-    'view_audit',
-  ],
+  manager: ['view_audit', 'view_reports', 'export_data'],
+  user: ['view_audit'],
+  viewer: ['view_audit'],
 };
 
 export function RolePermissionsManager({
@@ -84,7 +82,8 @@ export function RolePermissionsManager({
   onSave,
 }: RolePermissionsManagerProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(currentRole);
-  const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>(currentPermissions);
+  const [selectedPermissions, setSelectedPermissions] =
+    useState<Permission[]>(currentPermissions);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -137,7 +136,9 @@ export function RolePermissionsManager({
       <Card>
         <CardHeader>
           <CardTitle>Rol del Usuario</CardTitle>
-          <CardDescription>Selecciona el rol principal del usuario</CardDescription>
+          <CardDescription>
+            Selecciona el rol principal del usuario
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
@@ -176,11 +177,16 @@ export function RolePermissionsManager({
                 <h3 className="font-semibold mb-3">{group}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {permissions.map(permission => (
-                    <div key={permission} className="flex items-center space-x-2">
+                    <div
+                      key={permission}
+                      className="flex items-center space-x-2"
+                    >
                       <Checkbox
                         id={permission}
                         checked={selectedPermissions.includes(permission)}
-                        onCheckedChange={() => handlePermissionToggle(permission)}
+                        onCheckedChange={() =>
+                          handlePermissionToggle(permission)
+                        }
                       />
                       <label
                         htmlFor={permission}
@@ -201,7 +207,9 @@ export function RolePermissionsManager({
       {hasChanges && (
         <Card className="border-yellow-200 bg-yellow-50">
           <CardHeader>
-            <CardTitle className="text-yellow-900">Cambios Pendientes</CardTitle>
+            <CardTitle className="text-yellow-900">
+              Cambios Pendientes
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {selectedRole !== currentRole && (
@@ -231,10 +239,7 @@ export function RolePermissionsManager({
           <RotateCcw className="h-4 w-4 mr-2" />
           Descartar
         </Button>
-        <Button
-          onClick={handleSave}
-          disabled={!hasChanges || isSaving}
-        >
+        <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
           <Save className="h-4 w-4 mr-2" />
           {isSaving ? 'Guardando...' : 'Guardar Cambios'}
         </Button>

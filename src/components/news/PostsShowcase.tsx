@@ -2,12 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { Post } from '@/lib/sdk/modules/news/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Heart, MessageCircle, TrendingUp, Star, Clock } from 'lucide-react';
+import {
+  Loader2,
+  Heart,
+  MessageCircle,
+  TrendingUp,
+  Star,
+  Clock,
+} from 'lucide-react';
 
 interface PostsShowcaseProps {
   type?: 'trending' | 'featured' | 'popular' | 'recent';
@@ -92,7 +105,11 @@ export function PostsShowcase({
           <div className="flex-1">
             <CardTitle className="text-lg">{post.title}</CardTitle>
             <CardDescription className="mt-1">
-              Por {post.author} • {((post.createdAt as any)?.toDate?.() || new Date((post.createdAt as any))).toLocaleDateString()}
+              Por {post.author} •{' '}
+              {(
+                (post.createdAt as any)?.toDate?.() ||
+                new Date(post.createdAt as any)
+              ).toLocaleDateString()}
             </CardDescription>
           </div>
           {(post as any).isFeatured && (
@@ -148,7 +165,9 @@ export function PostsShowcase({
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : posts.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">No hay posts disponibles</p>
+          <p className="text-center text-gray-500 py-8">
+            No hay posts disponibles
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {posts.map(renderPostCard)}
@@ -165,7 +184,10 @@ export function PostsShowcase({
         <CardDescription>Explora los posts más relevantes</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={value => setActiveTab(value as any)}
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="trending" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
@@ -186,13 +208,19 @@ export function PostsShowcase({
           </TabsList>
 
           {['trending', 'featured', 'popular', 'recent'].map(tabType => (
-            <TabsContent key={tabType} value={tabType} className="space-y-4 mt-4">
+            <TabsContent
+              key={tabType}
+              value={tabType}
+              className="space-y-4 mt-4"
+            >
               {loading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
               ) : posts.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No hay posts disponibles</p>
+                <p className="text-center text-gray-500 py-8">
+                  No hay posts disponibles
+                </p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {posts.map(renderPostCard)}

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       {
         success: true,
         data: audits,
-        count: audits.length
+        count: audits.length,
       },
       { status: 200 }
     );
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Error al obtener auditorías',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -61,7 +61,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/audits:', error);
     return NextResponse.json(
-      { error: 'Error al crear auditoría', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear auditoría',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

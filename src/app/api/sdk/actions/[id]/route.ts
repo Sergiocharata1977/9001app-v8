@@ -1,6 +1,6 @@
 /**
  * Action API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/actions/[id] - Get action by ID
  * PUT /api/sdk/actions/[id] - Update action
  * DELETE /api/sdk/actions/[id] - Delete action
@@ -38,7 +38,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/actions/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener acción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener acción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -75,13 +78,19 @@ export async function PUT(
     // For generic updates, we would need to implement an update method
     // For now, this is a placeholder for future implementation
     return NextResponse.json(
-      { error: 'Actualización genérica no implementada. Use endpoints específicos.' },
+      {
+        error:
+          'Actualización genérica no implementada. Use endpoints específicos.',
+      },
       { status: 501 }
     );
   } catch (error) {
     console.error(`Error in PUT /api/sdk/actions/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar acción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar acción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -121,7 +130,10 @@ export async function DELETE(
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/actions/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar acción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar acción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

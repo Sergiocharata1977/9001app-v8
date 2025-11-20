@@ -40,7 +40,7 @@ export default function AuditDetailPage() {
       const response = await fetch(`/api/audits/${auditId}`);
       if (!response.ok) throw new Error('Error al cargar la auditoría');
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         setAudit(result.data);
       } else {

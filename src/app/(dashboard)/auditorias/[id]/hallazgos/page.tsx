@@ -93,7 +93,9 @@ export default function AuditFindingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Hallazgos de Auditoría</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Hallazgos de Auditoría
+          </h1>
           <p className="text-gray-600 mt-1">
             Gestión de hallazgos encontrados en la auditoría
           </p>
@@ -130,7 +132,13 @@ export default function AuditFindingsPage() {
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">En Acción</p>
           <p className="text-2xl font-bold text-yellow-600">
-            {findings.filter(f => f.status === 'accion_planificada' || f.status === 'accion_ejecutada').length}
+            {
+              findings.filter(
+                f =>
+                  f.status === 'accion_planificada' ||
+                  f.status === 'accion_ejecutada'
+              ).length
+            }
           </p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
@@ -150,21 +158,26 @@ export default function AuditFindingsPage() {
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex gap-2 flex-wrap">
-          {['all', 'registrado', 'accion_planificada', 'accion_ejecutada', 'analisis_completado', 'cerrado'].map(
-            status => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {status === 'all' ? 'Todos' : getStatusLabel(status)}
-              </button>
-            )
-          )}
+          {[
+            'all',
+            'registrado',
+            'accion_planificada',
+            'accion_ejecutada',
+            'analisis_completado',
+            'cerrado',
+          ].map(status => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filter === status
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {status === 'all' ? 'Todos' : getStatusLabel(status)}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -188,7 +201,9 @@ export default function AuditFindingsPage() {
                       <h3 className="text-lg font-semibold text-gray-900">
                         {finding.registration?.name}
                       </h3>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(finding.status)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(finding.status)}`}
+                      >
                         {getStatusLabel(finding.status)}
                       </span>
                     </div>
@@ -204,7 +219,9 @@ export default function AuditFindingsPage() {
                         style={{ width: `${finding.progress || 0}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">{finding.progress || 0}%</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {finding.progress || 0}%
+                    </p>
                   </div>
                 </div>
 
@@ -222,7 +239,10 @@ export default function AuditFindingsPage() {
                     {finding.createdAt && (
                       <span>
                         Creado:{' '}
-                        {((finding.createdAt as any)?.toDate?.() || new Date((finding.createdAt as any))).toLocaleDateString('es-ES')}
+                        {(
+                          (finding.createdAt as any)?.toDate?.() ||
+                          new Date(finding.createdAt as any)
+                        ).toLocaleDateString('es-ES')}
                       </span>
                     )}
                   </div>

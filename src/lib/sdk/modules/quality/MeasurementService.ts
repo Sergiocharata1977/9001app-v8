@@ -7,9 +7,15 @@ export class MeasurementService extends BaseService<Measurement> {
   protected collectionName = 'measurements';
   protected schema = CreateMeasurementSchema;
 
-  async createAndReturnId(data: CreateMeasurementInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateMeasurementInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
-    const date = validated.date instanceof Date ? validated.date : new Date(validated.date);
+    const date =
+      validated.date instanceof Date
+        ? validated.date
+        : new Date(validated.date);
 
     const measurementData: Omit<Measurement, 'id'> = {
       ...validated,
@@ -23,13 +29,17 @@ export class MeasurementService extends BaseService<Measurement> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(measurementData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(measurementData);
     return docRef.id;
   }
 
   async list(filters: any = {}, options: any = {}): Promise<Measurement[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.indicatorId) {
         query = query.where('indicatorId', '==', filters.indicatorId);
@@ -41,7 +51,9 @@ export class MeasurementService extends BaseService<Measurement> {
       query = query.orderBy('date', 'desc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Measurement));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Measurement
+      );
     } catch (error) {
       console.error('Error listing measurements', error);
       throw error;
@@ -77,14 +89,22 @@ export class MeasurementService extends BaseService<Measurement> {
         .orderBy('date', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Measurement));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Measurement
+      );
     } catch (error) {
-      console.error(`Error getting measurements for indicator ${indicatorId}`, error);
+      console.error(
+        `Error getting measurements for indicator ${indicatorId}`,
+        error
+      );
       throw error;
     }
   }
 
-  async getByDateRange(startDate: Date | string, endDate: Date | string): Promise<Measurement[]> {
+  async getByDateRange(
+    startDate: Date | string,
+    endDate: Date | string
+  ): Promise<Measurement[]> {
     try {
       const start = startDate instanceof Date ? startDate : new Date(startDate);
       const end = endDate instanceof Date ? endDate : new Date(endDate);
@@ -97,7 +117,9 @@ export class MeasurementService extends BaseService<Measurement> {
         .orderBy('date', 'desc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Measurement));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as Measurement
+      );
     } catch (error) {
       console.error('Error getting measurements by date range', error);
       throw error;

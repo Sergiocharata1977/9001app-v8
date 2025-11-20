@@ -133,12 +133,17 @@ export class NotificationService {
   async getById(notificationId: string): Promise<Notification | null> {
     const db = getFirestore();
     const docRef = doc(db, this.collectionName, notificationId);
-    const docSnap = await getDocs(query(collection(db, this.collectionName), where('__name__', '==', notificationId)));
-    
+    const docSnap = await getDocs(
+      query(
+        collection(db, this.collectionName),
+        where('__name__', '==', notificationId)
+      )
+    );
+
     if (docSnap.empty) {
       return null;
     }
-    
+
     const data = docSnap.docs[0].data();
     return {
       id: docSnap.docs[0].id,

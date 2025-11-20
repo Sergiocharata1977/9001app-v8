@@ -1,6 +1,6 @@
 /**
  * Action Verify Effectiveness API Route - SDK Unified
- * 
+ *
  * PUT /api/sdk/actions/[id]/verify-effectiveness - Verify action effectiveness
  */
 
@@ -47,7 +47,10 @@ export async function PUT(
       isEffective: validatedData.isEffective,
     });
   } catch (error) {
-    console.error(`Error in PUT /api/sdk/actions/${params.id}/verify-effectiveness:`, error);
+    console.error(
+      `Error in PUT /api/sdk/actions/${params.id}/verify-effectiveness:`,
+      error
+    );
 
     if (error instanceof Error && error.message.includes('validation')) {
       return NextResponse.json(
@@ -57,7 +60,10 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { error: 'Error al verificar efectividad de acción', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al verificar efectividad de acción',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

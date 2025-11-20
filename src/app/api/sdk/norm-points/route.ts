@@ -1,6 +1,6 @@
 /**
  * NormPoint API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/norm-points - List norm points
  * POST /api/sdk/norm-points - Create norm point
  */
@@ -23,8 +23,12 @@ export async function GET(request: NextRequest) {
     };
 
     const options = {
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100,
-      offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
+      limit: searchParams.get('limit')
+        ? parseInt(searchParams.get('limit')!)
+        : 100,
+      offset: searchParams.get('offset')
+        ? parseInt(searchParams.get('offset')!)
+        : 0,
     };
 
     const service = new NormPointService();
@@ -34,7 +38,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/norm-points:', error);
     return NextResponse.json(
-      { error: 'Error al obtener puntos de norma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener puntos de norma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -49,7 +56,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/sdk/norm-points:', error);
     return NextResponse.json(
-      { error: 'Error al crear punto de norma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear punto de norma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

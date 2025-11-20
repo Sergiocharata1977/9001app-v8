@@ -36,7 +36,8 @@ export default function CreateAuditPage() {
         throw new Error('Error inesperado al crear la auditoría');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al crear la auditoría';
+      const message =
+        err instanceof Error ? err.message : 'Error al crear la auditoría';
       setError(message);
       console.error('Error creating audit:', err);
     } finally {

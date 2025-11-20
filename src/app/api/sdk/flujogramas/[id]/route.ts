@@ -37,7 +37,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/flujogramas/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener flujograma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener flujograma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -68,7 +71,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/flujogramas/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar flujograma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar flujograma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -98,7 +104,10 @@ export async function DELETE(
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/flujogramas/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar flujograma', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar flujograma',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

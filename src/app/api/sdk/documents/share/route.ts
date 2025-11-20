@@ -10,7 +10,7 @@ const ShareSchema = z.object({
   permissions: z.enum(['view', 'comment', 'edit']),
 });
 
-export const POST = withAuth(async (req) => {
+export const POST = withAuth(async req => {
   try {
     const body = await req.json();
     const validated = ShareSchema.parse(body);

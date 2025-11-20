@@ -89,10 +89,7 @@ export class NormPointService extends BaseService<NormPoint> {
         doc => ({ id: doc.id, ...doc.data() }) as NormPoint
       );
     } catch (error) {
-      console.error(
-        `Error getting norm points by chapter ${chapter}`,
-        error
-      );
+      console.error(`Error getting norm points by chapter ${chapter}`, error);
       throw error;
     }
   }
@@ -110,10 +107,7 @@ export class NormPointService extends BaseService<NormPoint> {
         doc => ({ id: doc.id, ...doc.data() }) as NormPoint
       );
     } catch (error) {
-      console.error(
-        `Error getting norm points by category ${category}`,
-        error
-      );
+      console.error(`Error getting norm points by category ${category}`, error);
       throw error;
     }
   }

@@ -1,6 +1,6 @@
 /**
  * Finding API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/findings/[id] - Get finding by ID
  * PUT /api/sdk/findings/[id] - Update finding
  * DELETE /api/sdk/findings/[id] - Delete finding
@@ -38,7 +38,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/findings/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener hallazgo', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener hallazgo',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -75,13 +78,19 @@ export async function PUT(
     // For generic updates, we would need to implement an update method
     // For now, this is a placeholder for future implementation
     return NextResponse.json(
-      { error: 'Actualización genérica no implementada. Use endpoints específicos de fases.' },
+      {
+        error:
+          'Actualización genérica no implementada. Use endpoints específicos de fases.',
+      },
       { status: 501 }
     );
   } catch (error) {
     console.error(`Error in PUT /api/sdk/findings/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar hallazgo', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar hallazgo',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -114,14 +123,17 @@ export async function DELETE(
 
     await service.delete(id);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Hallazgo eliminado exitosamente',
       id,
     });
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/findings/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar hallazgo', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar hallazgo',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

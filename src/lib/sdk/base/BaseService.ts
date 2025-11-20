@@ -291,4 +291,3 @@ export abstract class BaseService<T extends BaseDocument> {
     return this.db.runTransaction(operation);
   }
 }
-

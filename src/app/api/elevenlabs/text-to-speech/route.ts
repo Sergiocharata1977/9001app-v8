@@ -8,11 +8,11 @@ interface TTSRequest {
   voiceId?: string;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const body: TTSRequest = await request.json();
+    const body: TTSRequest = await req.json();
     const { text, voiceId } = body;
 
     if (!text) {

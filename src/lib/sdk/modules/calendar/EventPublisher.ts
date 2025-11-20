@@ -25,7 +25,11 @@ export class EventPublisher {
     }
   }
 
-  async updateEvent(id: string, data: Partial<CalendarEvent>, source: string): Promise<void> {
+  async updateEvent(
+    id: string,
+    data: Partial<CalendarEvent>,
+    source: string
+  ): Promise<void> {
     try {
       const eventLog = {
         eventId: id,

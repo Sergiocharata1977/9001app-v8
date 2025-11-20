@@ -7,7 +7,10 @@ export class QualityIndicatorService extends BaseService<QualityIndicator> {
   protected collectionName = 'qualityIndicators';
   protected schema = CreateQualityIndicatorSchema;
 
-  async createAndReturnId(data: CreateQualityIndicatorInput, userId: string): Promise<string> {
+  async createAndReturnId(
+    data: CreateQualityIndicatorInput,
+    userId: string
+  ): Promise<string> {
     const validated = this.schema.parse(data);
 
     const indicatorData: Omit<QualityIndicator, 'id'> = {
@@ -21,13 +24,20 @@ export class QualityIndicatorService extends BaseService<QualityIndicator> {
       deletedAt: null,
     };
 
-    const docRef = await this.db.collection(this.collectionName).add(indicatorData);
+    const docRef = await this.db
+      .collection(this.collectionName)
+      .add(indicatorData);
     return docRef.id;
   }
 
-  async list(filters: any = {}, options: any = {}): Promise<QualityIndicator[]> {
+  async list(
+    filters: any = {},
+    options: any = {}
+  ): Promise<QualityIndicator[]> {
     try {
-      let query = this.db.collection(this.collectionName).where('deletedAt', '==', null);
+      let query = this.db
+        .collection(this.collectionName)
+        .where('deletedAt', '==', null);
 
       if (filters.objectiveId) {
         query = query.where('objectiveId', '==', filters.objectiveId);
@@ -43,7 +53,9 @@ export class QualityIndicatorService extends BaseService<QualityIndicator> {
       query = query.orderBy('name', 'asc').limit(limit).offset(offset);
 
       const snapshot = await query.get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as QualityIndicator));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as QualityIndicator
+      );
     } catch (error) {
       console.error('Error listing quality indicators', error);
       throw error;
@@ -84,7 +96,11 @@ export class QualityIndicatorService extends BaseService<QualityIndicator> {
     }
   }
 
-  async updateCurrentValue(id: string, value: number, userId: string): Promise<void> {
+  async updateCurrentValue(
+    id: string,
+    value: number,
+    userId: string
+  ): Promise<void> {
     try {
       await this.db.collection(this.collectionName).doc(id).update({
         currentValue: value,
@@ -107,9 +123,14 @@ export class QualityIndicatorService extends BaseService<QualityIndicator> {
         .orderBy('name', 'asc')
         .get();
 
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as QualityIndicator));
+      return snapshot.docs.map(
+        doc => ({ id: doc.id, ...doc.data() }) as QualityIndicator
+      );
     } catch (error) {
-      console.error(`Error getting indicators for objective ${objectiveId}`, error);
+      console.error(
+        `Error getting indicators for objective ${objectiveId}`,
+        error
+      );
       throw error;
     }
   }

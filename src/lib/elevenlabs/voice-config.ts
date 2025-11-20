@@ -28,7 +28,7 @@ export class VoiceConfigurationService {
       process.env.ELEVENLABS_VOICE_SIMILARITY || '0.75'
     );
     const style = parseFloat(process.env.ELEVENLABS_VOICE_STYLE || '0.0');
-    const useSpeakerBoost = process.env.ELEVENLABS_USE_SPEAKER_BOOST === 'true';
+    const useSpeakerBoost = process.env.ELEVENLABS_SPEAKER_BOOST === 'true';
 
     this.config = {
       voiceId,

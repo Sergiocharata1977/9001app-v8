@@ -1,6 +1,6 @@
 /**
  * Document API Routes - SDK Unified
- * 
+ *
  * GET /api/sdk/documents/[id] - Get document by ID
  * PUT /api/sdk/documents/[id] - Update document status
  * DELETE /api/sdk/documents/[id] - Delete document
@@ -38,7 +38,10 @@ export async function GET(
   } catch (error) {
     console.error(`Error in GET /api/sdk/documents/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al obtener documento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener documento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -62,10 +65,7 @@ export async function PUT(
 
     const { status } = body;
     if (!status) {
-      return NextResponse.json(
-        { error: 'Estado requerido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Estado requerido' }, { status: 400 });
     }
 
     const userId = body.userId || 'system';
@@ -91,7 +91,10 @@ export async function PUT(
   } catch (error) {
     console.error(`Error in PUT /api/sdk/documents/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al actualizar documento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al actualizar documento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
@@ -131,7 +134,10 @@ export async function DELETE(
   } catch (error) {
     console.error(`Error in DELETE /api/sdk/documents/${params.id}:`, error);
     return NextResponse.json(
-      { error: 'Error al eliminar documento', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al eliminar documento',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

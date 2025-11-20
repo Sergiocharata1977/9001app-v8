@@ -1,6 +1,6 @@
 /**
  * Finding Statistics API Route - SDK Unified
- * 
+ *
  * GET /api/sdk/findings/stats - Get finding statistics
  */
 
@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
       status: (searchParams.get('status') as FindingStatus) || undefined,
       processId: searchParams.get('processId') || undefined,
       sourceId: searchParams.get('sourceId') || undefined,
-      year: searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined,
+      year: searchParams.get('year')
+        ? parseInt(searchParams.get('year')!)
+        : undefined,
     };
 
     const service = new FindingService();
@@ -27,7 +29,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/findings/stats:', error);
     return NextResponse.json(
-      { error: 'Error al obtener estadísticas de hallazgos', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener estadísticas de hallazgos',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

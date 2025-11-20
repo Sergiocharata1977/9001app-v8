@@ -1,6 +1,6 @@
 /**
  * Action Statistics API Route - SDK Unified
- * 
+ *
  * GET /api/sdk/actions/stats - Get action statistics
  */
 
@@ -26,7 +26,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in GET /api/sdk/actions/stats:', error);
     return NextResponse.json(
-      { error: 'Error al obtener estadísticas de acciones', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al obtener estadísticas de acciones',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

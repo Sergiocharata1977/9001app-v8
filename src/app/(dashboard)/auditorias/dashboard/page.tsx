@@ -97,7 +97,9 @@ export default function AuditsDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard de Auditorías</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Dashboard de Auditorías
+          </h1>
           <p className="text-gray-600 mt-1">
             Estadísticas y análisis de auditorías
           </p>
@@ -135,7 +137,11 @@ export default function AuditsDashboard() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {p === 'month' ? 'Este Mes' : p === 'quarter' ? 'Este Trimestre' : 'Este Año'}
+              {p === 'month'
+                ? 'Este Mes'
+                : p === 'quarter'
+                  ? 'Este Trimestre'
+                  : 'Este Año'}
             </button>
           ))}
         </div>
@@ -151,7 +157,9 @@ export default function AuditsDashboard() {
 
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-sm text-gray-600 mb-2">Tasa de Conformidad</p>
-          <p className="text-4xl font-bold text-green-600">{stats.conformityRate}%</p>
+          <p className="text-4xl font-bold text-green-600">
+            {stats.conformityRate}%
+          </p>
           <div className="w-full h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
             <div
               className="h-full bg-green-600"
@@ -162,7 +170,9 @@ export default function AuditsDashboard() {
 
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-sm text-gray-600 mb-2">Progreso Promedio</p>
-          <p className="text-4xl font-bold text-purple-600">{stats.averageProgress}%</p>
+          <p className="text-4xl font-bold text-purple-600">
+            {stats.averageProgress}%
+          </p>
           <div className="w-full h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
             <div
               className="h-full bg-purple-600"
@@ -178,7 +188,9 @@ export default function AuditsDashboard() {
           </p>
           <p className="text-xs text-gray-500 mt-2">
             {stats.total > 0
-              ? Math.round(((stats.byStatus['completada'] || 0) / stats.total) * 100)
+              ? Math.round(
+                  ((stats.byStatus['completada'] || 0) / stats.total) * 100
+                )
               : 0}
             % del total
           </p>
@@ -199,7 +211,9 @@ export default function AuditsDashboard() {
                   <span className="text-sm font-medium text-gray-700">
                     {getStatusLabel(status)}
                   </span>
-                  <span className="text-sm font-bold text-gray-900">{count}</span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {count}
+                  </span>
                 </div>
                 <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
@@ -226,7 +240,9 @@ export default function AuditsDashboard() {
                   <span className="text-sm font-medium text-gray-700">
                     {getTypeLabel(type)}
                   </span>
-                  <span className="text-sm font-bold text-gray-900">{count}</span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {count}
+                  </span>
                 </div>
                 <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
@@ -260,7 +276,11 @@ export default function AuditsDashboard() {
                     style={{
                       width: `${
                         stats.topFindings.length > 0
-                          ? (finding.count / Math.max(...stats.topFindings.map(f => f.count))) * 100
+                          ? (finding.count /
+                              Math.max(
+                                ...stats.topFindings.map(f => f.count)
+                              )) *
+                            100
                           : 0
                       }%`,
                     }}
@@ -331,7 +351,9 @@ export default function AuditsDashboard() {
           {stats.trends.map((trend, index) => (
             <div key={index}>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">{trend.month}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {trend.month}
+                </span>
                 <span className="text-sm text-gray-600">
                   Completadas: {trend.completed} | Pendientes: {trend.pending}
                 </span>
@@ -342,7 +364,9 @@ export default function AuditsDashboard() {
                   style={{
                     width: `${
                       trend.completed + trend.pending > 0
-                        ? (trend.completed / (trend.completed + trend.pending)) * 100
+                        ? (trend.completed /
+                            (trend.completed + trend.pending)) *
+                          100
                         : 0
                     }%`,
                   }}
@@ -353,7 +377,8 @@ export default function AuditsDashboard() {
                   style={{
                     width: `${
                       trend.completed + trend.pending > 0
-                        ? (trend.pending / (trend.completed + trend.pending)) * 100
+                        ? (trend.pending / (trend.completed + trend.pending)) *
+                          100
                         : 0
                     }%`,
                   }}

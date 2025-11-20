@@ -1,8 +1,14 @@
 import { z } from 'zod';
 
 export const CreatePostSchema = z.object({
-  title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200),
-  content: z.string().min(10, 'El contenido debe tener al menos 10 caracteres').max(5000),
+  title: z
+    .string()
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(200),
+  content: z
+    .string()
+    .min(10, 'El contenido debe tener al menos 10 caracteres')
+    .max(5000),
   tags: z.array(z.string()).optional(),
 });
 

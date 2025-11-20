@@ -1,8 +1,14 @@
 import { z } from 'zod';
 
 export const CreateActionSchema = z.object({
-  title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(2000),
+  title: z
+    .string()
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(200),
+  description: z
+    .string()
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .max(2000),
   findingId: z.string().uuid('ID de hallazgo inválido'),
   responsibleId: z.string().uuid('ID de responsable inválido'),
   dueDate: z.date().or(z.string().datetime()),
@@ -29,7 +35,9 @@ export const VerifyEffectivenessSchema = z.object({
 });
 
 export const ActionFiltersSchema = z.object({
-  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
+  status: z
+    .enum(['pending', 'in_progress', 'completed', 'cancelled'])
+    .optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   responsibleId: z.string().uuid().optional(),
   findingId: z.string().uuid().optional(),

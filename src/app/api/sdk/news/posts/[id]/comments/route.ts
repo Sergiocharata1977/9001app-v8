@@ -1,6 +1,6 @@
 /**
  * Post Comments API Route - SDK Unified
- * 
+ *
  * POST /api/sdk/news/posts/[id]/comments - Create comment
  */
 
@@ -34,9 +34,15 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
-    console.error(`Error in POST /api/sdk/news/posts/${params.id}/comments:`, error);
+    console.error(
+      `Error in POST /api/sdk/news/posts/${params.id}/comments:`,
+      error
+    );
     return NextResponse.json(
-      { error: 'Error al crear comentario', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Error al crear comentario',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
