@@ -6,6 +6,9 @@ import { ProcessDefinition, ProcessRecord } from '@/types/procesos';
 import { QualityIndicator, QualityObjective } from '@/types/quality';
 import { Department, Personnel, Position } from '@/types/rrhh';
 import { UserService } from '../auth/UserService';
+import { OrganizationalConfigService } from '../organizational-config/OrganizationalConfigService';
+import { OrganizationalContextService } from '../organizational-context/OrganizationalContextService';
+import { OrganizationalStructureService } from '../organizational-structure/OrganizationalStructureService';
 import { ProcessRecordService } from '../procesos/ProcessRecordService';
 import { ProcessService } from '../procesos/ProcessService';
 import { QualityIndicatorService } from '../quality/QualityIndicatorService';
@@ -13,6 +16,7 @@ import { QualityObjectiveService } from '../quality/QualityObjectiveService';
 import { DepartmentService } from '../rrhh/DepartmentService';
 import { PersonnelService } from '../rrhh/PersonnelService';
 import { PositionService } from '../rrhh/PositionService';
+import { SGCScopeService } from '../sgc-scope/SGCScopeService';
 
 // Cache for user contexts (5 minute TTL)
 interface CacheEntry {
@@ -106,6 +110,10 @@ export class UserContextService {
         indicadores,
         supervisor,
         processRecords,
+        organizationalConfig,
+        sgcScope,
+        organizationalContext,
+        organizationalStructure,
       ] = await Promise.all([
         personnel.puesto
           ? this.fetchPosition(personnel.puesto)
@@ -122,6 +130,11 @@ export class UserContextService {
             )
           : Promise.resolve(undefined),
         this.fetchProcessRecords(personnel.procesos_asignados || []),
+        // Nuevos: Contexto organizacional
+        OrganizationalConfigService.getConfig(),
+        SGCScopeService.getCurrentScope(),
+        OrganizationalContextService.getCurrent(),
+        OrganizationalStructureService.getCurrent(),
       ]);
 
       const context: UserContext = {
@@ -134,6 +147,11 @@ export class UserContextService {
         indicadores,
         supervisor,
         processRecords,
+        // Nuevos: Contexto organizacional
+        organizationalConfig: organizationalConfig || undefined,
+        sgcScope: sgcScope || undefined,
+        organizationalContext: organizationalContext || undefined,
+        organizationalStructure: organizationalStructure || undefined,
       };
 
       // Update cache

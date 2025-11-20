@@ -1,9 +1,13 @@
 // Types for user context aggregation
 
 import { User } from './auth';
-import { Personnel, Position, Department } from './rrhh';
+import { OrganizationalConfig } from './organizational-config';
+import { OrganizationalContext } from './organizational-context';
+import { OrganizationalStructure } from './organizational-structure';
 import { ProcessDefinition, ProcessRecord } from './procesos';
-import { QualityObjective, QualityIndicator } from './quality';
+import { QualityIndicator, QualityObjective } from './quality';
+import { Department, Personnel, Position } from './rrhh';
+import { SGCScope } from './sgc-scope';
 
 export interface UserContext {
   user: User;
@@ -15,6 +19,12 @@ export interface UserContext {
   indicadores: QualityIndicator[];
   supervisor?: Personnel;
   processRecords?: ProcessRecord[]; // Trello-like records
+
+  // ===== NUEVO: CONTEXTO ORGANIZACIONAL =====
+  organizationalConfig?: OrganizationalConfig; // Configuración única de la organización
+  sgcScope?: SGCScope; // Alcance del SGC
+  organizationalContext?: OrganizationalContext; // Contexto organizacional (Cláusula 4.1)
+  organizationalStructure?: OrganizationalStructure; // Estructura consolidada
 
   // FUTURE (when specific registros are implemented):
   // auditorias?: {

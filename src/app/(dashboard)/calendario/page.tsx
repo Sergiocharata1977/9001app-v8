@@ -1,16 +1,14 @@
 'use client';
 
 import { CalendarAgendaView } from '@/components/calendar/CalendarAgendaView';
-import {
-  CalendarFilters,
-  type FilterState,
-} from '@/components/calendar/CalendarFilters';
+import { CalendarFilters, type FilterState } from '@/components/calendar/CalendarFilters';
+import { CalendarWeekView } from '@/components/calendar/CalendarWeekView';
 import { EventCard } from '@/components/calendar/EventCard';
 import type { CalendarEvent } from '@/types/calendar';
-import { Calendar, ChevronLeft, ChevronRight, List } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-type ViewMode = 'month' | 'agenda';
+type ViewMode = 'month' | 'week' | 'agenda';
 
 export default function CalendarioPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -27,18 +25,8 @@ export default function CalendarioPage() {
   });
 
   const monthNames = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre',
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
   ];
 
   const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -308,6 +296,17 @@ export default function CalendarioPage() {
                   Mes
                 </button>
                 <button
+                  onClick={() => setViewMode('week')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'week'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  Semana
+                </button>
+                <button
                   onClick={() => setViewMode('agenda')}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     viewMode === 'agenda'
@@ -382,7 +381,7 @@ export default function CalendarioPage() {
                                 isToday(day)
                                   ? 'text-emerald-600 font-bold'
                                   : 'text-gray-700'
-                              }`}
+                                }`}
                             >
                               {day}
                             </span>
@@ -413,6 +412,8 @@ export default function CalendarioPage() {
                 })}
               </div>
             </>
+          ) : viewMode === 'week' ? (
+            <CalendarWeekView events={filteredEvents} />
           ) : (
             <CalendarAgendaView events={filteredEvents} loading={loading} />
           )}

@@ -70,6 +70,62 @@ CONTEXTO DEL USUARIO:
       prompt += this.formatProcessRecords(contexto.processRecords);
     }
 
+    // ===== NUEVO: CONTEXTO ORGANIZACIONAL =====
+    if (contexto.organizationalConfig) {
+      prompt += `CONTEXTO ORGANIZACIONAL:\n`;
+      prompt += `Organización: ${contexto.organizationalConfig.nombre_organizacion}\n`;
+      prompt += `Sector: ${contexto.organizationalConfig.sector_industria}\n`;
+      prompt += `Empleados: ${contexto.organizationalConfig.cantidad_empleados_total} (${contexto.organizationalConfig.cantidad_empleados_con_acceso} con acceso al sistema)\n\n`;
+      
+      if (contexto.organizationalConfig.mision) {
+        prompt += `MISIÓN:\n${contexto.organizationalConfig.mision}\n\n`;
+      }
+      
+      if (contexto.organizationalConfig.vision) {
+        prompt += `VISIÓN:\n${contexto.organizationalConfig.vision}\n\n`;
+      }
+      
+      if (contexto.organizationalConfig.valores && contexto.organizationalConfig.valores.length > 0) {
+        prompt += `VALORES:\n`;
+        contexto.organizationalConfig.valores.forEach(v => {
+          prompt += `- ${v.nombre}: ${v.descripcion}\n`;
+        });
+        prompt += `\n`;
+      }
+      
+      if (contexto.organizationalConfig.politica_calidad) {
+        prompt += `POLÍTICA DE CALIDAD:\n${contexto.organizationalConfig.politica_calidad.declaracion}\n`;
+        if (contexto.organizationalConfig.politica_calidad.compromisos.length > 0) {
+          prompt += `Compromisos:\n`;
+          contexto.organizationalConfig.politica_calidad.compromisos.forEach(c => {
+            prompt += `- ${c}\n`;
+          });
+        }
+        prompt += `\n`;
+      }
+    }
+
+    if (contexto.sgcScope) {
+      prompt += `ALCANCE DEL SGC:\n`;
+      prompt += `${contexto.sgcScope.descripcion_alcance}\n`;
+      if (contexto.sgcScope.productos_servicios_cubiertos.length > 0) {
+        prompt += `Productos/Servicios: ${contexto.sgcScope.productos_servicios_cubiertos.map(ps => ps.nombre).join(', ')}\n`;
+      }
+      prompt += `\n`;
+    }
+
+    if (contexto.organizationalContext) {
+      const numExternas = contexto.organizationalContext.cuestiones_externas.length;
+      const numInternas = contexto.organizationalContext.cuestiones_internas.length;
+      if (numExternas > 0 || numInternas > 0) {
+        prompt += `CONTEXTO ORGANIZACIONAL (Cláusula 4.1):\n`;
+        prompt += `- ${numExternas} cuestiones externas identificadas\n`;
+        prompt += `- ${numInternas} cuestiones internas identificadas\n\n`;
+      }
+    }
+
+
+
     prompt += `
 INSTRUCCIONES:
 - Responde desde la perspectiva de un ${nivelPuesto}
