@@ -1,35 +1,36 @@
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { PersonnelService } from '@/services/rrhh/PersonnelService';
 import { Personnel, PersonnelFormData } from '@/types/rrhh';
 import {
-  Building2,
-  Clock,
-  Download,
-  Edit,
-  Eye,
-  Filter,
-  Plus,
-  Search,
-  Trash2,
-  UserCheck,
-  Users,
+    Building2,
+    Clock,
+    Download,
+    Edit,
+    Eye,
+    Filter,
+    Plus,
+    Search,
+    Trash2,
+    UserCheck,
+    Users,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -352,24 +353,24 @@ export function PersonnelListing({
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="text-left p-4 font-medium text-gray-900">
+                  <th className="text-left p-4 font-medium text-slate-700 text-sm">
                     Empleado
                   </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
+                  <th className="text-left p-4 font-medium text-slate-700 text-sm">
                     Puesto
                   </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
+                  <th className="text-left p-4 font-medium text-slate-700 text-sm">
                     Departamento
                   </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
+                  <th className="text-left p-4 font-medium text-slate-700 text-sm">
                     Estado
                   </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
+                  <th className="text-left p-4 font-medium text-slate-700 text-sm">
                     Fecha de Ingreso
                   </th>
-                  <th className="text-left p-4 font-medium text-gray-900">
+                  <th className="text-right p-4 font-medium text-slate-700 text-sm">
                     Acciones
                   </th>
                 </tr>
@@ -484,29 +485,29 @@ export function PersonnelListing({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Gestión de Personal
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Administra el personal de la organización según ISO 9001
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Exportar
-          </Button>
-          <Button
-            onClick={handleNewPersonnel}
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Empleado
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Gestión de Personal"
+        description="Administra el personal de la organización según ISO 9001"
+        breadcrumbs={[
+          { label: 'RRHH', href: '/dashboard/rrhh' },
+          { label: 'Personal' },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Exportar
+            </Button>
+            <Button
+              onClick={handleNewPersonnel}
+              className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Empleado
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

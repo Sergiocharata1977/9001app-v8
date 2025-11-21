@@ -1,16 +1,17 @@
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import { Timestamp } from 'firebase-admin/firestore';
 import { BaseService } from '../../base/BaseService';
 import type {
-  Action,
-  ActionFilters,
-  ActionStats,
-  CreateActionInput,
+    Action,
+    ActionFilters,
+    ActionStats,
+    CreateActionInput,
 } from './types';
 import {
-  ActionFiltersSchema,
-  CreateActionSchema,
-  UpdateActionExecutionSchema,
-  VerifyEffectivenessSchema,
+    ActionFiltersSchema,
+    CreateActionSchema,
+    UpdateActionExecutionSchema,
+    VerifyEffectivenessSchema,
 } from './validations';
 
 export class ActionService extends BaseService<Action> {
@@ -51,7 +52,33 @@ export class ActionService extends BaseService<Action> {
     const docRef = await this.db
       .collection(this.collectionName)
       .add(actionData);
-    return docRef.id;
+    
+    const actionId = docRef.id;
+
+    // Publicar evento en el calendario
+    try {
+      await EventPublisher.publishEvent('actions', {
+        title: `Acción: ${validated.title}`,
+        description: validated.description,
+        date: dueDate,
+        type: 'action_deadline',
+        sourceRecordId: actionId,
+        sourceRecordType: 'action',
+        priority: validated.priority || 'medium',
+        responsibleUserId: validated.responsibleId,
+        metadata: {
+          actionId,
+          findingId: validated.findingId,
+          estimatedCost: validated.estimatedCost,
+          tags: validated.tags,
+        },
+      });
+    } catch (error) {
+      console.error('Error publishing action event:', error);
+      // No fallar la creación de la acción si falla el evento
+    }
+
+    return actionId;
   }
 
   async list(
@@ -164,6 +191,18 @@ export class ActionService extends BaseService<Action> {
       }
 
       await this.db.collection(this.collectionName).doc(id).update(updateData);
+
+      // Actualizar evento en el calendario si cambió el estado
+      try {
+        await EventPublisher.updatePublishedEvent('actions', id, {
+          metadata: {
+            status: validated.status,
+            progressPercentage: validated.progressPercentage,
+          },
+        });
+      } catch (error) {
+        console.error('Error updating action event:', error);
+      }
     } catch (error) {
       console.error(`Error updating action execution ${id}`, error);
       throw error;
@@ -228,6 +267,13 @@ export class ActionService extends BaseService<Action> {
       await this.db.collection(this.collectionName).doc(id).update({
         deletedAt: Timestamp.now(),
       });
+
+      // Eliminar evento del calendario
+      try {
+        await EventPublisher.deletePublishedEvent('actions', id);
+      } catch (error) {
+        console.error('Error deleting action event:', error);
+      }
     } catch (error) {
       console.error(`Error deleting action ${id}`, error);
       throw error;

@@ -2,13 +2,13 @@
 
 import { formatDate } from '@/lib/utils';
 import {
-  Action,
-  ACTION_PRIORITY_COLORS,
-  ACTION_PRIORITY_LABELS,
-  ACTION_STATUS_COLORS,
-  ACTION_STATUS_LABELS,
-  ACTION_TYPE_COLORS,
-  ACTION_TYPE_LABELS,
+    Action,
+    ACTION_PRIORITY_COLORS,
+    ACTION_PRIORITY_LABELS,
+    ACTION_STATUS_COLORS,
+    ACTION_STATUS_LABELS,
+    ACTION_TYPE_COLORS,
+    ACTION_TYPE_LABELS,
 } from '@/types/actions';
 import { AlertCircle, Calendar, CheckCircle, Clock, User } from 'lucide-react';
 import Link from 'next/link';
@@ -56,25 +56,25 @@ export function ActionCard({ action }: ActionCardProps) {
 
   return (
     <Link href={`/acciones/${action.id}`}>
-      <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6 border border-gray-200 cursor-pointer">
+      <div className="bg-white rounded-xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all p-6 border border-slate-200 cursor-pointer group">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-mono text-gray-500">
+              <span className="text-sm font-mono text-slate-500">
                 {action.actionNumber}
               </span>
               {isOverdue && (
-                <span className="flex items-center gap-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                <span className="flex items-center gap-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full font-medium">
                   <AlertCircle className="w-3 h-3" />
                   Vencida
                 </span>
               )}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <h3 className="text-lg font-semibold text-slate-900 mb-1 group-hover:text-emerald-700 transition-colors">
               {action.title}
             </h3>
-            <p className="text-sm text-gray-600 line-clamp-2">
+            <p className="text-sm text-slate-600 line-clamp-2">
               {action.description}
             </p>
           </div>
@@ -102,14 +102,14 @@ export function ActionCard({ action }: ActionCardProps) {
         {/* Progress Bar */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-600">Progreso</span>
-            <span className="text-xs font-semibold text-gray-900">
+            <span className="text-xs text-slate-600">Progreso</span>
+            <span className="text-xs font-semibold text-slate-900">
               {action.progress}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-slate-100 rounded-full h-2">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all"
+              className="bg-emerald-600 h-2 rounded-full transition-all"
               style={{ width: `${action.progress}%` }}
             />
           </div>
@@ -117,16 +117,16 @@ export function ActionCard({ action }: ActionCardProps) {
 
         {/* Info */}
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-slate-600">
             <User className="w-4 h-4" />
             <span>{action.planning.responsiblePersonName}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-slate-600">
             <Calendar className="w-4 h-4" />
             <span>Planificada: {formatDate(plannedDate)}</span>
           </div>
           {action.processName && (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-slate-600">
               <Clock className="w-4 h-4" />
               <span>{action.processName}</span>
             </div>
@@ -135,10 +135,10 @@ export function ActionCard({ action }: ActionCardProps) {
 
         {/* Verification Status */}
         {isVerified && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-slate-100">
             <div
-              className={`flex items-center gap-2 text-sm ${
-                isEffective ? 'text-green-600' : 'text-red-600'
+              className={`flex items-center gap-2 text-sm font-medium ${
+                isEffective ? 'text-emerald-600' : 'text-red-600'
               }`}
             >
               <CheckCircle className="w-4 h-4" />

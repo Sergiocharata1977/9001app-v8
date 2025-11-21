@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  DepartmentFormData,
-  departmentFormSchema,
-} from '@/lib/validations/rrhh';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+import {
+    DepartmentFormData,
+    departmentFormSchema,
+} from '@/lib/validations/rrhh';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface DepartmentFormProps {
   initialData?: DepartmentFormData;
@@ -108,13 +108,22 @@ export function DepartmentForm({
         <Label htmlFor="is_active">Departamento activo</Label>
       </div>
 
-      <div className="flex justify-end space-x-4">
+      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            className="border-slate-200 text-slate-700 hover:bg-slate-50"
+          >
             Cancelar
           </Button>
         )}
-        <Button type="submit" disabled={isSubmitting || isLoading}>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting || isLoading}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+        >
           {isSubmitting || isLoading ? 'Guardando...' : 'Guardar'}
         </Button>
       </div>

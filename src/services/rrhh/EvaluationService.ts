@@ -1,24 +1,25 @@
 import { db } from '@/lib/firebase';
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import {
-  CompetenceEvaluation,
-  PaginatedResponse,
-  PaginationParams,
-  PerformanceEvaluation,
-  PerformanceEvaluationFilters,
+    CompetenceEvaluation,
+    PaginatedResponse,
+    PaginationParams,
+    PerformanceEvaluation,
+    PerformanceEvaluationFilters,
 } from '@/types/rrhh';
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    Timestamp,
+    updateDoc,
+    where,
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'evaluations';
@@ -171,12 +172,37 @@ export class EvaluationService {
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), docData);
 
-      return {
-        id: docRef.id,
+      const evaluationId = docRef.id;
+      const evaluation: PerformanceEvaluation = {
+        id: evaluationId,
         ...data,
         created_at: now.toDate(),
         updated_at: now.toDate(),
       };
+
+      // Publicar evento en el calendario si tiene fecha programada
+      try {
+        await EventPublisher.publishEvent('evaluations', {
+          title: `Evaluación: ${data.periodo}`,
+          description: `Evaluación de desempeño - ${data.personnel_id}`,
+          date: data.fecha_evaluacion,
+          type: 'evaluation',
+          sourceRecordId: evaluationId,
+          sourceRecordType: 'evaluation',
+          priority: 'medium',
+          responsibleUserId: data.evaluador_id,
+          metadata: {
+            evaluationId,
+            personnelId: data.personnel_id,
+            periodo: data.periodo,
+            estado: data.estado,
+          },
+        });
+      } catch (error) {
+        console.error('Error publishing evaluation event:', error);
+      }
+
+      return evaluation;
     } catch (error) {
       console.error('Error creating evaluation:', error);
       throw new Error('Error al crear evaluación');
@@ -222,6 +248,13 @@ export class EvaluationService {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       await deleteDoc(docRef);
+
+      // Eliminar evento del calendario
+      try {
+        await EventPublisher.deletePublishedEvent('evaluations', id);
+      } catch (error) {
+        console.error('Error deleting evaluation event:', error);
+      }
     } catch (error) {
       console.error('Error deleting evaluation:', error);
       throw new Error('Error al eliminar evaluación');

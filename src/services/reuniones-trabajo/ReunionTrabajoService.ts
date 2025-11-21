@@ -1,21 +1,20 @@
 import { db } from '@/firebase/config';
-import { TraceabilityService } from '@/services/shared/TraceabilityService';
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import type {
-  ReunionTrabajo,
-  CreateReunionData,
-  UpdateReunionData,
+    CreateReunionData,
+    ReunionTrabajo,
+    UpdateReunionData,
 } from '@/types/reuniones-trabajo';
 import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
+    addDoc,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    updateDoc,
+    where
 } from 'firebase/firestore';
 
 /**
@@ -164,7 +163,31 @@ export class ReunionTrabajoService {
       };
 
       const docRef = await addDoc(collection(db, this.COLLECTION), reunionData);
-      return docRef.id;
+      const reunionId = docRef.id;
+
+      // Publicar evento en el calendario
+      try {
+        await EventPublisher.publishEvent('meetings', {
+          title: `Reunión: ${data.titulo}`,
+          description: `${data.tipo} - ${data.lugar}`,
+          date: new Date(data.fecha),
+          type: 'meeting',
+          sourceRecordId: reunionId,
+          sourceRecordType: 'meeting',
+          priority: data.tipo === 'revision_direccion' ? 'high' : 'medium',
+          participantIds: data.participantes.map(p => p.usuario_id),
+          metadata: {
+            reunionId,
+            tipo: data.tipo,
+            modalidad: data.modalidad,
+            duracion_minutos: data.duracion_minutos,
+          },
+        });
+      } catch (error) {
+        console.error('Error publishing meeting event:', error);
+      }
+
+      return reunionId;
     } catch (error) {
       console.error('Error creating reunion:', error);
       throw new Error('Failed to create reunion');
@@ -205,6 +228,13 @@ export class ReunionTrabajoService {
         updated_by: userId,
         updatedAt: new Date().toISOString(),
       });
+
+      // Eliminar evento del calendario
+      try {
+        await EventPublisher.deletePublishedEvent('meetings', id);
+      } catch (error) {
+        console.error('Error deleting meeting event:', error);
+      }
     } catch (error) {
       console.error('Error deleting reunion:', error);
       throw new Error('Failed to delete reunion');

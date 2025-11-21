@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     // Parámetros requeridos
     const startDateStr = searchParams.get('startDate');
     const endDateStr = searchParams.get('endDate');
-    const organizationId = searchParams.get('organizationId');
 
     if (!startDateStr || !endDateStr) {
       return NextResponse.json(
@@ -87,12 +86,11 @@ export async function GET(request: NextRequest) {
     // Validar filtros
     const validatedFilters = EventFiltersSchema.parse(filters);
 
-    // Obtener eventos
+    // Obtener eventos (sin organizationId ya que es single-tenant)
     const events = await CalendarService.getEventsByDateRange(
       startDate,
       endDate,
-      validatedFilters,
-      organizationId || undefined
+      validatedFilters
     );
 
     return NextResponse.json({

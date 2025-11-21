@@ -1,20 +1,22 @@
 'use client';
 
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { EvaluationService } from '@/services/rrhh/EvaluationService';
 import { PerformanceEvaluation } from '@/types/rrhh';
@@ -139,99 +141,111 @@ export function EvaluationListing() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Evaluaciones de Desempeño</h2>
-            <p className="text-gray-500">
-              Gestión de evaluaciones de competencias
-            </p>
-          </div>
-          <Button onClick={handleCreate}>
+    <div className="space-y-6">
+      <PageHeader
+        title="Evaluaciones de Desempeño"
+        description="Gestión de evaluaciones de competencias"
+        breadcrumbs={[
+          { label: 'Inicio', href: '/dashboard' },
+          { label: 'RRHH', href: '/dashboard/rrhh' },
+          { label: 'Evaluaciones' },
+        ]}
+        actions={
+          <Button 
+            onClick={handleCreate}
+            className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Nueva Evaluación
           </Button>
+        }
+      />
+
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Filtros */}
+      <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Buscar por período o empleado..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-9 h-10 bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+          </div>
         </div>
 
-        {/* Error Alert */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los estados</SelectItem>
+            <SelectItem value="borrador">Borrador</SelectItem>
+            <SelectItem value="publicado">Publicado</SelectItem>
+            <SelectItem value="cerrado">Cerrado</SelectItem>
+          </SelectContent>
+        </Select>
 
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Buscar por período o empleado..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+        <Select value={resultFilter} onValueChange={setResultFilter}>
+          <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200">
+            <SelectValue placeholder="Resultado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los resultados</SelectItem>
+            <SelectItem value="Apto">Apto</SelectItem>
+            <SelectItem value="No Apto">No Apto</SelectItem>
+            <SelectItem value="Requiere Capacitación">
+              Requiere Capacitación
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="borrador">Borrador</SelectItem>
-              <SelectItem value="publicado">Publicado</SelectItem>
-              <SelectItem value="cerrado">Cerrado</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={resultFilter} onValueChange={setResultFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Resultado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los resultados</SelectItem>
-              <SelectItem value="Apto">Apto</SelectItem>
-              <SelectItem value="No Apto">No Apto</SelectItem>
-              <SelectItem value="Requiere Capacitación">
-                Requiere Capacitación
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Total</p>
-            <p className="text-2xl font-bold">{evaluations.length}</p>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Aptos</p>
-            <p className="text-2xl font-bold">
+      {/* Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">Total</p>
+            <p className="text-2xl font-bold text-slate-900">{evaluations.length}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">Aptos</p>
+            <p className="text-2xl font-bold text-emerald-600">
               {evaluations.filter(e => e.resultado_global === 'Apto').length}
             </p>
-          </div>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Requieren Capacitación</p>
-            <p className="text-2xl font-bold">
+          </CardContent>
+        </Card>
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">Requieren Capacitación</p>
+            <p className="text-2xl font-bold text-amber-600">
               {
                 evaluations.filter(
                   e => e.resultado_global === 'Requiere Capacitación'
                 ).length
               }
             </p>
-          </div>
-          <div className="bg-red-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">No Aptos</p>
-            <p className="text-2xl font-bold">
+          </CardContent>
+        </Card>
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">No Aptos</p>
+            <p className="text-2xl font-bold text-red-600">
               {evaluations.filter(e => e.resultado_global === 'No Apto').length}
             </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
         {/* Lista de Evaluaciones */}
         {filteredEvaluations.length === 0 ? (
@@ -269,7 +283,6 @@ export function EvaluationListing() {
             />
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   );
 }

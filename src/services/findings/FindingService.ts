@@ -1,27 +1,28 @@
 import { db } from '@/firebase/config';
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import { TraceabilityService } from '@/services/shared/TraceabilityService';
 import type {
-  Finding,
-  FindingFilters,
-  FindingFormData,
-  FindingImmediateActionExecutionFormData,
-  FindingImmediateActionPlanningFormData,
-  FindingRootCauseAnalysisFormData,
-  FindingStats,
+    Finding,
+    FindingFilters,
+    FindingFormData,
+    FindingImmediateActionExecutionFormData,
+    FindingImmediateActionPlanningFormData,
+    FindingRootCauseAnalysisFormData,
+    FindingStats,
 } from '@/types/findings';
 import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  QueryConstraint,
-  Timestamp,
-  updateDoc,
-  where,
+    addDoc,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    QueryConstraint,
+    Timestamp,
+    updateDoc,
+    where,
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'findings';
@@ -221,6 +222,35 @@ export class FindingService {
         updatedBy: userId,
         updatedByName: userName,
       });
+
+      // Publicar evento en el calendario con la fecha límite
+      try {
+        const finding = await this.getById(id);
+        if (finding) {
+          await EventPublisher.publishEvent('findings', {
+            title: `Hallazgo: ${finding.registration.name}`,
+            description: finding.registration.description,
+            date: data.plannedDate,
+            type: 'finding_deadline',
+            sourceRecordId: id,
+            sourceRecordType: 'finding',
+            sourceRecordNumber: finding.findingNumber,
+            responsibleUserId: data.responsiblePersonId,
+            responsibleUserName: data.responsiblePersonName,
+            priority: 'high',
+            processId: finding.registration.processId,
+            processName: finding.registration.processName,
+            metadata: {
+              findingId: id,
+              findingNumber: finding.findingNumber,
+              status: 'accion_planificada',
+              sourceId: finding.registration.sourceId,
+            },
+          });
+        }
+      } catch (error) {
+        console.error('Error publishing finding event:', error);
+      }
     } catch (error) {
       console.error('Error updating immediate action planning:', error);
       throw new Error(
@@ -319,6 +349,13 @@ export class FindingService {
         updatedBy: userId,
         updatedByName: userName,
       });
+
+      // Eliminar evento del calendario al cerrar el hallazgo
+      try {
+        await EventPublisher.deletePublishedEvent('findings', id);
+      } catch (error) {
+        console.error('Error deleting finding event:', error);
+      }
     } catch (error) {
       console.error('Error closing finding:', error);
       throw new Error('Error al cerrar el hallazgo');
@@ -343,6 +380,13 @@ export class FindingService {
         updatedBy: userId,
         updatedByName: userName,
       });
+
+      // Eliminar evento del calendario
+      try {
+        await EventPublisher.deletePublishedEvent('findings', id);
+      } catch (error) {
+        console.error('Error deleting finding event:', error);
+      }
     } catch (error) {
       console.error('Error deleting finding:', error);
       throw new Error('Error al eliminar el hallazgo');

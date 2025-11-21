@@ -2,13 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Textarea } from '@/components/ui/textarea';
 import type { AuditFormData } from '@/types/audits';
 import { Loader2 } from 'lucide-react';
@@ -93,9 +94,10 @@ export function AuditFormDialog({
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información Básica */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 border-b pb-2">
-              Información Básica
-            </h3>
+            <SectionHeader 
+              title="Información Básica" 
+              description="Detalles generales de la auditoría"
+            />
 
             <div>
               <Label htmlFor="title">
@@ -110,33 +112,52 @@ export function AuditFormDialog({
                 maxLength={200}
                 placeholder="Ej: Auditoría Interna 2025"
                 required
+                className="mt-1.5"
               />
             </div>
 
-            <div>
-              <Label htmlFor="auditType">
-                Tipo de Auditoría <span className="text-red-500">*</span>
-              </Label>
-              <select
-                id="auditType"
-                value={formData.auditType}
-                onChange={e =>
-                  setFormData({
-                    ...formData,
-                    auditType: e.target.value as 'complete' | 'partial',
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="complete">Auditoría Completa</option>
-                <option value="partial">Auditoría Parcial</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                {formData.auditType === 'complete'
-                  ? 'Se verificarán todos los puntos de la norma ISO 9001:2015'
-                  : 'Seleccione los puntos específicos a auditar'}
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="auditType">
+                  Tipo de Auditoría <span className="text-red-500">*</span>
+                </Label>
+                <select
+                  id="auditType"
+                  value={formData.auditType}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      auditType: e.target.value as 'complete' | 'partial',
+                    })
+                  }
+                  className="w-full h-10 mt-1.5 px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="complete">Auditoría Completa</option>
+                  <option value="partial">Auditoría Parcial</option>
+                </select>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {formData.auditType === 'complete'
+                    ? 'Se verificarán todos los puntos de la norma ISO 9001:2015'
+                    : 'Seleccione los puntos específicos a auditar'}
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="leadAuditor">
+                  Auditor Líder <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="leadAuditor"
+                  value={formData.leadAuditor || ''}
+                  onChange={e =>
+                    setFormData({ ...formData, leadAuditor: e.target.value })
+                  }
+                  placeholder="Ej: Juan Pérez"
+                  required
+                  className="mt-1.5"
+                />
+              </div>
             </div>
 
             <div>
@@ -153,48 +174,33 @@ export function AuditFormDialog({
                 maxLength={500}
                 placeholder="Describe el alcance de la auditoría..."
                 required
+                className="mt-1.5 resize-none"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="plannedDate">
-                  Fecha Planificada <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="plannedDate"
-                  type="date"
-                  value={
-                    formData.plannedDate
-                      ? new Date(formData.plannedDate)
-                          .toISOString()
-                          .split('T')[0]
-                      : ''
-                  }
-                  onChange={e =>
-                    setFormData({
-                      ...formData,
-                      plannedDate: new Date(e.target.value),
-                    })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="leadAuditor">
-                  Auditor Líder <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="leadAuditor"
-                  value={formData.leadAuditor || ''}
-                  onChange={e =>
-                    setFormData({ ...formData, leadAuditor: e.target.value })
-                  }
-                  placeholder="Ej: Juan Pérez"
-                  required
-                />
-              </div>
+            <div>
+              <Label htmlFor="plannedDate">
+                Fecha Planificada <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="plannedDate"
+                type="date"
+                value={
+                  formData.plannedDate
+                    ? new Date(formData.plannedDate)
+                        .toISOString()
+                        .split('T')[0]
+                    : ''
+                }
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    plannedDate: new Date(e.target.value),
+                  })
+                }
+                required
+                className="mt-1.5 w-full md:w-1/2"
+              />
             </div>
           </div>
 

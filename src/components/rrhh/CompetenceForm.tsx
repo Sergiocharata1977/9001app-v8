@@ -5,11 +5,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { CompetenceCategory, CompetenceFormData } from '@/types/rrhh';
@@ -150,11 +150,20 @@ export function CompetenceForm({
         <Label htmlFor="activo">Competencia activa</Label>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="border-slate-200 text-slate-700 hover:bg-slate-50"
+        >
           Cancelar
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button 
+          type="submit" 
+          disabled={loading}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+        >
           {loading ? 'Guardando...' : 'Guardar'}
         </Button>
       </div>

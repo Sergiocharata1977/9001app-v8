@@ -2,13 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Textarea } from '@/components/ui/textarea';
 import { FindingFormSchema } from '@/lib/validations/findings';
 import type { FindingFormData } from '@/types/findings';
@@ -86,79 +87,84 @@ export function FindingFormDialog({
           <DialogTitle>Nuevo Hallazgo</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Origen */}
-          <div>
-            <Label htmlFor="origin">Origen *</Label>
-            <Input
-              id="origin"
-              {...register('origin')}
-              placeholder="Ej: Auditoría Interna, Inspección, Cliente"
-            />
-            {errors.origin && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.origin.message}
-              </p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6">
+          {/* Información General */}
+          <div className="space-y-4">
+            <SectionHeader title="Información General" description="Detalles básicos del hallazgo" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="origin">Origen *</Label>
+                <Input
+                  id="origin"
+                  {...register('origin')}
+                  placeholder="Ej: Auditoría Interna"
+                  className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+                {errors.origin && (
+                  <p className="text-sm text-red-600">{errors.origin.message}</p>
+                )}
+              </div>
 
-          {/* Nombre */}
-          <div>
-            <Label htmlFor="name">Nombre *</Label>
-            <Input
-              id="name"
-              {...register('name')}
-              placeholder="Nombre del hallazgo"
-            />
-            {errors.name && (
-              <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Descripción */}
-          <div>
-            <Label htmlFor="description">Descripción *</Label>
-            <Textarea
-              id="description"
-              {...register('description')}
-              placeholder="Descripción detallada del hallazgo"
-              rows={4}
-            />
-            {errors.description && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* Proceso Involucrado */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="processId">ID Proceso *</Label>
-              <Input
-                id="processId"
-                {...register('processId')}
-                placeholder="ID del proceso"
-              />
-              {errors.processId && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.processId.message}
-                </p>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="name">Nombre *</Label>
+                <Input
+                  id="name"
+                  {...register('name')}
+                  placeholder="Nombre del hallazgo"
+                  className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name.message}</p>
+                )}
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="processName">Nombre del Proceso *</Label>
-              <Input
-                id="processName"
-                {...register('processName')}
-                placeholder="Nombre del proceso"
+            <div className="space-y-2">
+              <Label htmlFor="description">Descripción *</Label>
+              <Textarea
+                id="description"
+                {...register('description')}
+                placeholder="Descripción detallada del hallazgo"
+                rows={4}
+                className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
               />
-              {errors.processName && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.processName.message}
-                </p>
+              {errors.description && (
+                <p className="text-sm text-red-600">{errors.description.message}</p>
               )}
+            </div>
+          </div>
+
+          {/* Contexto */}
+          <div className="space-y-4">
+            <SectionHeader title="Contexto del Proceso" description="Información del proceso relacionado" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="processId">ID Proceso *</Label>
+                <Input
+                  id="processId"
+                  {...register('processId')}
+                  placeholder="ID del proceso"
+                  className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+                {errors.processId && (
+                  <p className="text-sm text-red-600">{errors.processId.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="processName">Nombre del Proceso *</Label>
+                <Input
+                  id="processName"
+                  {...register('processName')}
+                  placeholder="Nombre del proceso"
+                  className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+                {errors.processName && (
+                  <p className="text-sm text-red-600">{errors.processName.message}</p>
+                )}
+              </div>
             </div>
           </div>
 

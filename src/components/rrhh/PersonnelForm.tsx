@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Textarea } from '@/components/ui/textarea';
 import { PersonnelFormData, personnelFormSchema } from '@/lib/validations/rrhh';
 import { Personnel } from '@/types/rrhh';
@@ -92,20 +93,18 @@ export function PersonnelForm({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
           {/* Información Personal */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">
-              Información Personal
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SectionHeader title="Información Personal" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="nombres">Nombres</Label>
                 <Input
                   id="nombres"
                   {...register('nombres')}
                   placeholder="Ej. Juan Carlos"
-                  className={errors.nombres ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.nombres ? 'border-red-500' : ''}`}
                 />
                 {errors.nombres && (
                   <p className="text-red-500 text-sm mt-1">
@@ -119,7 +118,7 @@ export function PersonnelForm({
                   id="apellidos"
                   {...register('apellidos')}
                   placeholder="Ej. Pérez González"
-                  className={errors.apellidos ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.apellidos ? 'border-red-500' : ''}`}
                 />
                 {errors.apellidos && (
                   <p className="text-red-500 text-sm mt-1">
@@ -129,7 +128,7 @@ export function PersonnelForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -137,7 +136,7 @@ export function PersonnelForm({
                   type="email"
                   {...register('email')}
                   placeholder="juan.perez@empresa.com"
-                  className={errors.email ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.email ? 'border-red-500' : ''}`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">
@@ -151,7 +150,7 @@ export function PersonnelForm({
                   id="telefono"
                   {...register('telefono')}
                   placeholder="+54 11 1234-5678"
-                  className={errors.telefono ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.telefono ? 'border-red-500' : ''}`}
                 />
                 {errors.telefono && (
                   <p className="text-red-500 text-sm mt-1">
@@ -167,7 +166,7 @@ export function PersonnelForm({
                 id="direccion"
                 {...register('direccion')}
                 placeholder="Dirección completa"
-                className={errors.direccion ? 'border-red-500' : ''}
+                className={`mt-1.5 ${errors.direccion ? 'border-red-500' : ''}`}
               />
               {errors.direccion && (
                 <p className="text-red-500 text-sm mt-1">
@@ -179,17 +178,15 @@ export function PersonnelForm({
 
           {/* Información Laboral */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">
-              Información Laboral
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SectionHeader title="Información Laboral" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="supervisor">Supervisor</Label>
                 <Input
                   id="supervisor"
                   {...register('supervisor')}
                   placeholder="Nombre del supervisor"
-                  className={errors.supervisor ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.supervisor ? 'border-red-500' : ''}`}
                 />
                 {errors.supervisor && (
                   <p className="text-red-500 text-sm mt-1">
@@ -202,7 +199,7 @@ export function PersonnelForm({
                 <select
                   id="estado"
                   {...register('estado')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full h-10 mt-1.5 px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="Activo">Activo</option>
                   <option value="Licencia">Licencia</option>
@@ -216,7 +213,7 @@ export function PersonnelForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="fecha_ingreso">Fecha de Ingreso</Label>
                 <Input
@@ -225,7 +222,7 @@ export function PersonnelForm({
                   {...register('fecha_ingreso', {
                     setValueAs: value => (value ? new Date(value) : new Date()),
                   })}
-                  className={errors.fecha_ingreso ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.fecha_ingreso ? 'border-red-500' : ''}`}
                 />
                 {errors.fecha_ingreso && (
                   <p className="text-red-500 text-sm mt-1">
@@ -239,7 +236,7 @@ export function PersonnelForm({
                   id="salario"
                   {...register('salario')}
                   placeholder="Ej. $65,000"
-                  className={errors.salario ? 'border-red-500' : ''}
+                  className={`mt-1.5 ${errors.salario ? 'border-red-500' : ''}`}
                 />
                 {errors.salario && (
                   <p className="text-red-500 text-sm mt-1">
@@ -255,7 +252,7 @@ export function PersonnelForm({
                 id="foto"
                 {...register('foto')}
                 placeholder="https://ejemplo.com/foto.jpg"
-                className={errors.foto ? 'border-red-500' : ''}
+                className={`mt-1.5 ${errors.foto ? 'border-red-500' : ''}`}
               />
               {errors.foto && (
                 <p className="text-red-500 text-sm mt-1">
@@ -267,9 +264,7 @@ export function PersonnelForm({
 
           {/* Certificaciones */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">
-              Certificaciones
-            </h3>
+            <SectionHeader title="Certificaciones" />
             <div>
               <Label htmlFor="certificaciones">
                 Certificaciones (separadas por comas)
@@ -288,7 +283,7 @@ export function PersonnelForm({
                   },
                 })}
                 placeholder="ISO 9001, Análisis de Datos, Six Sigma"
-                className={errors.certificaciones ? 'border-red-500' : ''}
+                className={`mt-1.5 ${errors.certificaciones ? 'border-red-500' : ''}`}
               />
               {errors.certificaciones && (
                 <p className="text-red-500 text-sm mt-1">
@@ -299,7 +294,7 @@ export function PersonnelForm({
           </div>
 
           {/* Botones */}
-          <div className="flex justify-end space-x-2 pt-6">
+          <div className="flex justify-end space-x-3 pt-6 border-t">
             <Button
               type="button"
               variant="outline"

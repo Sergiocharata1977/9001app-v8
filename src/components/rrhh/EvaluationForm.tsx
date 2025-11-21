@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CompetenceEvaluation, PerformanceEvaluation } from '@/types/rrhh';
@@ -101,58 +102,57 @@ export function EvaluationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información básica */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Información Básica</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="periodo">Período *</Label>
-              <Input
-                id="periodo"
-                value={formData.periodo}
-                onChange={e => handleChange('periodo', e.target.value)}
-                required
-                placeholder="Ej: 2024-Q1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="fecha_evaluacion">Fecha Evaluación *</Label>
-              <Input
-                id="fecha_evaluacion"
-                type="date"
-                value={
-                  formData.fecha_evaluacion instanceof Date
-                    ? formData.fecha_evaluacion.toISOString().split('T')[0]
-                    : ''
-                }
-                onChange={e =>
-                  handleChange('fecha_evaluacion', new Date(e.target.value))
-                }
-                required
-              />
-            </div>
-          </div>
-
+      <div className="space-y-4">
+        <SectionHeader title="Información Básica" description="Datos generales de la evaluación" />
+        
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="estado">Estado *</Label>
-            <Select
-              value={formData.estado}
-              onValueChange={value => handleChange('estado', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="borrador">Borrador</SelectItem>
-                <SelectItem value="publicado">Publicado</SelectItem>
-                <SelectItem value="cerrado">Cerrado</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="periodo">Período *</Label>
+            <Input
+              id="periodo"
+              value={formData.periodo}
+              onChange={e => handleChange('periodo', e.target.value)}
+              required
+              placeholder="Ej: 2024-Q1"
+              className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div>
+            <Label htmlFor="fecha_evaluacion">Fecha Evaluación *</Label>
+            <Input
+              id="fecha_evaluacion"
+              type="date"
+              value={
+                formData.fecha_evaluacion instanceof Date
+                  ? formData.fecha_evaluacion.toISOString().split('T')[0]
+                  : ''
+              }
+              onChange={e =>
+                handleChange('fecha_evaluacion', new Date(e.target.value))
+              }
+              required
+              className="bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="estado">Estado *</Label>
+          <Select
+            value={formData.estado}
+            onValueChange={value => handleChange('estado', value)}
+          >
+            <SelectTrigger className="bg-slate-50 border-slate-200">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="borrador">Borrador</SelectItem>
+              <SelectItem value="publicado">Publicado</SelectItem>
+              <SelectItem value="cerrado">Cerrado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Competencias */}
       <Card>
@@ -311,12 +311,20 @@ export function EvaluationForm({
       </Card>
 
       {/* Botones */}
-      <div className="flex gap-2">
-        <Button type="submit" className="flex-1">
-          {evaluation ? 'Actualizar' : 'Crear'} Evaluación
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="border-slate-200 text-slate-700 hover:bg-slate-50"
+        >
           Cancelar
+        </Button>
+        <Button 
+          type="submit" 
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+        >
+          {evaluation ? 'Actualizar' : 'Crear'} Evaluación
         </Button>
       </div>
     </form>

@@ -2,13 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Textarea } from '@/components/ui/textarea';
 import { processRecordSchema } from '@/lib/validations/processRecords';
 import { ProcessRecordFormData } from '@/types/processRecords';
@@ -115,98 +116,111 @@ export function ProcessRecordFormDialog({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Nombre */}
-          <div>
-            <Label htmlFor="nombre">Nombre del Registro *</Label>
-            <Input
-              id="nombre"
-              {...register('nombre')}
-              placeholder="Ej. Implementación ISO 9001 Q1 2025"
-              className={errors.nombre ? 'border-red-500' : ''}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6">
+          {/* Información Básica */}
+          <div className="space-y-4">
+            <SectionHeader 
+              title="Información Básica" 
+              description="Datos principales del registro de proceso" 
             />
-            {errors.nombre && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.nombre.message}
-              </p>
-            )}
+            
+            <div>
+              <Label htmlFor="nombre">Nombre del Registro *</Label>
+              <Input
+                id="nombre"
+                {...register('nombre')}
+                placeholder="Ej. Implementación ISO 9001 Q1 2025"
+                className={`bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 ${errors.nombre ? 'border-red-500' : ''}`}
+              />
+              {errors.nombre && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.nombre.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="descripcion">Descripción *</Label>
+              <Textarea
+                id="descripcion"
+                {...register('descripcion')}
+                placeholder="Describe el objetivo y alcance de este registro..."
+                rows={4}
+                className={`bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 resize-none ${errors.descripcion ? 'border-red-500' : ''}`}
+              />
+              {errors.descripcion && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.descripcion.message}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Descripción */}
-          <div>
-            <Label htmlFor="descripcion">Descripción *</Label>
-            <Textarea
-              id="descripcion"
-              {...register('descripcion')}
-              placeholder="Describe el objetivo y alcance de este registro..."
-              rows={4}
-              className={errors.descripcion ? 'border-red-500' : ''}
+          {/* Configuración del Proceso */}
+          <div className="space-y-4">
+            <SectionHeader 
+              title="Configuración del Proceso" 
+              description="Tipo de proceso y fecha de inicio" 
             />
-            {errors.descripcion && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.descripcion.message}
-              </p>
-            )}
-          </div>
+            
+            <div>
+              <Label htmlFor="process_definition_id">Tipo de Proceso *</Label>
+              <select
+                id="process_definition_id"
+                {...register('process_definition_id')}
+                className={`w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${
+                  errors.process_definition_id
+                    ? 'border-red-500'
+                    : ''
+                }`}
+              >
+                <option value="">Selecciona un tipo de proceso</option>
+                {processDefinitions.map(def => (
+                  <option key={def.id} value={def.id}>
+                    {def.nombre}
+                  </option>
+                ))}
+              </select>
+              {errors.process_definition_id && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.process_definition_id.message}
+                </p>
+              )}
+            </div>
 
-          {/* Definición de Proceso */}
-          <div>
-            <Label htmlFor="process_definition_id">Tipo de Proceso *</Label>
-            <select
-              id="process_definition_id"
-              {...register('process_definition_id')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                errors.process_definition_id
-                  ? 'border-red-500'
-                  : 'border-gray-300'
-              }`}
-            >
-              <option value="">Selecciona un tipo de proceso</option>
-              {processDefinitions.map(def => (
-                <option key={def.id} value={def.id}>
-                  {def.nombre}
-                </option>
-              ))}
-            </select>
-            {errors.process_definition_id && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.process_definition_id.message}
-              </p>
-            )}
-          </div>
-
-          {/* Fecha de Inicio */}
-          <div>
-            <Label htmlFor="fecha_inicio">Fecha de Inicio *</Label>
-            <Input
-              id="fecha_inicio"
-              type="date"
-              {...register('fecha_inicio', {
-                setValueAs: value => (value ? new Date(value) : new Date()),
-              })}
-              className={errors.fecha_inicio ? 'border-red-500' : ''}
-            />
-            {errors.fecha_inicio && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.fecha_inicio.message}
-              </p>
-            )}
+            <div>
+              <Label htmlFor="fecha_inicio">Fecha de Inicio *</Label>
+              <Input
+                id="fecha_inicio"
+                type="date"
+                {...register('fecha_inicio', {
+                  setValueAs: value => (value ? new Date(value) : new Date()),
+                })}
+                className={`bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 ${errors.fecha_inicio ? 'border-red-500' : ''}`}
+              />
+              {errors.fecha_inicio && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.fecha_inicio.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Botones */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="border-slate-200 text-slate-700 hover:bg-slate-50"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
             >
               {isSubmitting ? 'Creando...' : 'Crear Registro'}
             </Button>

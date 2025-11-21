@@ -2,13 +2,13 @@
 
 import type { CalendarEvent } from '@/types/calendar';
 import {
-  AlertTriangle,
-  Calendar,
-  CheckCircle,
-  Clock,
-  FileText,
-  GraduationCap,
-  Users,
+    AlertTriangle,
+    Calendar,
+    CheckCircle,
+    Clock,
+    FileText,
+    GraduationCap,
+    Users,
 } from 'lucide-react';
 
 interface EventCardProps {
@@ -32,6 +32,11 @@ const eventTypeConfig = {
     icon: AlertTriangle,
     color: 'red',
     label: 'Acción',
+  },
+  finding_deadline: {
+    icon: AlertTriangle,
+    color: 'amber',
+    label: 'Hallazgo',
   },
   training: {
     icon: GraduationCap,
@@ -84,16 +89,33 @@ export function EventCard({
   const priorityInfo = priorityConfig[event.priority];
 
   const formatTime = (
-    timestamp: Date | { toDate: () => Date } | string | number
+    timestamp: Date | { toDate: () => Date } | { seconds: number; nanoseconds: number } | string | number
   ) => {
     let date: Date;
+    
+    // Verificar si tiene método toDate (Timestamp de Firestore)
     if (timestamp && typeof timestamp === 'object' && 'toDate' in timestamp) {
       date = timestamp.toDate();
-    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+    }
+    // Verificar si tiene propiedad seconds (Timestamp serializado)
+    else if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp) {
+      const ts = timestamp as { seconds: number; nanoseconds: number };
+      date = new Date(ts.seconds * 1000);
+    }
+    // String o número
+    else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
       date = new Date(timestamp);
-    } else {
+    }
+    // Ya es un Date
+    else {
       date = timestamp as Date;
     }
+    
+    // Validar que date sea válido
+    if (!date || isNaN(date.getTime())) {
+      return '--:--';
+    }
+    
     return date.toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit',
@@ -103,20 +125,41 @@ export function EventCard({
   const isOverdue = () => {
     const now = new Date();
     let eventDate: Date;
+    
+    // Verificar si tiene método toDate (Timestamp de Firestore)
     if (
       event.date &&
       typeof event.date === 'object' &&
       'toDate' in event.date
     ) {
       eventDate = event.date.toDate();
-    } else if (
+    }
+    // Verificar si tiene propiedad seconds (Timestamp serializado)
+    else if (
+      event.date &&
+      typeof event.date === 'object' &&
+      'seconds' in event.date
+    ) {
+      const ts = event.date as { seconds: number; nanoseconds: number };
+      eventDate = new Date(ts.seconds * 1000);
+    }
+    // String o número
+    else if (
       typeof event.date === 'string' ||
       typeof event.date === 'number'
     ) {
       eventDate = new Date(event.date);
-    } else {
+    }
+    // Ya es un Date
+    else {
       eventDate = event.date as Date;
     }
+    
+    // Validar que eventDate sea válido
+    if (!eventDate || isNaN(eventDate.getTime())) {
+      return false;
+    }
+    
     return eventDate < now && event.status !== 'completed';
   };
 
@@ -157,6 +200,12 @@ export function EventCard({
         bg: 'bg-emerald-50',
         icon: 'text-emerald-600',
         badge: 'text-emerald-700 bg-emerald-100',
+      },
+      finding_deadline: {
+        border: 'border-amber-500',
+        bg: 'bg-amber-50',
+        icon: 'text-amber-600',
+        badge: 'text-amber-700 bg-amber-100',
       },
       evaluation: {
         border: 'border-purple-500',

@@ -1,20 +1,22 @@
 'use client';
 
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { TrainingService } from '@/services/rrhh/TrainingService';
 import { Training } from '@/types/rrhh';
@@ -134,94 +136,106 @@ export function TrainingListing() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Capacitaciones</h2>
-            <p className="text-gray-500">
-              Gestión de capacitaciones y formación
-            </p>
-          </div>
-          <Button onClick={handleCreate}>
+    <div className="space-y-6">
+      <PageHeader
+        title="Capacitaciones"
+        description="Gestión de capacitaciones y formación"
+        breadcrumbs={[
+          { label: 'Inicio', href: '/dashboard' },
+          { label: 'RRHH', href: '/dashboard/rrhh' },
+          { label: 'Capacitaciones' },
+        ]}
+        actions={
+          <Button 
+            onClick={handleCreate}
+            className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Nueva Capacitación
           </Button>
+        }
+      />
+
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Filtros */}
+      <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Buscar por tema o descripción..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-9 h-10 bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+          </div>
         </div>
 
-        {/* Error Alert */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los estados</SelectItem>
+            <SelectItem value="planificada">Planificada</SelectItem>
+            <SelectItem value="en_curso">En Curso</SelectItem>
+            <SelectItem value="completada">Completada</SelectItem>
+            <SelectItem value="cancelada">Cancelada</SelectItem>
+          </SelectContent>
+        </Select>
 
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Buscar por tema o descripción..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+        <Select value={modalityFilter} onValueChange={setModalityFilter}>
+          <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200">
+            <SelectValue placeholder="Modalidad" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas las modalidades</SelectItem>
+            <SelectItem value="presencial">Presencial</SelectItem>
+            <SelectItem value="virtual">Virtual</SelectItem>
+            <SelectItem value="mixta">Mixta</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="planificada">Planificada</SelectItem>
-              <SelectItem value="en_curso">En Curso</SelectItem>
-              <SelectItem value="completada">Completada</SelectItem>
-              <SelectItem value="cancelada">Cancelada</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={modalityFilter} onValueChange={setModalityFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Modalidad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las modalidades</SelectItem>
-              <SelectItem value="presencial">Presencial</SelectItem>
-              <SelectItem value="virtual">Virtual</SelectItem>
-              <SelectItem value="mixta">Mixta</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Total</p>
-            <p className="text-2xl font-bold">{trainings.length}</p>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">En Curso</p>
-            <p className="text-2xl font-bold">
+      {/* Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">Total</p>
+            <p className="text-2xl font-bold text-slate-900">{trainings.length}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">En Curso</p>
+            <p className="text-2xl font-bold text-emerald-600">
               {trainings.filter(t => t.estado === 'en_curso').length}
             </p>
-          </div>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Planificadas</p>
-            <p className="text-2xl font-bold">
+          </CardContent>
+        </Card>
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">Planificadas</p>
+            <p className="text-2xl font-bold text-amber-600">
               {trainings.filter(t => t.estado === 'planificada').length}
             </p>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600">Completadas</p>
-            <p className="text-2xl font-bold">
+          </CardContent>
+        </Card>
+        <Card className="border-slate-200 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-slate-500 font-medium">Completadas</p>
+            <p className="text-2xl font-bold text-slate-600">
               {trainings.filter(t => t.estado === 'completada').length}
             </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
         {/* Lista de Capacitaciones */}
         {filteredTrainings.length === 0 ? (
@@ -259,7 +273,6 @@ export function TrainingListing() {
             />
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   );
 }

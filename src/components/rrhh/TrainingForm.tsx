@@ -1,20 +1,20 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Training } from '@/types/rrhh';
 import { useState } from 'react';
 import { CompetenceSelector } from './CompetenceSelector';
-import { Checkbox } from '@/components/ui/checkbox';
 
 interface TrainingFormProps {
   training?: Training;
@@ -211,12 +211,20 @@ export function TrainingForm({
       </div>
 
       {/* Botones */}
-      <div className="flex gap-2 pt-4">
-        <Button type="submit" className="flex-1">
-          {training ? 'Actualizar' : 'Crear'} Capacitación
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="border-slate-200 text-slate-700 hover:bg-slate-50"
+        >
           Cancelar
+        </Button>
+        <Button 
+          type="submit"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+        >
+          {training ? 'Actualizar' : 'Crear'} Capacitación
         </Button>
       </div>
     </form>

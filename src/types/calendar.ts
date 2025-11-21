@@ -8,6 +8,7 @@ export type EventType =
   | 'audit'
   | 'document_expiry'
   | 'action_deadline'
+  | 'finding_deadline'
   | 'training'
   | 'evaluation'
   | 'meeting'
@@ -19,6 +20,8 @@ export type SourceModule =
   | 'actions'
   | 'trainings'
   | 'evaluations'
+  | 'findings'
+  | 'meetings'
   | 'custom';
 
 export type EventStatus =

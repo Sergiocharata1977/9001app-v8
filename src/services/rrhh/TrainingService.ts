@@ -1,24 +1,25 @@
 import { db } from '@/lib/firebase';
+import { EventPublisher } from '@/services/calendar/EventPublisher';
 import {
-  PaginatedResponse,
-  PaginationParams,
-  PerformanceEvaluation,
-  Training,
-  TrainingFilters,
+    PaginatedResponse,
+    PaginationParams,
+    PerformanceEvaluation,
+    Training,
+    TrainingFilters,
 } from '@/types/rrhh';
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    Timestamp,
+    updateDoc,
+    where,
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'trainings';
@@ -177,12 +178,39 @@ export class TrainingService {
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), docData);
 
-      return {
-        id: docRef.id,
+      const trainingId = docRef.id;
+      const training: Training = {
+        id: trainingId,
         ...data,
         created_at: now.toDate(),
         updated_at: now.toDate(),
       };
+
+      // Publicar evento en el calendario
+      try {
+        await EventPublisher.publishEvent('trainings', {
+          title: `Capacitación: ${data.tema}`,
+          description: data.descripcion || '',
+          date: data.fecha_inicio,
+          endDate: data.fecha_fin,
+          type: 'training',
+          sourceRecordId: trainingId,
+          sourceRecordType: 'training',
+          priority: 'medium',
+          participantIds: data.participantes || [],
+          metadata: {
+            trainingId,
+            modalidad: data.modalidad,
+            horas: data.horas,
+            proveedor: data.proveedor,
+            estado: data.estado,
+          },
+        });
+      } catch (error) {
+        console.error('Error publishing training event:', error);
+      }
+
+      return training;
     } catch (error) {
       console.error('Error creating training:', error);
       throw new Error('Error al crear capacitación');
@@ -220,6 +248,21 @@ export class TrainingService {
         throw new Error('Capacitación no encontrada después de actualizar');
       }
 
+      // Actualizar evento en el calendario si cambió fecha o estado
+      if (data.fecha_inicio || data.fecha_fin || data.estado) {
+        try {
+          await EventPublisher.updatePublishedEvent('trainings', id, {
+            date: data.fecha_inicio,
+            endDate: data.fecha_fin,
+            metadata: {
+              estado: data.estado,
+            },
+          });
+        } catch (error) {
+          console.error('Error updating training event:', error);
+        }
+      }
+
       return updated;
     } catch (error) {
       console.error('Error updating training:', error);
@@ -231,6 +274,13 @@ export class TrainingService {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       await deleteDoc(docRef);
+
+      // Eliminar evento del calendario
+      try {
+        await EventPublisher.deletePublishedEvent('trainings', id);
+      } catch (error) {
+        console.error('Error deleting training event:', error);
+      }
     } catch (error) {
       console.error('Error deleting training:', error);
       throw new Error('Error al eliminar capacitación');

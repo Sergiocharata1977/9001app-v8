@@ -3,20 +3,21 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/PageHeader';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from '@/components/ui/table';
 import { Document, DocumentStatus } from '@/types/documents';
 import { Download, Edit, Grid, List, Plus, Search, Trash2 } from 'lucide-react';
@@ -124,21 +125,43 @@ export function DocumentsList() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header */}
+      <PageHeader
+        title="Gestión de Documentos"
+        description="Administra la documentación del sistema de gestión"
+        breadcrumbs={[
+          { label: 'Inicio', href: '/dashboard' },
+          { label: 'Documentos' },
+        ]}
+        actions={
+          <Button
+            onClick={() => {
+              setEditingDocument(null);
+              setIsFormOpen(true);
+            }}
+            className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Documento
+          </Button>
+        }
+      />
+
       {/* Barra de herramientas */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-4 h-6 w-6 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Buscar por código o título..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="pl-12 h-14 text-lg border-0 shadow-md shadow-green-200/50 focus:shadow-lg focus:shadow-green-300/60"
+            className="pl-9 h-10 bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
+          <SelectTrigger className="w-[180px] h-10 bg-slate-50 border-slate-200">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
@@ -152,7 +175,7 @@ export function DocumentsList() {
         </Select>
 
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
+          <SelectTrigger className="w-[180px] h-10 bg-slate-50 border-slate-200">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -167,74 +190,72 @@ export function DocumentsList() {
           </SelectContent>
         </Select>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1 border border-slate-200 rounded-md p-1 bg-slate-50">
           <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
+            className={viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}
           >
             <List className="h-4 w-4" />
           </Button>
           <Button
-            variant={viewMode === 'cards' ? 'default' : 'outline'}
+            variant={viewMode === 'cards' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('cards')}
+            className={viewMode === 'cards' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}
           >
             <Grid className="h-4 w-4" />
           </Button>
         </div>
-
-        <Button
-          onClick={() => {
-            setEditingDocument(null);
-            setIsFormOpen(true);
-          }}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Documento
-        </Button>
       </div>
 
       {/* Vista Lista o Tarjetas */}
       {loading ? (
-        <div className="text-center py-8">Cargando documentos...</div>
+        <div className="text-center py-12">
+           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+           <p className="text-slate-500">Cargando documentos...</p>
+        </div>
       ) : viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredDocuments.length === 0 ? (
-            <div className="col-span-full text-center py-8">
-              No se encontraron documentos
+            <div className="col-span-full text-center py-12 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50/50">
+              <p className="text-slate-500">No se encontraron documentos</p>
             </div>
           ) : (
             filteredDocuments.map(doc => (
               <div
                 key={doc.id}
-                className="bg-white rounded-lg shadow-md shadow-green-100 hover:shadow-lg hover:shadow-green-200 cursor-pointer transition-all duration-200 p-4"
+                className="bg-white rounded-xl shadow-sm hover:shadow-md hover:border-emerald-200 border border-slate-200 cursor-pointer transition-all duration-200 p-5 group"
                 onClick={() => {
                   window.location.href = `/documentos/${doc.id}`;
                 }}
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm mb-1">{doc.title}</h3>
-                    <p className="text-xs text-gray-500">{doc.code}</p>
+                    <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-emerald-700 transition-colors line-clamp-1">{doc.title}</h3>
+                    <p className="text-xs font-mono text-slate-500 bg-slate-100 inline-block px-2 py-0.5 rounded">{doc.code}</p>
                   </div>
                   <div onClick={e => e.stopPropagation()}>
                     {getStatusBadge(doc.status)}
                   </div>
                 </div>
 
-                <div className="space-y-2 text-xs text-gray-600">
-                  <div className="flex justify-between">
-                    <span className="capitalize">{doc.type}</span>
-                    <span>v{doc.version}</span>
+                <div className="space-y-2 text-sm text-slate-600 mb-4">
+                  <div className="flex justify-between items-center">
+                    <span className="capitalize flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      {doc.type}
+                    </span>
+                    <span className="font-medium bg-slate-100 px-2 py-0.5 rounded text-xs">v{doc.version}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center text-xs text-slate-500">
                     <span>{doc.download_count} descargas</span>
                   </div>
                 </div>
 
                 <div
-                  className="flex gap-2 mt-3 pt-3 border-t"
+                  className="flex gap-2 pt-4 border-t border-slate-100"
                   onClick={e => e.stopPropagation()}
                 >
                   {doc.file_path && (
@@ -243,7 +264,7 @@ export function DocumentsList() {
                       size="sm"
                       onClick={() => handleDownload(doc.id)}
                       title="Descargar"
-                      className="flex-1"
+                      className="flex-1 h-8 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
                     >
                       <Download className="h-4 w-4" />
                     </Button>
@@ -256,7 +277,7 @@ export function DocumentsList() {
                       setIsFormOpen(true);
                     }}
                     title="Editar"
-                    className="flex-1"
+                    className="flex-1 h-8 text-slate-600 hover:text-blue-600 hover:bg-blue-50"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -265,7 +286,7 @@ export function DocumentsList() {
                     size="sm"
                     onClick={() => handleDelete(doc.id)}
                     title="Eliminar"
-                    className="flex-1"
+                    className="flex-1 h-8 text-slate-600 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -275,23 +296,23 @@ export function DocumentsList() {
           )}
         </div>
       ) : (
-        <div className="rounded-lg shadow-md shadow-green-200/50 overflow-hidden bg-white">
+        <div className="rounded-lg border border-slate-200 shadow-sm overflow-hidden bg-white">
           <Table>
             <TableHeader>
-              <TableRow className="border-0 bg-gray-50/50">
-                <TableHead className="border-0">Código</TableHead>
-                <TableHead className="border-0">Título</TableHead>
-                <TableHead className="border-0">Tipo</TableHead>
-                <TableHead className="border-0">Estado</TableHead>
-                <TableHead className="border-0">Versión</TableHead>
-                <TableHead className="border-0">Descargas</TableHead>
-                <TableHead className="text-right border-0">Acciones</TableHead>
+              <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-200">
+                <TableHead className="font-semibold text-slate-700">Código</TableHead>
+                <TableHead className="font-semibold text-slate-700">Título</TableHead>
+                <TableHead className="font-semibold text-slate-700">Tipo</TableHead>
+                <TableHead className="font-semibold text-slate-700">Estado</TableHead>
+                <TableHead className="font-semibold text-slate-700">Versión</TableHead>
+                <TableHead className="font-semibold text-slate-700">Descargas</TableHead>
+                <TableHead className="text-right font-semibold text-slate-700">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDocuments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-12 text-slate-500">
                     No se encontraron documentos
                   </TableCell>
                 </TableRow>
@@ -299,34 +320,35 @@ export function DocumentsList() {
                 filteredDocuments.map(doc => (
                   <TableRow
                     key={doc.id}
-                    className="hover:bg-green-50/30 cursor-pointer transition-colors border-0 border-b border-gray-100 last:border-0"
+                    className="hover:bg-slate-50/50 cursor-pointer transition-colors border-b border-slate-100 last:border-0"
                     onClick={() => {
                       window.location.href = `/documentos/${doc.id}`;
                     }}
                   >
-                    <TableCell className="font-medium border-0">
+                    <TableCell className="font-medium font-mono text-sm text-slate-600">
                       {doc.code}
                     </TableCell>
-                    <TableCell className="border-0">{doc.title}</TableCell>
-                    <TableCell className="capitalize border-0">
+                    <TableCell className="font-medium text-slate-900">{doc.title}</TableCell>
+                    <TableCell className="capitalize text-slate-600">
                       {doc.type}
                     </TableCell>
-                    <TableCell className="border-0">
+                    <TableCell>
                       {getStatusBadge(doc.status)}
                     </TableCell>
-                    <TableCell className="border-0">{doc.version}</TableCell>
-                    <TableCell className="border-0">
+                    <TableCell className="text-slate-600">v{doc.version}</TableCell>
+                    <TableCell className="text-slate-600">
                       {doc.download_count}
                     </TableCell>
                     <TableCell
-                      className="text-right border-0"
+                      className="text-right"
                       onClick={e => e.stopPropagation()}
                     >
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
                         {doc.file_path && (
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
+                            className="h-8 w-8 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50"
                             onClick={() => handleDownload(doc.id)}
                             title="Descargar archivo"
                           >
@@ -335,7 +357,8 @@ export function DocumentsList() {
                         )}
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
+                          className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
                           onClick={() => {
                             setEditingDocument(doc);
                             setIsFormOpen(true);
@@ -346,7 +369,8 @@ export function DocumentsList() {
                         </Button>
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
+                          className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50"
                           onClick={() => handleDelete(doc.id)}
                           title="Eliminar"
                         >

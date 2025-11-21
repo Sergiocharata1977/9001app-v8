@@ -3,23 +3,23 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Personnel } from '@/types/rrhh';
 import {
-  Briefcase,
-  CheckCircle2,
-  Edit,
-  Eye,
-  Mail,
-  MapPin,
-  MoreHorizontal,
-  Phone,
-  Trash2,
-  User,
+    Briefcase,
+    CheckCircle2,
+    Edit,
+    Eye,
+    Mail,
+    MapPin,
+    MoreHorizontal,
+    Phone,
+    Trash2,
+    User,
 } from 'lucide-react';
 
 interface PersonnelCardProps {
@@ -70,7 +70,7 @@ export function PersonnelCard({
 
   return (
     <Card
-      className="bg-white shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer transition-all duration-200 rounded-xl border-0"
+      className="bg-white shadow-sm hover:shadow-md hover:border-emerald-200 cursor-pointer transition-all duration-200 rounded-xl border border-slate-200 group"
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
@@ -85,7 +85,7 @@ export function PersonnelCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <Avatar className="w-12 h-12">
+            <Avatar className="w-12 h-12 border-2 border-white shadow-sm">
               <AvatarImage
                 src={personnel.foto || '/placeholder.svg'}
                 alt={`${personnel.nombres} ${personnel.apellidos}`}
@@ -95,11 +95,11 @@ export function PersonnelCard({
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-lg">
+              <CardTitle className="text-lg font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors">
                 {personnel.nombres} {personnel.apellidos}
               </CardTitle>
               <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-slate-200 text-slate-500">
                   {personnel.id}
                 </Badge>
               </div>

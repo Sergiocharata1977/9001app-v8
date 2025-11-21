@@ -3,20 +3,21 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/PageHeader';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from '@/components/ui/table';
 import { NormPoint } from '@/types/normPoints';
 import { Edit, Grid, List, Plus, Search, Trash2 } from 'lucide-react';
@@ -119,21 +120,70 @@ export function NormPointsList() {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Barra de herramientas */}
-      <div className="flex flex-col sm:flex-row gap-4">
+    <div className="space-y-6">
+      <PageHeader
+        title="Puntos Normativos"
+        description="Gestión de requisitos normativos ISO 9001 y otros estándares"
+        breadcrumbs={[
+          { label: 'Inicio', href: '/dashboard' },
+          { label: 'Puntos Normativos' },
+        ]}
+        actions={
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                if (
+                  confirm(
+                    '¿Cargar todos los puntos de ISO 9001:2015? (Solo se crearán los que no existan)'
+                  )
+                ) {
+                  try {
+                    const response = await fetch('/api/seed/iso-9001', {
+                      method: 'POST',
+                    });
+                    const data = await response.json();
+                    alert(
+                      `${data.message}\nCreados: ${data.created}\nOmitidos: ${data.skipped}`
+                    );
+                    fetchNormPoints();
+                  } catch {
+                    alert('Error al cargar puntos ISO 9001');
+                  }
+                }
+              }}
+              className="border-slate-200 text-slate-700 hover:bg-slate-50"
+            >
+              📘 Cargar ISO 9001
+            </Button>
+            <Button
+              onClick={() => {
+                setEditingNormPoint(null);
+                setIsFormOpen(true);
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Punto
+            </Button>
+          </div>
+        }
+      />
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-4 h-6 w-6 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Buscar por código, título o descripción..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="pl-12 h-14 text-lg border-0 shadow-md shadow-green-200/50 focus:shadow-lg focus:shadow-green-300/60"
+            className="pl-9 h-10 bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
 
         <Select value={chapterFilter} onValueChange={setChapterFilter}>
-          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
+          <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200">
             <SelectValue placeholder="Capítulo" />
           </SelectTrigger>
           <SelectContent>
@@ -149,7 +199,7 @@ export function NormPointsList() {
         </Select>
 
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[180px] h-14 border-0 shadow-md shadow-green-200/50">
+          <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200">
             <SelectValue placeholder="Prioridad" />
           </SelectTrigger>
           <SelectContent>
@@ -160,63 +210,29 @@ export function NormPointsList() {
           </SelectContent>
         </Select>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1 border border-slate-200 rounded-md p-1 bg-slate-50">
           <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
+            className={viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}
           >
             <List className="h-4 w-4" />
           </Button>
           <Button
-            variant={viewMode === 'cards' ? 'default' : 'outline'}
+            variant={viewMode === 'cards' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('cards')}
+            className={viewMode === 'cards' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}
           >
             <Grid className="h-4 w-4" />
           </Button>
         </div>
-
-        <Button
-          variant="outline"
-          onClick={async () => {
-            if (
-              confirm(
-                '¿Cargar todos los puntos de ISO 9001:2015? (Solo se crearán los que no existan)'
-              )
-            ) {
-              try {
-                const response = await fetch('/api/seed/iso-9001', {
-                  method: 'POST',
-                });
-                const data = await response.json();
-                alert(
-                  `${data.message}\nCreados: ${data.created}\nOmitidos: ${data.skipped}`
-                );
-                fetchNormPoints();
-              } catch {
-                alert('Error al cargar puntos ISO 9001');
-              }
-            }
-          }}
-        >
-          📘 Cargar ISO 9001
-        </Button>
-
-        <Button
-          onClick={() => {
-            setEditingNormPoint(null);
-            setIsFormOpen(true);
-          }}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Punto
-        </Button>
       </div>
 
       {/* Contador de resultados */}
       {!loading && (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-slate-600">
           Mostrando {startIndex + 1}-
           {Math.min(endIndex, filteredNormPoints.length)} de{' '}
           {filteredNormPoints.length} puntos
@@ -225,18 +241,18 @@ export function NormPointsList() {
 
       {/* Vista Lista o Tarjetas */}
       {loading ? (
-        <div className="text-center py-8">Cargando puntos de norma...</div>
+        <div className="text-center py-8 text-slate-600">Cargando puntos de norma...</div>
       ) : viewMode === 'cards' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {paginatedNormPoints.length === 0 ? (
-            <div className="col-span-full text-center py-8">
+            <div className="col-span-full text-center py-8 text-slate-600">
               No se encontraron puntos de norma
             </div>
           ) : (
             paginatedNormPoints.map(np => (
               <div
                 key={np.id}
-                className="bg-white rounded-lg shadow-md shadow-green-100 hover:shadow-lg hover:shadow-green-200 cursor-pointer transition-all duration-200 p-4"
+                className="bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-200 cursor-pointer transition-all duration-200 p-4"
                 onClick={() => {
                   window.location.href = `/puntos-norma/${np.id}`;
                 }}
@@ -244,18 +260,18 @@ export function NormPointsList() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-blue-600">{np.code}</span>
+                      <span className="font-bold text-emerald-600">{np.code}</span>
                       {np.is_mandatory && (
                         <Badge variant="destructive" className="text-xs">
                           Obligatorio
                         </Badge>
                       )}
                     </div>
-                    <h3 className="font-semibold text-sm">{np.title}</h3>
+                    <h3 className="font-semibold text-sm text-slate-900">{np.title}</h3>
                   </div>
                 </div>
 
-                <div className="space-y-2 text-xs text-gray-600">
+                <div className="space-y-2 text-xs text-slate-600">
                   <div className="flex justify-between items-center">
                     <span className="capitalize">
                       {np.tipo_norma.replace('_', ' ')}
@@ -273,7 +289,7 @@ export function NormPointsList() {
                 </div>
 
                 <div
-                  className="flex gap-2 mt-3 pt-3 border-t"
+                  className="flex gap-2 mt-3 pt-3 border-t border-slate-100"
                   onClick={e => e.stopPropagation()}
                 >
                   <Button
@@ -284,7 +300,7 @@ export function NormPointsList() {
                       setIsFormOpen(true);
                     }}
                     title="Editar"
-                    className="flex-1"
+                    className="flex-1 hover:bg-slate-50"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -293,7 +309,7 @@ export function NormPointsList() {
                     size="sm"
                     onClick={() => handleDelete(np.id)}
                     title="Eliminar"
-                    className="flex-1"
+                    className="flex-1 hover:bg-red-50 hover:text-red-600"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -303,23 +319,23 @@ export function NormPointsList() {
           )}
         </div>
       ) : (
-        <div className="rounded-lg shadow-md shadow-green-200/50 overflow-hidden bg-white">
+        <div className="rounded-lg border border-slate-200 shadow-sm overflow-hidden bg-white">
           <Table>
             <TableHeader>
-              <TableRow className="border-0 bg-gray-50/50">
-                <TableHead className="border-0">Código</TableHead>
-                <TableHead className="border-0">Título</TableHead>
-                <TableHead className="border-0">Tipo</TableHead>
-                <TableHead className="border-0">Capítulo</TableHead>
-                <TableHead className="border-0">Prioridad</TableHead>
-                <TableHead className="border-0">Obligatorio</TableHead>
-                <TableHead className="text-right border-0">Acciones</TableHead>
+              <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-200">
+                <TableHead className="font-semibold text-slate-700">Código</TableHead>
+                <TableHead className="font-semibold text-slate-700">Título</TableHead>
+                <TableHead className="font-semibold text-slate-700">Tipo</TableHead>
+                <TableHead className="font-semibold text-slate-700">Capítulo</TableHead>
+                <TableHead className="font-semibold text-slate-700">Prioridad</TableHead>
+                <TableHead className="font-semibold text-slate-700">Obligatorio</TableHead>
+                <TableHead className="text-right font-semibold text-slate-700">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedNormPoints.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-600">
                     No se encontraron puntos de norma
                   </TableCell>
                 </TableRow>
@@ -327,25 +343,25 @@ export function NormPointsList() {
                 paginatedNormPoints.map(np => (
                   <TableRow
                     key={np.id}
-                    className="hover:bg-green-50/30 cursor-pointer transition-colors border-0 border-b border-gray-100 last:border-0"
+                    className="hover:bg-slate-50/50 cursor-pointer transition-colors border-b border-slate-100 last:border-0"
                     onClick={() => {
                       window.location.href = `/puntos-norma/${np.id}`;
                     }}
                   >
-                    <TableCell className="font-medium border-0">
+                    <TableCell className="font-medium text-emerald-600">
                       {np.code}
                     </TableCell>
-                    <TableCell className="border-0">{np.title}</TableCell>
-                    <TableCell className="capitalize border-0">
+                    <TableCell className="text-slate-900">{np.title}</TableCell>
+                    <TableCell className="capitalize text-slate-600">
                       {np.tipo_norma.replace('_', ' ')}
                     </TableCell>
-                    <TableCell className="border-0">
+                    <TableCell className="text-slate-600">
                       {np.chapter || '-'}
                     </TableCell>
-                    <TableCell className="border-0">
+                    <TableCell>
                       {getPriorityBadge(np.priority)}
                     </TableCell>
-                    <TableCell className="border-0">
+                    <TableCell>
                       {np.is_mandatory ? (
                         <Badge variant="destructive">Sí</Badge>
                       ) : (
@@ -353,7 +369,7 @@ export function NormPointsList() {
                       )}
                     </TableCell>
                     <TableCell
-                      className="text-right border-0"
+                      className="text-right"
                       onClick={e => e.stopPropagation()}
                     >
                       <div className="flex justify-end gap-2">
@@ -365,6 +381,7 @@ export function NormPointsList() {
                             setIsFormOpen(true);
                           }}
                           title="Editar"
+                          className="hover:bg-slate-100"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -373,6 +390,7 @@ export function NormPointsList() {
                           size="sm"
                           onClick={() => handleDelete(np.id)}
                           title="Eliminar"
+                          className="hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

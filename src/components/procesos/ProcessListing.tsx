@@ -1,26 +1,26 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  Grid,
-  List,
-  Plus,
-  Search,
-  Filter,
-  FileText,
-  Edit,
-  Trash2,
-  Eye,
-  ToggleLeft,
-  ToggleRight,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ProcessDefinition } from '@/types/procesos';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProcessService } from '@/services/procesos/ProcessService';
+import { ProcessDefinition } from '@/types/procesos';
+import {
+    Edit,
+    Eye,
+    FileText,
+    Grid,
+    List,
+    Plus,
+    Search,
+    ToggleLeft,
+    ToggleRight,
+    Trash2
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface ProcessListingProps {
   onViewProcess?: (process: ProcessDefinition) => void;
@@ -442,74 +442,65 @@ export const ProcessListing: React.FC<ProcessListingProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Gestión de Procesos
-          </h2>
-          <p className="text-gray-600">
-            Administra las definiciones de procesos ISO 9001
-          </p>
+      <PageHeader
+        title="Gestión de Procesos"
+        description="Administra las definiciones de procesos ISO 9001"
+        breadcrumbs={[
+          { label: 'Inicio', href: '/dashboard' },
+          { label: 'Procesos' },
+        ]}
+        actions={
+          <Button
+            onClick={handleNewProcess}
+            className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Proceso
+          </Button>
+        }
+      />
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            type="text"
+            placeholder="Buscar procesos..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="pl-9 h-10 bg-slate-50 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+          />
         </div>
-        <Button
-          onClick={handleNewProcess}
-          className="bg-blue-600 hover:bg-blue-700"
+        <select
+          value={estadoFilter}
+          onChange={e =>
+            setEstadoFilter(e.target.value as 'activo' | 'inactivo' | '')
+          }
+          className="h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Proceso
-        </Button>
-      </div>
-
-      {/* Barra de búsqueda y filtros */}
-      <div className="bg-white shadow-md rounded-xl p-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Buscar procesos..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <select
-              value={estadoFilter}
-              onChange={e =>
-                setEstadoFilter(e.target.value as 'activo' | 'inactivo' | '')
-              }
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Todos los estados</option>
-              <option value="activo">Activos</option>
-              <option value="inactivo">Inactivos</option>
-            </select>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              Más Filtros
-            </Button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              <Grid className="mr-2 h-4 w-4" />
-              Tarjetas
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              <List className="mr-2 h-4 w-4" />
-              Tabla
-            </Button>
-          </div>
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="inactivo">Inactivos</option>
+        </select>
+        
+        <div className="flex gap-1 border border-slate-200 rounded-md p-1 bg-slate-50">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className={viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('grid')}
+            className={viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}
+          >
+            <Grid className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
